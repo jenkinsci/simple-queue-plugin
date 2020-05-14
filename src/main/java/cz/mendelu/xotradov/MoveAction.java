@@ -1,5 +1,6 @@
 package cz.mendelu.xotradov;
 
+import com.google.common.annotations.VisibleForTesting;
 import hudson.Extension;
 import hudson.model.Queue;
 import hudson.model.RootAction;
@@ -77,7 +78,7 @@ public class MoveAction implements RootAction {
             throw new RuntimeException(e);
         }
     }
-
+    @VisibleForTesting
     public void moveDown(Queue.Item itemA, Queue queue) {
         Queue.Item[] items = queue.getItems();
         Queue.Item itemB = getItemAfter(itemA, items);
@@ -133,6 +134,7 @@ public class MoveAction implements RootAction {
         queue.getSorter().sortBuildableItems(queue.getBuildableItems());
     }
 
+    @VisibleForTesting
     public void moveUp(Queue.Item itemA, Queue queue) {
         Queue.Item[] items = queue.getItems();
         Queue.Item itemB = getItemBefore(itemA, items);

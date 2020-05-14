@@ -1,0 +1,15 @@
+@startuml
+title Move action
+participant "User\n with ADMINISTER perm." as User
+User-> Jenkins: Root page request
+Jenkins -> Jenkins: Parsing \nqueue/index.jelly
+Jenkins --> User: Response with queue data
+User -> Jenkins: Resources requests
+Jenkins --> User: Other resources (css,js,png)
+User -> Jenkins: Move Up item request
+Jenkins -> Jenkins: Add desire
+Jenkins -> Jenkins: Sort items
+User -> Jenkins: Root page request
+Jenkins -> Jenkins: Parsing \nqueue/index.jelly
+Jenkins --> User: Root page response
+@enduml

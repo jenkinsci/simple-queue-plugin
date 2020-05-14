@@ -1,0 +1,13 @@
+@startuml
+title Reset action
+participant "User\n with ADMINISTER perm." as User
+User -> Jenkins: ...
+Jenkins -->User: ...
+User -> User: Reset action
+User -> Jenkins: Confirmed reset action
+Jenkins -> Jenkins: Deleting desires
+Jenkins -> Jenkins: Default sort
+User -> Jenkins: Updated root page request
+Jenkins -> Jenkins: Parsing \nqueue/index.jelly
+Jenkins --> User: Root page response
+@enduml

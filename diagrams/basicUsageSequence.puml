@@ -1,0 +1,13 @@
+@startuml
+title Reading queue
+participant "User\n with READ perm." as User
+User-> Jenkins: Root page request
+Jenkins -> Jenkins: Parsing \nqueue/index.jelly
+Jenkins --> User: Response with queue data
+User -> Jenkins: Resources requests
+Jenkins --> User: Other resources (css,js,png)
+...5 seconds later...
+User -> Jenkins: Ajax Build Queue request
+Jenkins -> Jenkins: Parsing \najaxBuildQueue.jelly
+Jenkins --> User: Response with new build queue
+@enduml

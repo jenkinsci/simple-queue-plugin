@@ -1,0 +1,11 @@
+@startuml
+left to right direction
+:Item Manager: <|- Admin
+:Basic User: <|- :Item Manager:
+:Basic User: --> (show item)
+:Basic User: --> (filter queue)
+:Item Manager: --> (cancel item)
+:Admin: --> (reset plugin)
+:Admin: --> (raise priority)
+:Admin: --> (lower priority)
+@enduml

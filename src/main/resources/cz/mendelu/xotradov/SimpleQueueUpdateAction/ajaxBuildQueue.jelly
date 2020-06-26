@@ -65,6 +65,17 @@
                                 <j:if test="${h.hasPermission(app.ADMINISTER)}">
                                     <j:if test="${!filtered}">
                                         <j:if test="${buildable}">
+                                            <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP_FAST&amp;${it.getItemIdName()}=${item.id}">
+                                                <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_up_fast_16.png"/>
+                                            </a>
+                                        </j:if>
+                                    </j:if>
+                                </j:if>
+                            </td>
+                            <td class="pane" width="16" align="center" valign="middle">
+                                <j:if test="${h.hasPermission(app.ADMINISTER)}">
+                                    <j:if test="${!filtered}">
+                                        <j:if test="${buildable}">
                                             <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP&amp;${it.getItemIdName()}=${item.id}">
                                                 <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_up_16.png"/>
                                             </a>
@@ -78,6 +89,17 @@
                                         <j:if test="${buildable}">
                                             <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN&amp;${it.getItemIdName()}=${item.id}">
                                                 <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_down_16.png"/>
+                                            </a>
+                                        </j:if>
+                                    </j:if>
+                                </j:if>
+                            </td>
+                            <td class="pane" width="16" align="center" valign="middle">
+                                <j:if test="${h.hasPermission(app.ADMINISTER)}">
+                                    <j:if test="${!filtered}">
+                                        <j:if test="${buildable}">
+                                            <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN_FAST&amp;${it.getItemIdName()}=${item.id}">
+                                                <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_down_fast_16.png"/>
                                             </a>
                                         </j:if>
                                     </j:if>

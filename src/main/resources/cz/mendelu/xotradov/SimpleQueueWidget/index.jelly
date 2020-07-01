@@ -71,11 +71,9 @@
                         <td class="pane" width="16" align="center" valign="middle">
                             <j:if test="${h.hasPermission(app.ADMINISTER)}">
                                 <j:if test="${buildable}">
-                                    <j:if test="${!filtered}">
                                         <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP_FAST&amp;${it.getItemIdName()}=${item.id}">
                                             <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_up_fast_16.png"/>
                                         </a>
-                                    </j:if>
                                 </j:if>
                             </j:if>
                         </td>
@@ -104,11 +102,9 @@
                         <td class="pane" width="16" align="center" valign="middle">
                             <j:if test="${h.hasPermission(app.ADMINISTER)}">
                                 <j:if test="${buildable}">
-                                    <j:if test="${!filtered}">
                                         <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN_FAST&amp;${it.getItemIdName()}=${item.id}">
                                             <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_down_fast_16.png"/>
                                         </a>
-                                    </j:if>
                                 </j:if>
                             </j:if>
                         </td>
@@ -130,7 +126,8 @@
             if(it==null)    return false;
             return Stapler.getCurrentRequest().getView(it,path)!=null;
             } h.hasView(view,'ajaxBuildQueue') -->
-            refreshPart('buildSimpleQueue',"${rootURL}/${filtered?view.url:'updateQueue/'}ajaxBuildQueue");
+            <!-- return view.getQueueItems();-->
+            refreshPart('buildSimpleQueue',"${rootURL}/updateQueue/ajaxBuildQueue?name=${view.viewName}");
         </script>
     </j:if>
 </j:jelly>

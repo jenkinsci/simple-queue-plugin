@@ -33,10 +33,14 @@ public class SimpleQueueUpdateAction implements RootAction {
             return null;
         }else {
             View view = Jenkins.get().getView(Stapler.getCurrentRequest().getParameter("name"));
-            Collection<Queue.Item> x = view.getQueueItems();
-            return x.toArray(new Queue.Item[x.size()]);
+            Collection<Queue.Item> x;
+            if (view != null) {
+                x = view.getQueueItems();
+                return x.toArray(new Queue.Item[x.size()]);
+            }else {
+                return null;
+            }
         }
-
     }
     @Restricted(NoExternalUse.class) // Jelly
     public boolean isFilterQueue(){
@@ -44,7 +48,7 @@ public class SimpleQueueUpdateAction implements RootAction {
             return false;
         }else {
             View view = Jenkins.get().getView(Stapler.getCurrentRequest().getParameter("name"));
-            return view.isFilterQueue();
+            return view != null && view.isFilterQueue();
         }
     }
     public String getIconFileName() {
@@ -59,7 +63,5 @@ public class SimpleQueueUpdateAction implements RootAction {
         }else {
             return null;
         }
-
     }
-
 }

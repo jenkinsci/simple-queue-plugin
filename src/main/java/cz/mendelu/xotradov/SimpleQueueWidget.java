@@ -1,10 +1,7 @@
 package cz.mendelu.xotradov;
 
 import hudson.Extension;
-import hudson.model.Queue;
-import hudson.model.View;
 import hudson.widgets.Widget;
-import jenkins.model.Jenkins;
 
 import java.util.logging.Logger;
 

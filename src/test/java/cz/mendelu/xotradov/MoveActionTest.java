@@ -15,7 +15,6 @@ import java.util.List;
 import static cz.mendelu.xotradov.MoveAction.ITEM_ID_PARAM_NAME;
 import static cz.mendelu.xotradov.MoveAction.MOVE_TYPE_PARAM_NAME;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MoveActionTest {
@@ -111,6 +110,7 @@ public class MoveActionTest {
             }
             Queue queue = jenkinsRule.jenkins.getQueue();
             assertEquals(C.getDisplayName(),queue.getItems()[2].task.getDisplayName());
+            assert moveAction != null;
             moveAction.moveToTop(C.getQueueItem(),queue);
             queue.maintain();
             assertEquals(C.getDisplayName(),queue.getItems()[0].task.getDisplayName());
@@ -136,6 +136,7 @@ public class MoveActionTest {
             }
             Queue queue = jenkinsRule.jenkins.getQueue();
             assertEquals(E.getDisplayName(),queue.getItems()[0].task.getDisplayName());
+            assert moveAction != null;
             moveAction.moveToBottom(C.getQueueItem(),queue);
             queue.maintain();
             assertEquals(C.getDisplayName(),queue.getItems()[2].task.getDisplayName());

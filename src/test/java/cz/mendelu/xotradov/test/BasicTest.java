@@ -3,23 +3,13 @@ package cz.mendelu.xotradov.test;
 import cz.mendelu.xotradov.MoveAction;
 import cz.mendelu.xotradov.SimpleQueueWidget;
 import hudson.model.*;
-import hudson.model.queue.CauseOfBlockage;
 import hudson.model.queue.QueueTaskFuture;
-import hudson.search.Search;
-import hudson.search.SearchIndex;
-import hudson.security.ACL;
 import hudson.widgets.Widget;
 import jenkins.model.Jenkins;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-import org.jvnet.hudson.test.SleepBuilder;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
@@ -31,7 +21,7 @@ public class BasicTest {
     private TestHelper helper = new TestHelper(jenkinsRule);
 
     @Test
-    public void widgetPresenceTest() throws Exception {
+    public void widgetPresenceTest(){
         boolean presence = false;
         for (Widget widget1: jenkinsRule.jenkins.getWidgets()){
             if (widget1 instanceof SimpleQueueWidget) {
@@ -44,7 +34,7 @@ public class BasicTest {
     @Test
     public void oneBuildSuccessTest() throws Exception {
         FreeStyleProject projectA = helper.createProject("projectA",1000);
-        QueueTaskFuture futureA = helper.schedule(projectA);
+        QueueTaskFuture<FreeStyleBuild> futureA = helper.schedule(projectA);
         while (!Queue.getInstance().getBuildableItems().isEmpty()) {
             Thread.sleep(10);
         }
@@ -56,13 +46,9 @@ public class BasicTest {
         helper.fillQueueFor(20000);
         Queue queue = Queue.getInstance();
         //now can be queue filled predictably
-        FreeStyleProject projectC = helper.createProject("projectC", 20000);
-        QueueTaskFuture futureC = helper.schedule(projectC);
-        FreeStyleProject projectD = helper.createProject("projectD",20000);
-        QueueTaskFuture futureD = helper.schedule(projectD);
-        while (queue.getBuildableItems().size() != 2){
-            Thread.sleep(5);
-        }
+        FreeStyleProject projectC = helper.createAndSchedule("projectC", 20000);
+        FreeStyleProject projectD = helper.createAndSchedule("projectD",20000);
+        queue.maintain();
         assertEquals(projectD.getDisplayName(),queue.getItems()[0].task.getDisplayName());
         assertEquals(projectC.getDisplayName(),queue.getItems()[1].task.getDisplayName());
         assertTrue(jenkinsRule.jenkins.hasPermission(Jenkins.ADMINISTER));
@@ -80,10 +66,8 @@ public class BasicTest {
         helper.fillQueueFor(20000);
         Queue queue = Queue.getInstance();
         //now can be queue filled predictably
-        FreeStyleProject projectC = helper.createProject("projectC", 20000);
-        QueueTaskFuture futureC = helper.schedule(projectC);
-        FreeStyleProject projectD = helper.createProject("projectD",20000);
-        QueueTaskFuture futureD = helper.schedule(projectD);
+        FreeStyleProject projectC = helper.createAndSchedule("projectC", 20000);
+        FreeStyleProject projectD = helper.createAndSchedule("projectD",20000);
         while (queue.getBuildableItems().size() != 2){
             Thread.sleep(5);
         }
@@ -104,10 +88,8 @@ public class BasicTest {
         helper.fillQueueFor(20000);
         Queue queue = Queue.getInstance();
         //now can be queue filled predictably
-        FreeStyleProject projectC = helper.createProject("projectC", 20000);
-        QueueTaskFuture futureC = helper.schedule(projectC);
-        FreeStyleProject projectD = helper.createProject("projectD",20000);
-        QueueTaskFuture futureD = helper.schedule(projectD);
+        FreeStyleProject projectC = helper.createAndSchedule("projectC", 20000);
+        FreeStyleProject projectD = helper.createAndSchedule("projectD",20000);
         while (queue.getBuildableItems().size() != 2){
             Thread.sleep(5);
         }

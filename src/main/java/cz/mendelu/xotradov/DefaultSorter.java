@@ -2,8 +2,6 @@ package cz.mendelu.xotradov;
 
 import hudson.model.Queue;
 import hudson.model.queue.AbstractQueueSorterImpl;
-import hudson.model.queue.QueueSorter;
-
 import java.io.Serializable;
 import java.util.List;
 

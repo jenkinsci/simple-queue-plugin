@@ -2,8 +2,6 @@ package cz.mendelu.xotradov;
 
 import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.FreeStyleProject;
-import hudson.model.queue.QueueSorter;
-import jenkins.model.Jenkins;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;

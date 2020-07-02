@@ -1,9 +1,6 @@
 package cz.mendelu.xotradov;
 
-import hudson.Extension;
 import hudson.model.Queue;
-import hudson.model.queue.QueueListener;
-
 import java.util.*;
 import java.util.logging.Logger;
 

@@ -1,7 +1,6 @@
 package cz.mendelu.xotradov;
 
 import hudson.Extension;
-import hudson.model.Queue;
 import hudson.model.RootAction;
 import hudson.model.queue.QueueSorter;
 import jenkins.model.Jenkins;

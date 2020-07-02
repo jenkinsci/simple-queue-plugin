@@ -16,8 +16,8 @@ public class TestHelper {
     public TestHelper(JenkinsRule r){
         this.r=r;
     }
-    public QueueTaskFuture schedule(FreeStyleProject projectA) throws Exception {
-        QueueTaskFuture futureA = projectA.scheduleBuild2(0);
+    public QueueTaskFuture<FreeStyleBuild> schedule(@Nonnull FreeStyleProject projectA) throws Exception {
+        QueueTaskFuture<FreeStyleBuild> futureA = projectA.scheduleBuild2(0);
         if (futureA == null) {
             throw new Exception("the task could not be scheduled");
         }

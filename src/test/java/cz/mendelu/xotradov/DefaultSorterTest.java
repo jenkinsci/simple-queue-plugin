@@ -1,11 +1,7 @@
 package cz.mendelu.xotradov;
 
-import cz.mendelu.xotradov.test.TestHelper;
-import hudson.model.FreeStyleProject;
 import hudson.model.Queue;
-import org.junit.Rule;
 import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -18,7 +14,7 @@ public class DefaultSorterTest {
 
 
     @Test
-    public void sortBuildableItems() throws Exception {
+    public void sortBuildableItems() {
         DefaultSorter sorter = new DefaultSorter();
         List<Queue.BuildableItem> list = new ArrayList<>();
         Queue.BuildableItem a = Mockito.mock(Queue.BuildableItem.class);

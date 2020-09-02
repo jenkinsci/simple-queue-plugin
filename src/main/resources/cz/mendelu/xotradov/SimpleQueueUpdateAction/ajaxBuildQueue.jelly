@@ -62,44 +62,38 @@
                                 </j:choose>
                             </td>
                             <j:set var="buildable" value="${item.isBuildable()}"/>
-                            <td class="pane" width="16" align="center" valign="middle">
-                                <j:if test="${h.hasPermission(app.ADMINISTER)}">
-                                        <j:if test="${buildable}">
-                                            <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP_FAST&amp;${it.getItemIdName()}=${item.id}&amp;viewName=${viewName}">
-                                                <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_up_fast_16.png"/>
-                                            </a>
-                                        </j:if>
-                                </j:if>
-                            </td>
-                            <td class="pane" width="16" align="center" valign="middle">
-                                <j:if test="${h.hasPermission(app.ADMINISTER)}">
-                                        <j:if test="${buildable}">
-                                            <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP&amp;${it.getItemIdName()}=${item.id}&amp;viewName=${viewName}">
-                                                <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_up_16.png"/>
-                                            </a>
-                                        </j:if>
-                                </j:if>
+                            <j:choose>
+                                <j:when test="${buildable and h.hasPermission(app.ADMINISTER)}">
+                                    <td class="pane" width="16" align="center" valign="middle">
+                                        <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP_FAST&amp;${it.getItemIdName()}=${item.id}&amp;viewName=${viewName}">
+                                            <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_up_fast_16.png"/>
+                                        </a>
+                                    </td>
+                                    <td class="pane" width="16" align="center" valign="middle">
+                                        <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP&amp;${it.getItemIdName()}=${item.id}&amp;viewName=${viewName}">
+                                            <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_up_16.png"/>
+                                        </a>
 
-                    </td>
-                            <td class="pane" width="16" align="center" valign="middle">
-                                <j:if test="${h.hasPermission(app.ADMINISTER)}">
-                                        <j:if test="${buildable}">
-                                            <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN&amp;${it.getItemIdName()}=${item.id}&amp;viewName=${viewName}">
-                                                <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_down_16.png"/>
-                                            </a>
-                                        </j:if>
-                                </j:if>
-                            </td>
-                            <td class="pane" width="16" align="center" valign="middle">
-                                <j:if test="${h.hasPermission(app.ADMINISTER)}">
-                                        <j:if test="${buildable}">
-                                            <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN_FAST&amp;${it.getItemIdName()}=${item.id}&amp;viewName=${viewName}">
-                                                <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_down_fast_16.png"/>
-                                            </a>
-                                        </j:if>
-                                </j:if>
+                                    </td>
+                                    <td class="pane" width="16" align="center" valign="middle">
+                                        <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN&amp;${it.getItemIdName()}=${item.id}&amp;viewName=${viewName}">
+                                            <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_down_16.png"/>
+                                        </a>
+                                    </td>
+                                    <td class="pane" width="16" align="center" valign="middle">
+                                        <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN_FAST&amp;${it.getItemIdName()}=${item.id}&amp;viewName=${viewName}">
+                                            <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_down_fast_16.png"/>
+                                        </a>
+                                    </td>
+                                </j:when>
+                                <j:otherwise>
+                                    <td class="pane" width="16" align="center" valign="middle"/>
+                                    <td class="pane" width="16" align="center" valign="middle"/>
+                                    <td class="pane" width="16" align="center" valign="middle"/>
+                                    <td class="pane" width="16" align="center" valign="middle"/>
+                                </j:otherwise>
+                            </j:choose>
 
-                        </td>
                             <td class="pane" width="16" align="center" valign="middle">
                                 <j:if test="${item.hasCancelPermission()}">
                                     <l:stopButton href="${rootURL}/queue/cancelItem?id=${item.id}" confirm="${%confirm(item.task.fullDisplayName)}" alt="${%cancel this build}"/>

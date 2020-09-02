@@ -54,7 +54,7 @@ public class SimpleQueueUpdateAction implements RootAction {
     @Restricted(NoExternalUse.class) // Jelly
     public String getViewName(){
         if (!Jenkins.get().hasPermission(Permission.READ)){
-            return "noReadPerm";
+            return "";
         }else {
             View view = Jenkins.get().getView(Stapler.getCurrentRequest().getParameter("name"));
             return view!=null?view.getViewName():"";

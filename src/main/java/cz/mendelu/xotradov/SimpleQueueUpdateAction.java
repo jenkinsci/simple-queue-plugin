@@ -51,6 +51,15 @@ public class SimpleQueueUpdateAction implements RootAction {
             return view != null && view.isFilterQueue();
         }
     }
+    @Restricted(NoExternalUse.class) // Jelly
+    public String getViewName(){
+        if (!Jenkins.get().hasPermission(Permission.READ)){
+            return "noReadPerm";
+        }else {
+            View view = Jenkins.get().getView(Stapler.getCurrentRequest().getParameter("name"));
+            return view!=null?view.getViewName():"";
+        }
+    }
     public String getIconFileName() {
         return null;
     }

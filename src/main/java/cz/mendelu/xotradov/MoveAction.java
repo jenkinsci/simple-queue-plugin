@@ -2,8 +2,7 @@ package cz.mendelu.xotradov;
 
 import com.google.common.annotations.VisibleForTesting;
 import hudson.Extension;
-import hudson.model.Queue;
-import hudson.model.RootAction;
+import hudson.model.*;
 import hudson.model.queue.QueueSorter;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest;
@@ -13,6 +12,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -26,6 +26,7 @@ public class MoveAction implements RootAction {
     private static Logger logger = Logger.getLogger(MoveAction.class.getName());
     public static final String MOVE_TYPE_PARAM_NAME= "moveType";
     public static final String ITEM_ID_PARAM_NAME="itemId";
+    public static final String VIEW_NAME_PARAM_NAME="viewName";
     private boolean isSorterSet=false;
     @CheckForNull
     @Override
@@ -57,10 +58,11 @@ public class MoveAction implements RootAction {
                 try {
                     Queue.Item item = queue.getItem(Long.parseLong(request.getParameter(ITEM_ID_PARAM_NAME)));
                     MoveType moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));
+                    View view = j.getView(request.getParameter(VIEW_NAME_PARAM_NAME));
                     if (item != null){
                         switch (moveType){
                             case UP_FAST:
-                                moveToTop(item,queue);
+                                moveToTop(item,queue,view);
                                 break;
                             case UP:
                                 moveUp(item,queue);
@@ -88,6 +90,99 @@ public class MoveAction implements RootAction {
         }
     }
 
+    private void moveToTop(@Nonnull Queue.Item item, @Nonnull Queue queue, @CheckForNull View view) {
+        if (view==null || !view.isFilterQueue()){
+            moveToTop(item,queue);
+        }else{
+            Queue.Item oldTopItem = getTop(view.getQueueItems());
+            if (oldTopItem!=null){
+                putAOnTopOfB(item,oldTopItem,queue);
+            }
+        }
+    }
+
+    @VisibleForTesting
+    public void putAOnTopOfB(@Nonnull Queue.Item itemA, @Nonnull Queue.Item itemB,@Nonnull Queue queue) {
+        Queue.Item[] items = queue.getItems();
+        List<Queue.Item> itemsC = getItemsBetween(itemA,itemB, items);
+            if (!isSorterSet){
+                setSorter(queue);
+            }
+            QueueSorter queueSorter = queue.getSorter();
+            if (queueSorter instanceof SimpleQueueSorter){
+                SimpleQueueComparator comparator = ((SimpleQueueSorter) queueSorter).getSimpleQueueComparator();
+                comparator.addDesire(itemB.getId(),itemA.getId());
+                for (Queue.Item itemC: itemsC){
+                    comparator.addDesire(itemC.getId(),itemA.getId());
+                }
+                resort(queue);
+            }
+    }
+
+    private List<Queue.Item> getItemsBetween(Queue.Item itemA, Queue.Item itemB, Queue.Item[] items) {
+        if (isABeforeB(itemA,itemB,items)){
+            return getItemsBetweenTopFirst(itemB,itemA,items);
+        }else {
+            return getItemsBetweenTopFirst(itemA,itemB,items);
+        }
+    }
+
+    ///We suppose that both items are in the queue present
+    private boolean isABeforeB(Queue.Item itemA, Queue.Item itemB, Queue.Item[] items) {
+        List<Queue.Item> itemsBefore = getItemsBefore(itemA,items);
+         for(Queue.Item item:itemsBefore){
+             if (item.getId()==itemB.getId()){
+                 return false;
+             }
+         }
+        return true;
+    }
+
+
+    private List<Queue.Item> getItemsBetweenTopFirst(Queue.Item topItem, Queue.Item bottomItem, Queue.Item[] items) {
+        List<Queue.Item> returnList = new ArrayList<>();
+        if (items.length > 2) {
+            boolean seenBottom = false;
+            boolean seenTop = false;
+            for (Queue.Item item:items){
+                if (!seenTop){
+                    if (item.getId()==bottomItem.getId()){
+                        seenBottom=true;
+                    }
+                    if (seenBottom){
+                        if (item.getId()==topItem.getId()){
+                            seenTop = true;
+                        }else {
+                            returnList.add(item);
+                        }
+                    }
+                }
+            }
+        }
+        return returnList;
+    }
+
+    /**
+     *
+     * @param items
+     * @return Returns last item from collection, in queue it has the least priority
+     */
+    @VisibleForTesting
+    public @CheckForNull Queue.Item getTop(Collection<Queue.Item> items) {
+        int size = items.size();
+        if (size>0){
+            for (int i = size; i > 1 ; i--) {
+                items.iterator().next();
+            }
+            return items.iterator().next();
+        }else {
+            return null;
+        }
+    }
+
+    /**
+     * @param itemA Item with least importance
+     */
     @VisibleForTesting
     public void moveToTop(@Nonnull Queue.Item itemA,@Nonnull Queue queue){
         Queue.Item[] items = queue.getItems();
@@ -107,6 +202,9 @@ public class MoveAction implements RootAction {
         }
     }
 
+    /**
+      @param itemA Item to be moved up in list = more away from execution
+     */
     @VisibleForTesting
     public void moveUp(Queue.Item itemA, Queue queue) {
         Queue.Item[] items = queue.getItems();
@@ -139,6 +237,9 @@ public class MoveAction implements RootAction {
         }
     }
 
+    /**
+     * @param itemA The most important item
+     * */
     @VisibleForTesting
     public void moveToBottom(@Nonnull Queue.Item itemA,@Nonnull Queue queue){
         Queue.Item[] items = queue.getItems();

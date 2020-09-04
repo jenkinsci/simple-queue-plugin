@@ -26,8 +26,9 @@ public class SimpleQueueUpdateAction implements RootAction {
     }
     public static String getMoveTypeName(){return MoveAction.MOVE_TYPE_PARAM_NAME;}
     public static String getItemIdName(){return MoveAction.ITEM_ID_PARAM_NAME;}
-
-    @Restricted(NoExternalUse.class) // Jelly
+    public static String getViewNameParamName(){return MoveAction.VIEW_NAME_PARAM_NAME;}
+    ///Used by Jelly
+    @Restricted(NoExternalUse.class)
     public Queue.Item[] getItems(){
         if (!Jenkins.get().hasPermission(Permission.READ)){
             return null;

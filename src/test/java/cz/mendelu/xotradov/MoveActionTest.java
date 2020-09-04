@@ -10,6 +10,8 @@ import org.jvnet.hudson.test.JenkinsRule;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.mockito.Mockito;
+
+import java.util.Arrays;
 import java.util.List;
 
 import static cz.mendelu.xotradov.MoveAction.ITEM_ID_PARAM_NAME;
@@ -118,6 +120,45 @@ public class MoveActionTest {
             fail();
         }
     }
+    @Test
+    public void moveToTopFiltered() {
+        try {
+            long maxTestTime = 30000;
+            helper.fillQueueFor(maxTestTime);
+            FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
+            FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
+            FreeStyleProject E = helper.createAndSchedule("E",maxTestTime);
+            FreeStyleProject F = helper.createAndSchedule("F",maxTestTime);
+            MoveAction moveAction = null;
+            for (Action action: jenkinsRule.jenkins.getActions()){
+                if (action instanceof MoveAction){
+                    moveAction = (MoveAction) action;
+                    break;
+                }
+            }
+            Queue queue = jenkinsRule.jenkins.getQueue();
+            assertEquals(C.getDisplayName(),queue.getItems()[3].task.getDisplayName());
+            assert moveAction != null;
+            moveAction.putAOnTopOfB(C.getQueueItem(),D.getQueueItem(),queue);
+            queue.maintain();
+            assertEquals(C.getDisplayName(),queue.getItems()[2].task.getDisplayName());
+            assertEquals(D.getDisplayName(),queue.getItems()[3].task.getDisplayName());
+            moveAction.putAOnTopOfB(D.getQueueItem(),E.getQueueItem(),queue);
+            queue.maintain();
+            assertEquals(F.getDisplayName(),queue.getItems()[0].task.getDisplayName());
+            assertEquals(D.getDisplayName(),queue.getItems()[1].task.getDisplayName());
+            assertEquals(E.getDisplayName(),queue.getItems()[2].task.getDisplayName());
+            assertEquals(C.getDisplayName(),queue.getItems()[3].task.getDisplayName());
+            moveAction.putAOnTopOfB(E.getQueueItem(),F.getQueueItem(),queue);
+            queue.maintain();
+            assertEquals(E.getDisplayName(),queue.getItems()[0].task.getDisplayName());
+            assertEquals(F.getDisplayName(),queue.getItems()[1].task.getDisplayName());
+            assertEquals(D.getDisplayName(),queue.getItems()[2].task.getDisplayName());
+            assertEquals(C.getDisplayName(),queue.getItems()[3].task.getDisplayName());
+        }catch (Exception e){
+            fail();
+        }
+    }
 
     @Test
     public void moveToBottom() {
@@ -140,6 +181,36 @@ public class MoveActionTest {
             moveAction.moveToBottom(C.getQueueItem(),queue);
             queue.maintain();
             assertEquals(C.getDisplayName(),queue.getItems()[2].task.getDisplayName());
+        }catch (Exception e){
+            fail();
+        }
+    }
+
+    @Test
+    public void getTop() {
+        try {
+            long maxTestTime = 20000;
+            helper.fillQueueFor(maxTestTime);
+            FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
+            FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
+            FreeStyleProject E = helper.createAndSchedule("E",maxTestTime);
+            MoveAction moveAction = null;
+            for (Action action: jenkinsRule.jenkins.getActions()){
+                if (action instanceof MoveAction){
+                    moveAction = (MoveAction) action;
+                    break;
+                }
+            }
+            assert moveAction != null;
+            Queue queue = jenkinsRule.jenkins.getQueue();
+            assertEquals(E.getDisplayName(),queue.getItems()[0].task.getDisplayName());
+            assertEquals(E.getDisplayName(),moveAction.getTop(Arrays.asList(queue.getItems())).task.getDisplayName());
+            moveAction.moveUp(D.getQueueItem(),queue);
+            queue.maintain();
+            assertEquals(D.getDisplayName(),moveAction.getTop(Arrays.asList(queue.getItems())).task.getDisplayName());
+            moveAction.moveToTop(C.getQueueItem(),queue);
+            queue.maintain();
+            assertEquals(C.getDisplayName(),moveAction.getTop(Arrays.asList(queue.getItems())).task.getDisplayName());
         }catch (Exception e){
             fail();
         }

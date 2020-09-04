@@ -14,4 +14,5 @@ public class SimpleQueueWidget extends Widget {
     private final static Logger logger = Logger.getLogger(SimpleQueueWidget.class.getName());
     public static String getMoveTypeName(){return MoveAction.MOVE_TYPE_PARAM_NAME;}
     public static String getItemIdName(){return MoveAction.ITEM_ID_PARAM_NAME;}
+    public static String getViewNameParamName(){return MoveAction.VIEW_NAME_PARAM_NAME;}
 }

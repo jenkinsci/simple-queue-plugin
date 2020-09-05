@@ -50,6 +50,11 @@ public class MoveAction implements RootAction {
         }
     }
 
+    /**
+     * Main method responsible for receiving request from user
+     * @param request Stapler request from user
+     * @param response Stapler response send back to users browser
+     */
     public void doMove(final StaplerRequest request, final StaplerResponse response) {
         Jenkins j;
         if ((j = Jenkins.getInstanceOrNull()) != null) {
@@ -60,20 +65,38 @@ public class MoveAction implements RootAction {
                     MoveType moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));
                     View view = j.getView(request.getParameter(VIEW_NAME_PARAM_NAME));
                     if (item != null){
-                        switch (moveType){
-                            case UP_FAST:
-                                moveToTop(item,queue,view);
-                                break;
-                            case UP:
-                                moveUp(item,queue);
-                                break;
-                            case DOWN:
-                                moveDown(item,queue);
-                                break;
-                            case DOWN_FAST:
-                                moveToBottom(item,queue);
-                                break;
+                        if (view==null || !view.isFilterQueue()){
+                            switch (moveType){
+                                case UP_FAST:
+                                    moveToTop(item,queue);
+                                    break;
+                                case UP:
+                                    moveUp(item,queue);
+                                    break;
+                                case DOWN:
+                                    moveDown(item,queue);
+                                    break;
+                                case DOWN_FAST:
+                                    moveToBottom(item,queue);
+                                    break;
+                            }
+                        }else {
+                            switch (moveType){
+                                case UP_FAST:
+                                    moveToTopFiltered(item,queue,view);
+                                    break;
+                                case UP:
+                                    moveUpFiltered(item,queue,view);
+                                    break;
+                                case DOWN:
+                                    //moveDownFiltered(item,queue,view);
+                                    break;
+                                case DOWN_FAST:
+                                    //moveToBottomFiltered(item,queue,view);
+                                    break;
+                            }
                         }
+
                         Queue.getInstance().maintain();
                     }
                 }catch (NumberFormatException nfe){
@@ -90,15 +113,26 @@ public class MoveAction implements RootAction {
         }
     }
 
-    private void moveToTop(@Nonnull Queue.Item item, @Nonnull Queue queue, @CheckForNull View view) {
-        if (view==null || !view.isFilterQueue()){
-            moveToTop(item,queue);
-        }else{
+    /**
+     * Handles move of item when view is filtered.
+     * @param itemToUp Item to be moved up
+     * @param queue Main queue from jenkins
+     * @param view View in which was request produced
+     */
+    @VisibleForTesting
+    public void moveUpFiltered(Queue.Item itemToUp, Queue queue, View view) {
+        Queue.Item oldItemAbove = getItemBefore(itemToUp,view.getQueueItems().toArray(new Queue.Item[view.getQueueItems().size()]));
+        if (oldItemAbove!=null){
+            putAOnTopOfB(itemToUp,oldItemAbove,queue);
+        }
+    }
+
+
+    private void moveToTopFiltered(@Nonnull Queue.Item item, @Nonnull Queue queue, @Nonnull View view) {
             Queue.Item oldTopItem = getTop(view.getQueueItems());
             if (oldTopItem!=null){
                 putAOnTopOfB(item,oldTopItem,queue);
             }
-        }
     }
 
     @VisibleForTesting
@@ -295,8 +329,13 @@ public class MoveAction implements RootAction {
         return returnList;
     }
 
+    /**
+     * @param itemA Item after which should be returned item that has lower priority
+     * @param items Has on [0] the top item, with the lowest priority
+     * @return Returns item that is after in the queue order = the with higher priority = goes before to execution
+     */
     @CheckForNull
-    private Queue.Item getItemAfter(Queue.Item itemA, Queue.Item[] items) {
+    private Queue.Item getItemAfter(@Nonnull Queue.Item itemA,@Nonnull Queue.Item[] items) {
         if (items.length >= 2) {
             Queue.Item previous = null;
             for (Queue.Item itemB : items) {

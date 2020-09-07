@@ -59,13 +59,8 @@ public class MoveActionTest {
         helper.fillQueueFor(maxTestTime);
         FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
         FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
-        MoveAction moveAction = null;
-        for (Action action: jenkinsRule.jenkins.getActions()){
-            if (action instanceof MoveAction){
-                moveAction = (MoveAction) action;
-                break;
-            }
-        }
+        MoveAction moveAction = helper.getMoveAction();
+
         assertNotNull(moveAction);
         assertNotNull(C.getQueueItem());
         Queue queue =jenkinsRule.jenkins.getQueue();
@@ -81,13 +76,8 @@ public class MoveActionTest {
         helper.fillQueueFor(maxTestTime);
         FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
         FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
-        MoveAction moveAction = null;
-        for (Action action: jenkinsRule.jenkins.getActions()){
-            if (action instanceof MoveAction){
-                moveAction = (MoveAction) action;
-                break;
-            }
-        }
+        MoveAction moveAction = helper.getMoveAction();
+
         assertNotNull(moveAction);
         assertNotNull(C.getQueueItem());
         Queue queue = jenkinsRule.jenkins.getQueue();
@@ -105,13 +95,8 @@ public class MoveActionTest {
             FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
             FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
             FreeStyleProject E = helper.createAndSchedule("E",maxTestTime);
-            MoveAction moveAction = null;
-            for (Action action: jenkinsRule.jenkins.getActions()){
-                if (action instanceof MoveAction){
-                    moveAction = (MoveAction) action;
-                    break;
-                }
-            }
+            MoveAction moveAction = helper.getMoveAction();
+
             Queue queue = jenkinsRule.jenkins.getQueue();
             assertEquals(C.getDisplayName(),queue.getItems()[2].task.getDisplayName());
             assert moveAction != null;
@@ -131,13 +116,8 @@ public class MoveActionTest {
             FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
             FreeStyleProject E = helper.createAndSchedule("E",maxTestTime);
             FreeStyleProject F = helper.createAndSchedule("F",maxTestTime);
-            MoveAction moveAction = null;
-            for (Action action: jenkinsRule.jenkins.getActions()){
-                if (action instanceof MoveAction){
-                    moveAction = (MoveAction) action;
-                    break;
-                }
-            }
+            MoveAction moveAction = helper.getMoveAction();
+
             Queue queue = jenkinsRule.jenkins.getQueue();
             assertEquals(C.getDisplayName(),queue.getItems()[3].task.getDisplayName());
             assert moveAction != null;
@@ -170,13 +150,8 @@ public class MoveActionTest {
             FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
             FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
             FreeStyleProject E = helper.createAndSchedule("E",maxTestTime);
-            MoveAction moveAction = null;
-            for (Action action: jenkinsRule.jenkins.getActions()){
-                if (action instanceof MoveAction){
-                    moveAction = (MoveAction) action;
-                    break;
-                }
-            }
+            MoveAction moveAction = helper.getMoveAction();
+
             Queue queue = jenkinsRule.jenkins.getQueue();
             assertEquals(E.getDisplayName(),queue.getItems()[0].task.getDisplayName());
             assert moveAction != null;
@@ -196,13 +171,8 @@ public class MoveActionTest {
             FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
             FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
             FreeStyleProject E = helper.createAndSchedule("E",maxTestTime);
-            MoveAction moveAction = null;
-            for (Action action: jenkinsRule.jenkins.getActions()){
-                if (action instanceof MoveAction){
-                    moveAction = (MoveAction) action;
-                    break;
-                }
-            }
+            MoveAction moveAction = helper.getMoveAction();
+
             assert moveAction != null;
             Queue queue = jenkinsRule.jenkins.getQueue();
             assertEquals(E.getDisplayName(),queue.getItems()[0].task.getDisplayName());
@@ -225,13 +195,7 @@ public class MoveActionTest {
             helper.fillQueueFor(maxTestTime);
             FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
             FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
-            MoveAction moveAction = null;
-            for (Action action: jenkinsRule.jenkins.getActions()){
-                if (action instanceof MoveAction){
-                    moveAction = (MoveAction) action;
-                    break;
-                }
-            }
+            MoveAction moveAction = helper.getMoveAction();
             assertNotNull(moveAction);
             assertNotNull(C.getQueueItem());
             Queue queue = jenkinsRule.jenkins.getQueue();
@@ -244,6 +208,81 @@ public class MoveActionTest {
             moveAction.moveUpFiltered(C.getQueueItem(),queue,view);
             queue.maintain();
             assertEquals(C.getDisplayName(),queue.getItems()[0].task.getDisplayName());
+        }catch (Exception e){
+            fail();
+        }
+    }
+
+    @Test
+    public void moveDownFiltered() {
+        try {
+            long maxTestTime = 10000;
+            helper.fillQueueFor(maxTestTime);
+            FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
+            FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
+            MoveAction moveAction = helper.getMoveAction();
+            assertNotNull(moveAction);
+            assertNotNull(C.getQueueItem());
+            Queue queue =jenkinsRule.jenkins.getQueue();
+            assertEquals(C.getDisplayName(),queue.getItems()[1].task.getDisplayName());
+            View view = Mockito.mock(View.class);
+            when(view.isFilterQueue()).thenReturn(true);
+            List<Queue.Item> list = Arrays.asList(queue.getItems());
+            when(view.getQueueItems()).thenReturn(list);
+            moveAction.moveDownFiltered(D.getQueueItem(),queue,view);
+            queue.maintain();
+            assertEquals(C.getDisplayName(),queue.getItems()[0].task.getDisplayName());
+        }catch (Exception e){
+            fail();
+        }
+    }
+
+    @Test
+    public void moveToBottomFiltered() {
+        try {
+            long maxTestTime = 20000;
+            helper.fillQueueFor(maxTestTime);
+            FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
+            FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
+            FreeStyleProject E = helper.createAndSchedule("E",maxTestTime);
+            MoveAction moveAction = helper.getMoveAction();
+
+            Queue queue = jenkinsRule.jenkins.getQueue();
+            assertEquals(E.getDisplayName(),queue.getItems()[0].task.getDisplayName());
+            View view = Mockito.mock(View.class);
+            when(view.isFilterQueue()).thenReturn(true);
+            List<Queue.Item> list = Arrays.asList(queue.getItems());
+            when(view.getQueueItems()).thenReturn(list);
+            assert moveAction != null;
+            moveAction.moveToBottomFiltered(E.getQueueItem(),queue,view);
+            queue.maintain();
+            assertEquals(D.getDisplayName(),queue.getItems()[0].task.getDisplayName());
+            assertEquals(C.getDisplayName(),queue.getItems()[1].task.getDisplayName());
+            assertEquals(E.getDisplayName(),queue.getItems()[2].task.getDisplayName());
+        }catch (Exception e){
+            fail();
+        }
+    }
+
+    @Test
+    public void getBottom() {
+        try {
+            long maxTestTime = 20000;
+            helper.fillQueueFor(maxTestTime);
+            FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
+            FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
+            FreeStyleProject E = helper.createAndSchedule("E",maxTestTime);
+            MoveAction moveAction = helper.getMoveAction();
+            assert moveAction != null;
+            Queue queue = jenkinsRule.jenkins.getQueue();
+            assertEquals(C.getDisplayName(),queue.getItems()[2].task.getDisplayName());
+            assertEquals(C.getDisplayName(),moveAction.getBottom(Arrays.asList(queue.getItems())).task.getDisplayName());
+            moveAction.moveUp(C.getQueueItem(),queue);
+            queue.maintain();
+            assertEquals(D.getDisplayName(),moveAction.getBottom(Arrays.asList(queue.getItems())).task.getDisplayName());
+            moveAction.moveToBottom(E.getQueueItem(),queue);
+            queue.maintain();
+            assertEquals(E.getDisplayName(),moveAction.getBottom(Arrays.asList(queue.getItems())).task.getDisplayName());
         }catch (Exception e){
             fail();
         }

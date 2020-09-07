@@ -89,10 +89,10 @@ public class MoveAction implements RootAction {
                                     moveUpFiltered(item,queue,view);
                                     break;
                                 case DOWN:
-                                    //moveDownFiltered(item,queue,view);
+                                    moveDownFiltered(item,queue,view);
                                     break;
                                 case DOWN_FAST:
-                                    //moveToBottomFiltered(item,queue,view);
+                                    moveToBottomFiltered(item,queue,view);
                                     break;
                             }
                         }
@@ -110,6 +110,48 @@ public class MoveAction implements RootAction {
             response.sendRedirect2(request.getRootPath());
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @VisibleForTesting
+    public void moveToBottomFiltered(Queue.Item itemToBottom, Queue queue,@Nonnull View view) {
+        Queue.Item oldBottomItem = getBottom(view.getQueueItems());
+        if (oldBottomItem!=null){
+            putABelowB(itemToBottom,oldBottomItem,queue);
+        }
+    }
+
+    private void putABelowB(Queue.Item itemToBottom, Queue.Item oldBottomItem, Queue queue) {
+        Queue.Item[] items = queue.getItems();
+        List<Queue.Item> itemsC = getItemsBetween(itemToBottom,oldBottomItem, items);
+        if (!isSorterSet){
+            setSorter(queue);
+        }
+        QueueSorter queueSorter = queue.getSorter();
+        if (queueSorter instanceof SimpleQueueSorter){
+            SimpleQueueComparator comparator = ((SimpleQueueSorter) queueSorter).getSimpleQueueComparator();
+            comparator.addDesire(itemToBottom.getId(),oldBottomItem.getId());
+            for (Queue.Item itemC: itemsC){
+                comparator.addDesire(itemToBottom.getId(),itemC.getId());
+            }
+            resort(queue);
+        }
+    }
+
+    @VisibleForTesting
+    public @CheckForNull Queue.Item getBottom(@Nonnull List<Queue.Item> queueItems) {
+        if (queueItems.size()>0){
+            return queueItems.get(queueItems.size()-1);
+        }else {
+            return null;
+        }
+    }
+
+    @VisibleForTesting
+    public void moveDownFiltered(Queue.Item itemToDown, Queue queue, View view) {
+        Queue.Item oldItemBelow = getItemAfter(itemToDown,view.getQueueItems().toArray(new Queue.Item[view.getQueueItems().size()]));
+        if (oldItemBelow!=null){
+            putABelowB(itemToDown,oldItemBelow,queue);
         }
     }
 

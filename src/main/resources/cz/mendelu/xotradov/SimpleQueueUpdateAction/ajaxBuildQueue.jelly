@@ -64,6 +64,13 @@
                             <j:set var="buildable" value="${item.isBuildable()}"/>
                             <j:choose>
                                 <j:when test="${buildable and h.hasPermission(app.ADMINISTER)}">
+                                    <j:if test="${filtered}">
+                                        <td class="pane" width="16" align="center" valign="middle">
+                                            <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=TOP&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
+                                                <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_top_16.png"/>
+                                            </a>
+                                        </td>
+                                    </j:if>
                                     <td class="pane" width="16" align="center" valign="middle">
                                         <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP_FAST&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
                                             <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_up_fast_16.png"/>
@@ -85,12 +92,23 @@
                                             <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_down_fast_16.png"/>
                                         </a>
                                     </td>
+                                    <j:if test="${filtered}">
+                                        <td class="pane" width="16" align="center" valign="middle">
+                                            <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=BOTTOM&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
+                                                <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_bottom_16.png"/>
+                                            </a>
+                                        </td>
+                                    </j:if>
                                 </j:when>
                                 <j:otherwise>
                                     <td class="pane" width="16" align="center" valign="middle"/>
                                     <td class="pane" width="16" align="center" valign="middle"/>
                                     <td class="pane" width="16" align="center" valign="middle"/>
                                     <td class="pane" width="16" align="center" valign="middle"/>
+                                    <j:if test="${filtered}">
+                                        <td class="pane" width="16" align="center" valign="middle"/>
+                                        <td class="pane" width="16" align="center" valign="middle"/>
+                                    </j:if>
                                 </j:otherwise>
                             </j:choose>
 

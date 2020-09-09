@@ -79,9 +79,14 @@ public class MoveAction implements RootAction {
                                 case DOWN_FAST:
                                     moveToBottom(item,queue);
                                     break;
+                                default:
+                                    break;
                             }
                         }else {
                             switch (moveType){
+                                case TOP:
+                                    moveToTop(item,queue);
+                                    break;
                                 case UP_FAST:
                                     moveToTopFiltered(item,queue,view);
                                     break;
@@ -94,6 +99,8 @@ public class MoveAction implements RootAction {
                                 case DOWN_FAST:
                                     moveToBottomFiltered(item,queue,view);
                                     break;
+                                case BOTTOM:
+                                    moveToBottom(item,queue);
                             }
                         }
 

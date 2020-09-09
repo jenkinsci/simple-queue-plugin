@@ -12,7 +12,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -208,18 +207,22 @@ public class MoveActionTest {
             helper.fillQueueFor(maxTestTime);
             FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
             FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
+            FreeStyleProject E = helper.createAndSchedule("E",maxTestTime);
+            FreeStyleProject F = helper.createAndSchedule("F",maxTestTime);
+            FreeStyleProject G = helper.createAndSchedule("G",maxTestTime);
             MoveAction moveAction = helper.getMoveAction();
             assertNotNull(moveAction);
             assertNotNull(C.getQueueItem());
             Queue queue =jenkinsRule.jenkins.getQueue();
-            assertEquals(C.getDisplayName(),queue.getItems()[1].task.getDisplayName());
+            assertEquals(F.getDisplayName(),queue.getItems()[1].task.getDisplayName());
+            assertEquals(C.getDisplayName(),queue.getItems()[4].task.getDisplayName());
             View view = Mockito.mock(View.class);
             when(view.isFilterQueue()).thenReturn(true);
             List<Queue.Item> list = Arrays.asList(queue.getItems());
             when(view.getQueueItems()).thenReturn(list);
-            moveAction.moveDownFiltered(D.getQueueItem(),queue,view);
+            moveAction.moveDownFiltered(F.getQueueItem(),queue,view);
             queue.maintain();
-            assertEquals(C.getDisplayName(),queue.getItems()[0].task.getDisplayName());
+            assertEquals(F.getDisplayName(),queue.getItems()[2].task.getDisplayName());
         }catch (Exception e){
             fail();
         }

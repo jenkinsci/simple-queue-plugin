@@ -114,9 +114,9 @@ public class MoveAction implements RootAction {
             }
         }
         try {
-            response.sendRedirect2(request.getRootPath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            response.forwardToPreviousPage(request);
+        } catch (Exception e) {
+            logger.warning(e.toString());
         }
     }
 

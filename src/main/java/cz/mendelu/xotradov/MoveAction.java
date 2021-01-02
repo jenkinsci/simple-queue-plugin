@@ -246,8 +246,6 @@ public class MoveAction implements RootAction {
     }
 
     /**
-     *
-     * @param items
      * @return Returns last item from collection, in queue it has the least priority
      */
     @VisibleForTesting
@@ -420,8 +418,6 @@ public class MoveAction implements RootAction {
             isSorterSet=true;
         }
     }
-
-
 
     private void resort(Queue queue) {
         queue.getSorter().sortBuildableItems(queue.getBuildableItems());

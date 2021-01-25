@@ -11,6 +11,8 @@ import org.jvnet.hudson.test.SleepBuilder;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 
+import static org.junit.Assert.fail;
+
 public class TestHelper {
     private JenkinsRule r;
     public TestHelper(JenkinsRule r){

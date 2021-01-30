@@ -8,7 +8,9 @@ The user must have an ADMINISTER permission for changing the queue order.\
 Orders buildable items only, for that reason blocked items do NOT have an arrow.<br />
 ![Screenshot](images/queue_screenshot.png "Simple Queue screenshot")
 # Question & issues
-As well as Jenkins core our plugin uses JIRA for reporting issues. https://issues.jenkins.io
+As well as Jenkins core our plugin uses JIRA for reporting issues. https://issues.jenkins.io \
+If you want to read more about this plugin, Jenkins queue and plugin development help yourself with 
+44 pages long document in Czech language - https://github.com/otradovec/baka/blob/master/bakaText.pdf 
 # For developers
 ![Sequence diagram](images/basicUsageSequence.png "Simple Queue screenshot")
 ![Sequence diagram](images/moveUpSequence.png "Simple Queue screenshot")

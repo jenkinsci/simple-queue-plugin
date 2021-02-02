@@ -15,3 +15,7 @@ If you want to read more about this plugin, Jenkins queue and plugin development
 ![Sequence diagram](images/basicUsageSequence.png "Simple Queue screenshot")
 ![Sequence diagram](images/moveUpSequence.png "Simple Queue screenshot")
 ![Sequence diagram](images/resetSequence.png "Simple Queue screenshot")
+## Performing release
+Always test connection before release.
+Testing connection: ssh -T git@github.com
+Release: mvn release:prepare release:perform

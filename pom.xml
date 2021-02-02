@@ -14,6 +14,7 @@
     <properties>
         <jenkins.version>2.222.1</jenkins.version> <!-- manage permission requires 2.222.1 or higher -->
         <java.level>8</java.level>
+        <useBeta>true</useBeta> <!--can be deleted when manage permission does not require it anymore. https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/jenkins/model/Jenkins.java -->
     </properties>
     <name>Simple Queue Plugin</name>
     <description>Enables to change queue order by simple up &amp; down arrow buttons. UI Queue Sorter.</description>

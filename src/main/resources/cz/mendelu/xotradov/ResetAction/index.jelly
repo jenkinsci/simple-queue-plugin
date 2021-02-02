@@ -1,6 +1,6 @@
 <?jelly escape-by-default='false'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <j:getStatic var="permission" className="jenkins.model.Jenkins" field="ADMINISTER"/>
+    <j:getStatic var="permission" className="jenkins.model.Jenkins" field="MANAGE"/>
     <l:layout norefresh="true" permission="${permission}" title="Reset simple queue desires">
         <l:main-panel>
             <h1>Reset simple queue desires</h1>

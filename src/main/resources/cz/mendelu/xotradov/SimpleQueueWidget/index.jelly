@@ -31,7 +31,7 @@
             <tr>
                 <td class="pane" colspan="2" style="white-space: normal;">
                     ${%Jenkins is going to shut down. No further builds will be performed.}
-                    <j:if test="${h.hasPermission(app.ADMINISTER)}">
+                    <j:if test="${h.hasPermission(app.MANAGE)}">
                         <f:link href="${rootURL}/cancelQuietDown" post="true">(${%cancel})</f:link>
                     </j:if>
                 </td>
@@ -72,7 +72,7 @@
                         <!-- start of normal button section-->
                         <j:set var="buildable" value="${item.isBuildable()}"/>
                         <j:choose>
-                            <j:when test="${buildable and h.hasPermission(app.ADMINISTER)}">
+                            <j:when test="${buildable and h.hasPermission(app.MANAGE)}">
                                 <j:if test="${filtered}">
                                     <td class="pane" align="center" valign="middle">
                                         <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=TOP&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">

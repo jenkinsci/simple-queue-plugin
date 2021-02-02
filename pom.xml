@@ -12,7 +12,9 @@
     <version>1.3.5-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
-        <jenkins.version>2.222.1</jenkins.version> <!-- manage permission requires 2.222.1 or higher -->
+        <jenkins.version>2.222.3</jenkins.version> <!-- manage permission requires 2.222.1 or higher
+                                                    & 2.222.1 has linking bug
+                                                    & 2.222.2 was skipped -->
         <java.level>8</java.level>
         <useBeta>true</useBeta> <!--can be deleted when manage permission does not require it anymore. https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/jenkins/model/Jenkins.java -->
     </properties>

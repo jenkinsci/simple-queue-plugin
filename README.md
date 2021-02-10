@@ -5,7 +5,7 @@
 Plugin for Jenkins enabling changing a build queue from UI manually.\
 There are two types of moves: one up/down or fast way to top/bottom. The third move type is added in filtered view to distinguish between top of filtered items and top of all items.
 The user must have an MANAGE permission for changing the queue order. (since plugin version 1.3.5)\
-Orders buildable items only, for that reason blocked items do NOT have an arrow.<br />
+Orders buildable items only, for that reason [blocked](hhttps://stackoverflow.com/questions/56182285/difference-between-blocked-stuck-pending-buildable-jobs-in-jenkins) items do NOT have an arrow.<br />
 ![Screenshot](images/queue_screenshot.png "Simple Queue screenshot")
 # Question & issues
 Javadoc & releases can be found on https://repo.jenkins-ci.org/releases/io/jenkins/plugins/simple-queue/ \

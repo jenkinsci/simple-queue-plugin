@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 /**
  * SimpleQueueWidget replaces the default BuildQueueWidget and adds arrows to each buildable item.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("unused") //justification: used because of the @Extension below
 @Extension(ordinal=199)
 public class SimpleQueueWidget extends Widget {
     private final static Logger logger = Logger.getLogger(SimpleQueueWidget.class.getName());

@@ -30,4 +30,15 @@ public class UITest {
         assertFalse(a.asXml().contains("WaitingFor"));
         assertTrue(a.asXml().contains("sec"));
     }
+    @Test
+    public void initWidgetTest() throws Exception {
+        long maxTestTime = 30000;
+        helper.fillQueueFor(maxTestTime);
+        helper.createAndSchedule("C",maxTestTime);
+        HtmlPage page = jenkinsRule.createWebClient().goTo("");
+        DomNode queueDefaultElement = page.getElementById("buildQueue");
+        DomNode queueSimpleElement = page.getElementById("buildSimpleQueue");
+        assertNull(queueDefaultElement);
+        assertNotNull(queueSimpleElement);
+    }
 }

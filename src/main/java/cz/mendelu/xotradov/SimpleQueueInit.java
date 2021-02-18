@@ -27,8 +27,13 @@ public class SimpleQueueInit {
             logger.warning("Empty widget list!");
         }else {
             Widget queueWidget = Jenkins.get().getWidgets().get(0);
-            logger.info("Removing " + queueWidget.getClass().toString());
-            Jenkins.get().getWidgets().remove(queueWidget);
+            if (queueWidget.getClass()==jenkins.widgets.BuildQueueWidget.class){
+                logger.info("Removing " + queueWidget.getClass().toString());
+                Jenkins.get().getWidgets().remove(queueWidget);
+            }else {
+                logger.warning("SimpleQueuePlugin unable to remove default widget, reason: not normal widget setup");
+            }
+
         }
     }
 

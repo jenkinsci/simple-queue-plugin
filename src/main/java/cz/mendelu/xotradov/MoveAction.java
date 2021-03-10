@@ -64,45 +64,7 @@ public class MoveAction implements RootAction {
                     MoveType moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));
                     View view = j.getView(request.getParameter(VIEW_NAME_PARAM_NAME));
                     if (item != null){
-                        if (view==null || !view.isFilterQueue()){
-                            switch (moveType){
-                                case UP_FAST:
-                                    moveToTop(item,queue);
-                                    break;
-                                case UP:
-                                    moveUp(item,queue);
-                                    break;
-                                case DOWN:
-                                    moveDown(item,queue);
-                                    break;
-                                case DOWN_FAST:
-                                    moveToBottom(item,queue);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }else {
-                            switch (moveType){
-                                case TOP:
-                                    moveToTop(item,queue);
-                                    break;
-                                case UP_FAST:
-                                    moveToTopFiltered(item,queue,view);
-                                    break;
-                                case UP:
-                                    moveUpFiltered(item,queue,view);
-                                    break;
-                                case DOWN:
-                                    moveDownFiltered(item,queue,view);
-                                    break;
-                                case DOWN_FAST:
-                                    moveToBottomFiltered(item,queue,view);
-                                    break;
-                                case BOTTOM:
-                                    moveToBottom(item,queue);
-                            }
-                        }
-
+                        move(queue, item, moveType, view);
                         Queue.getInstance().maintain();
                     }
                 }catch (NumberFormatException nfe){
@@ -116,6 +78,57 @@ public class MoveAction implements RootAction {
             response.forwardToPreviousPage(request);
         } catch (Exception e) {
             logger.warning(e.toString());
+        }
+    }
+
+    private void move(@Nonnull Queue queue,@Nonnull Queue.Item item,@Nonnull MoveType moveType, View view) {
+        if (view==null || !view.isFilterQueue()){
+            moveUnfiltered(queue, item, moveType);
+        }else {
+            moveFiltered(queue, item, moveType, view);
+        }
+    }
+
+    private void moveUnfiltered(@Nonnull Queue queue,@Nonnull Queue.Item item,@Nonnull MoveType moveType) {
+        switch (moveType){
+            case UP_FAST:
+                moveToTop(item,queue);
+                break;
+            case UP:
+                moveUp(item,queue);
+                break;
+            case DOWN:
+                moveDown(item,queue);
+                break;
+            case DOWN_FAST:
+                moveToBottom(item,queue);
+                break;
+            case TOP:
+            case BOTTOM:
+                break;
+        }
+    }
+
+    private void moveFiltered(@Nonnull Queue queue,@Nonnull Queue.Item item,@Nonnull MoveType moveType,@Nonnull View view) {
+        switch (moveType){
+            case TOP:
+                moveToTop(item,queue);
+                break;
+            case UP_FAST:
+                moveToTopFiltered(item,queue,view);
+                break;
+            case UP:
+                moveUpFiltered(item,queue,view);
+                break;
+            case DOWN:
+                moveDownFiltered(item,queue,view);
+                break;
+            case DOWN_FAST:
+                moveToBottomFiltered(item,queue,view);
+                break;
+            case BOTTOM:
+                moveToBottom(item,queue);
+                break;
         }
     }
 

@@ -1,5 +1,6 @@
 package cz.mendelu.xotradov;
 
+import com.google.common.annotations.VisibleForTesting;
 import hudson.model.Queue;
 import java.util.*;
 import java.util.logging.Logger;
@@ -75,10 +76,11 @@ public class SimpleQueueComparator implements Comparator<Queue.BuildableItem>{
             }
         }
     }
-
+    @VisibleForTesting
     public void removeDesireOfKey(long id){
         moveDesires.remove(id);
     }
+    @VisibleForTesting
     public void resetDesires(){
         moveDesires.clear();
     }

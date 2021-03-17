@@ -4,7 +4,8 @@
 # Usage
 Plugin for Jenkins enabling changing a build queue from UI manually.\
 There are two types of moves: one up/down or fast way to top/bottom. The third move type is added in filtered view to distinguish between top of filtered items and top of all items.
-The user must have a MANAGE permission for changing the queue order. (since plugin version 1.3.5)\
+The user must have an Administer/Overall or MANAGE/Overall permission for changing the queue order. (since plugin version 1.3.5)\
+    For using Manage permission is needed plugin: https://plugins.jenkins.io/manage-permission/
 Orders buildable items only, for that reason [blocked](hhttps://stackoverflow.com/questions/56182285/difference-between-blocked-stuck-pending-buildable-jobs-in-jenkins) items do NOT have an arrow.<br />
 ![Screenshot](images/queue_screenshot.png "Simple Queue screenshot")
 # Question & issues
@@ -16,7 +17,9 @@ If you want to read more about this plugin, Jenkins queue and plugin development
 ![Sequence diagram](images/basicUsageSequence.png "Simple Queue screenshot")
 ![Sequence diagram](images/moveUpSequence.png "Simple Queue screenshot")
 ![Sequence diagram](images/resetSequence.png "Simple Queue screenshot")
+## Testing build
+mvn hpi:run
 ## Performing release
-Always test connection before release.
-Testing connection: ssh -T git@github.com
+Always test connection before release. \
+Testing connection: ssh -T git@github.com \
 Release: mvn release:prepare release:perform

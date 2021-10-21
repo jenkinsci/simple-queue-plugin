@@ -8,6 +8,11 @@ The user must have an Administer/Overall or MANAGE/Overall permission for changi
     For using Manage permission is needed plugin: https://plugins.jenkins.io/manage-permission/
 Orders buildable items only, for that reason [blocked](hhttps://stackoverflow.com/questions/56182285/difference-between-blocked-stuck-pending-buildable-jobs-in-jenkins) items do NOT have an arrow.<br />
 ![Screenshot](images/queue_screenshot.png "Simple Queue screenshot")
+# Other useful plugins
+If this plugin does not fit your needs, try using some of the plugins below that use more automatic approach:\
+https://plugins.jenkins.io/PrioritySorter/ \
+https://plugins.jenkins.io/dependency-queue-plugin/ \
+https://plugins.jenkins.io/multi-branch-priority-sorter/ 
 # Question & issues
 Javadoc & releases can be found on https://repo.jenkins-ci.org/releases/io/jenkins/plugins/simple-queue/ \
 As well as Jenkins core our plugin uses JIRA for reporting issues. https://issues.jenkins.io \

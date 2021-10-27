@@ -2,7 +2,7 @@
 [![Jenkins Version](https://img.shields.io/badge/Jenkins-2.222.3-green.svg?label=min.%20Jenkins)](https://jenkins.io/download/)
 [![Build Status](https://ci.jenkins.io/job/Plugins/job/simple-queue-plugin/job/master/badge/icon)](https://ci.jenkins.io/job/Plugins/job/simple-queue-plugin/job/master/)
 # Usage
-[![Watch the video](https://img.youtube.com/vi/anyGsJIa020/maxresdefault.jpg)](https://youtu.be/anyGsJIa020)
+https://user-images.githubusercontent.com/59257907/139147685-99572eb5-f607-43dd-8c04-ed1d09d2c5ec.mov
 Plugin for Jenkins enabling changing a build queue from UI manually.\
 There are two types of moves: one up/down or fast way to top/bottom. The third move type is added in filtered view to distinguish between top of filtered items and top of all items.
 The user must have an Administer/Overall or MANAGE/Overall permission for changing the queue order. (since plugin version 1.3.5)\

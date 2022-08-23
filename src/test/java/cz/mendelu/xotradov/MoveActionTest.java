@@ -45,6 +45,26 @@ public class MoveActionTest {
         assertEquals(D.getDisplayName(),jenkinsRule.jenkins.getQueue().getItems()[1].task.getDisplayName());
     }
 
+
+    @Test
+    public void doMoveByName() throws Exception {
+        long maxTestTime = 10000;
+        helper.fillQueueFor(maxTestTime);
+        FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
+        FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
+        assertEquals(C.getDisplayName(),jenkinsRule.jenkins.getQueue().getItems()[1].task.getDisplayName());
+        List<Action> list = jenkinsRule.jenkins.getActions();
+        MoveAction moveAction = helper.getMoveAction();
+        StaplerRequest request = Mockito.mock(StaplerRequest.class);
+        StaplerResponse response = Mockito.mock(StaplerResponse.class);
+        when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
+        when(request.getParameter(ITEM_ID_PARAM_NAME))
+                .thenReturn(String.valueOf(jenkinsRule.jenkins.getQueue().getItems()[1].task.getDisplayName()));
+        moveAction.doMove(request,response);
+        assertEquals(C.getDisplayName(),jenkinsRule.jenkins.getQueue().getItems()[0].task.getDisplayName());
+        assertEquals(D.getDisplayName(),jenkinsRule.jenkins.getQueue().getItems()[1].task.getDisplayName());
+    }
+
     @Test
     public void moveDown() throws Exception {
         long maxTestTime = 10000;

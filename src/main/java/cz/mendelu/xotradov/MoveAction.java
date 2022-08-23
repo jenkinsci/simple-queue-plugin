@@ -11,9 +11,11 @@ import org.kohsuke.stapler.StaplerResponse;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Handles request to move one buildable item in a build queue, which is the core functionality of this plugin.
@@ -60,17 +62,26 @@ public class MoveAction implements RootAction {
             Queue queue = j.getQueue();
             if (queue != null & j.hasPermission(PermissionHandler.SIMPLE_QUEUE_MOVE_PERMISSION)) {
                 try {
-                    Queue.Item item = queue.getItem(Long.parseLong(request.getParameter(ITEM_ID_PARAM_NAME)));
+                    String idParam = request.getParameter(ITEM_ID_PARAM_NAME);
+                    Queue.Item item = null;
+                    try {
+                        item = queue.getItem(Long.parseLong(idParam));
+                    } catch (NumberFormatException nfe) {
+                        item = findIemByName(queue, idParam);
+                    }
                     MoveType moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));
                     View view = j.getView(request.getParameter(VIEW_NAME_PARAM_NAME));
-                    if (item != null){
+                    if (item != null) {
                         move(queue, item, moveType, view);
                         Queue.getInstance().maintain();
+                    } else {
+                        logger.info("Wrong item id " + idParam + " (or not found in view " + request.getParameter(VIEW_NAME_PARAM_NAME) + ")");
                     }
-                }catch (NumberFormatException nfe){
-                    logger.info("Wrong item id");
-                }catch (IllegalArgumentException iae){
-                    logger.info("Wrong move type");
+                } catch (IllegalArgumentException iae) {
+                    logger.info("Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME));
+                } catch (Exception ex) {
+                    logger.info("unable to simple-queue item " + request.getParameterMap().entrySet().stream().map(a -> a.getKey() + ": " + Arrays.stream(a.getValue()).collect(
+                            Collectors.joining(","))).collect(Collectors.joining("; ")));
                 }
             }
         }
@@ -81,24 +92,35 @@ public class MoveAction implements RootAction {
         }
     }
 
-    private void move(@Nonnull Queue queue,@Nonnull Queue.Item item,@Nonnull MoveType moveType, View view) {
-        if (view==null || !view.isFilterQueue()){
+    private Queue.Item findIemByName(Queue queue, String idParam) {
+        for (Queue.Item item : queue.getItems()) {
+            if (item.isBuildable()) {
+                if (item.task != null && item.task.getDisplayName().equals(idParam)) {
+                    return item;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void move(@Nonnull Queue queue, @Nonnull Queue.Item item, @Nonnull MoveType moveType, View view) {
+        if (view == null || !view.isFilterQueue()) {
             moveUnfiltered(queue, item, moveType);
-        }else {
+        } else {
             moveFiltered(queue, item, moveType, view);
         }
     }
 
-    private void moveUnfiltered(@Nonnull Queue queue,@Nonnull Queue.Item item,@Nonnull MoveType moveType) {
-        switch (moveType){
+    private void moveUnfiltered(@Nonnull Queue queue, @Nonnull Queue.Item item, @Nonnull MoveType moveType) {
+        switch (moveType) {
             case UP_FAST:
-                moveToTop(item,queue);
+                moveToTop(item, queue);
                 break;
             case UP:
-                moveUp(item,queue);
+                moveUp(item, queue);
                 break;
             case DOWN:
-                moveDown(item,queue);
+                moveDown(item, queue);
                 break;
             case DOWN_FAST:
                 moveToBottom(item,queue);

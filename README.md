@@ -23,7 +23,20 @@ http://hydra.brq.redhat.com:8080/simpleMove/move?moveType=BOTTOM&itemId=1073889&
 ```
 for move to bottom of view
 
-The `viewName` is optional and is obvious. The `moveType` too (its full enumeration is in https://github.com/jenkinsci/simple-queue-plugin/blob/master/src/main/java/cz/mendelu/xotradov/MoveType.java .  The `itemId` is super sure for jenkins to jenkins communication, but useless for human usage. Thus the https://github.com/jenkinsci/simple-queue-plugin/pull/2 added feature to move by name.
+The `viewName` is optional and is obvious. The `moveType` too (its full enumeration is in https://github.com/jenkinsci/simple-queue-plugin/blob/master/src/main/java/cz/mendelu/xotradov/MoveType.java .  The `itemId` is super sure for jenkins to jenkins communication, but useless for human usage. Thus the https://github.com/jenkinsci/simple-queue-plugin/pull/2 added feature to move by name, so `itemId` can be also job name. If no job is found, the plugin will simply fall throug, so to speed up job **my-job-name** (in view my_view) you end up on:
+```
+curl "http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=my-job-name"
+```
+for item to bottom, or
+```
+curl "http://hydra.brq.redhat.com:8080/simpleMove/move?moveType=DOWN&itemId=my-job-name"
+```
+for item one step forward, or
+```
+curl "http://hydra.brq.redhat.com:8080/simpleMove/move?moveType=BOTTOM&itemId=my-job-name&viewName=my_view"
+```
+for move to bottom of view
+
 
 ![Screenshot](images/queue_screenshot.png "Simple Queue screenshot")
 # Other useful plugins

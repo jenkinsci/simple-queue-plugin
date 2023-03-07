@@ -15,11 +15,11 @@ http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=1074193&viewName=.e
 ```
 for item to bottom, or
 ```
-http://hydra.brq.redhat.com:8080/simpleMove/move?moveType=DOWN&itemId=1074184&viewName=.executors
+http://jenkins_url/simpleMove/move?moveType=DOWN&itemId=1074184&viewName=.executors
 ```
 for item one step forward, or
 ```
-http://hydra.brq.redhat.com:8080/simpleMove/move?moveType=BOTTOM&itemId=1073889&viewName=.executors
+http://jenkins_url/simpleMove/move?moveType=BOTTOM&itemId=1073889&viewName=.executors
 ```
 for move to bottom of view
 
@@ -29,11 +29,11 @@ curl "http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=my-job-name"
 ```
 for item to bottom, or
 ```
-curl "http://hydra.brq.redhat.com:8080/simpleMove/move?moveType=DOWN&itemId=my-job-name"
+curl "http://jenkins_url/simpleMove/move?moveType=DOWN&itemId=my-job-name"
 ```
 for item one step forward, or
 ```
-curl "http://hydra.brq.redhat.com:8080/simpleMove/move?moveType=BOTTOM&itemId=my-job-name&viewName=my_view"
+curl "http://jenkins_url/simpleMove/move?moveType=BOTTOM&itemId=my-job-name&viewName=my_view"
 ```
 for move to bottom of view
 

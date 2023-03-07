@@ -8,6 +8,23 @@ There are two types of moves: one up/down or fast way to top/bottom. The third m
 The user must have an Administer/Overall or MANAGE/Overall permission for changing the queue order. (since plugin version 1.3.5)\
     For using Manage permission is needed plugin: https://plugins.jenkins.io/manage-permission/
 Orders buildable items only, for that reason [blocked](hhttps://stackoverflow.com/questions/56182285/difference-between-blocked-stuck-pending-buildable-jobs-in-jenkins) items do NOT have an arrow.<br />
+# CLI
+When hovering over priority arrows, you cans see that it executes special url aka:
+```
+http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=1074193&viewName=.executors
+```
+for item to bottom, or
+```
+http://hydra.brq.redhat.com:8080/simpleMove/move?moveType=DOWN&itemId=1074184&viewName=.executors
+```
+for item one step forward, or
+```
+http://hydra.brq.redhat.com:8080/simpleMove/move?moveType=BOTTOM&itemId=1073889&viewName=.executors
+```
+for move to bottom of view
+
+The `viewName` is optional and is obvious. The `moveType` too (its full enumeration is in https://github.com/jenkinsci/simple-queue-plugin/blob/master/src/main/java/cz/mendelu/xotradov/MoveType.java .  The `itemId` is super sure for jenkins to jenkins communication, but useless for human usage. Thus the https://github.com/jenkinsci/simple-queue-plugin/pull/2 added feature to move by name.
+
 ![Screenshot](images/queue_screenshot.png "Simple Queue screenshot")
 # Other useful plugins
 If this plugin does not fit your needs, try using some of the plugins below that use more automatic approach:\

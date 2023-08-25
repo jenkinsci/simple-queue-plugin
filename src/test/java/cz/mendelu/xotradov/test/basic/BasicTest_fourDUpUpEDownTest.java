@@ -43,33 +43,5 @@ public class BasicTest_fourDUpUpEDownTest {
         assertEquals(projectC.getDisplayName(),queue.getItems()[2].task.getDisplayName());
         assertEquals(projectE.getDisplayName(),queue.getItems()[3].task.getDisplayName());
     }
-    @Test
-    public void fourFDownDDownCUpUpFDown() throws Exception {
-        helper.fillQueueFor(35000);
-        FreeStyleProject projectC = helper.createAndSchedule("projectC",35000);
-        FreeStyleProject projectD = helper.createAndSchedule("projectD",35000);
-        FreeStyleProject projectE = helper.createAndSchedule("projectE",35000);
-        FreeStyleProject projectF = helper.createAndSchedule("projectF",35000);
-        Queue queue = Queue.getInstance();
-        MoveAction moveAction = (MoveAction)jenkinsRule.jenkins.getActions().get(1);
-        assertEquals(projectF.getDisplayName(),queue.getItems()[0].task.getDisplayName());
-        moveAction.moveDown(queue.getItems()[0],queue);//F
-        queue.maintain();
-        assertEquals(projectD.getDisplayName(),queue.getItems()[2].task.getDisplayName());
-        moveAction.moveDown(queue.getItems()[2],queue);//D
-        queue.maintain();
-        assertEquals(projectC.getDisplayName(),queue.getItems()[2].task.getDisplayName());
-        moveAction.moveUp(queue.getItems()[2],queue);//C
-        queue.maintain();
-        assertEquals(projectC.getDisplayName(),queue.getItems()[1].task.getDisplayName());
-        moveAction.moveUp(queue.getItems()[1],queue);//C
-        queue.maintain();
-        assertEquals(projectF.getDisplayName(),queue.getItems()[2].task.getDisplayName());
-        moveAction.moveDown(queue.getItems()[2],queue);//F
-        queue.maintain();
-        assertEquals(projectC.getDisplayName(),queue.getItems()[0].task.getDisplayName());
-        assertEquals(projectE.getDisplayName(),queue.getItems()[1].task.getDisplayName());
-        assertEquals(projectD.getDisplayName(),queue.getItems()[2].task.getDisplayName());
-        assertEquals(projectF.getDisplayName(),queue.getItems()[3].task.getDisplayName());
-    }
+
 }

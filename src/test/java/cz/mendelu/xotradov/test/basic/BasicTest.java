@@ -1,12 +1,8 @@
 package cz.mendelu.xotradov.test.basic;
 
-import cz.mendelu.xotradov.MoveAction;
 import cz.mendelu.xotradov.SimpleQueueWidget;
 import cz.mendelu.xotradov.test.TestHelper;
-import hudson.model.*;
-import hudson.model.queue.QueueTaskFuture;
 import hudson.widgets.Widget;
-import jenkins.model.Jenkins;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;

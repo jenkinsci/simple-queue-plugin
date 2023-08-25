@@ -11,13 +11,17 @@ import org.jvnet.hudson.test.SleepBuilder;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 
-import static org.junit.Assert.fail;
-
 public class TestHelper {
-    private JenkinsRule r;
+    private final JenkinsRule r;
+
     public TestHelper(JenkinsRule r){
         this.r=r;
     }
+
+    public JenkinsRule getRule() {
+        return r;
+    }
+
     public QueueTaskFuture<FreeStyleBuild> schedule(@Nonnull FreeStyleProject projectA) throws Exception {
         QueueTaskFuture<FreeStyleBuild> futureA = projectA.scheduleBuild2(0);
         if (futureA == null) {

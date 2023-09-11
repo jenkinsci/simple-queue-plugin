@@ -12,7 +12,7 @@
     <version>1.4.4-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
-        <jenkins.version>2.361.4</jenkins.version>
+        <jenkins.version>2.414.1</jenkins.version>
         <useBeta>true</useBeta> <!--can be deleted when manage permission does not require it anymore. https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/jenkins/model/Jenkins.java -->
     </properties>
     <name>Simple Queue Plugin</name>

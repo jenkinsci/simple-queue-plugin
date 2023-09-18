@@ -7,6 +7,7 @@ import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.FreeStyleProject;
 import hudson.model.Queue;
 
+import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,6 +20,12 @@ public class UITest {
     @Rule
     public JenkinsRule jenkinsRule = new JenkinsRule();
     TestHelper helper = new TestHelper(jenkinsRule);
+
+    @After
+    public void waitForClean() throws Exception {
+        jenkinsRule.jenkins.getQueue().clear();
+        jenkinsRule.waitUntilNoActivity();
+    }
 
     @Test
     @Ignore("seems to be not supported in newer jenkins")

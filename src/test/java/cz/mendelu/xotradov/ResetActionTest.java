@@ -2,6 +2,8 @@ package cz.mendelu.xotradov;
 
 import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.FreeStyleProject;
+
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -16,6 +18,12 @@ public class ResetActionTest {
     @Rule
     public JenkinsRule jenkinsRule = new JenkinsRule();
     private TestHelper helper = new TestHelper(jenkinsRule);
+
+    @After
+    public void waitForClean() throws Exception {
+        jenkinsRule.jenkins.getQueue().clear();
+        jenkinsRule.waitUntilNoActivity();
+    }
 
     @Test
     public void doReset() throws Exception {

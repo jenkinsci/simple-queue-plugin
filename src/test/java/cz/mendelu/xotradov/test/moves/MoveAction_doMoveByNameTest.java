@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import static cz.mendelu.xotradov.MoveAction.ITEM_ID_PARAM_NAME;
 import static cz.mendelu.xotradov.MoveAction.MOVE_TYPE_PARAM_NAME;
 
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -29,7 +30,11 @@ public class MoveAction_doMoveByNameTest {
     public final JenkinsRule jenkinsRule = new JenkinsRule();
     public final TestHelper helper = new TestHelper(jenkinsRule);
 
-
+    @After
+    public void waitForClean() throws Exception {
+        jenkinsRule.jenkins.getQueue().clear();
+        jenkinsRule.waitUntilNoActivity();
+    }
 
     @Test
     public void doMoveByName() throws Exception {

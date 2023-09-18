@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -21,6 +22,11 @@ public class MoveAction_getTopTest {
     public final JenkinsRule jenkinsRule = new JenkinsRule();
     public final TestHelper helper = new TestHelper(jenkinsRule);
 
+    @After
+    public void waitForClean() throws Exception {
+        jenkinsRule.jenkins.getQueue().clear();
+        jenkinsRule.waitUntilNoActivity();
+    }
 
     @Test
     public void getTop() {

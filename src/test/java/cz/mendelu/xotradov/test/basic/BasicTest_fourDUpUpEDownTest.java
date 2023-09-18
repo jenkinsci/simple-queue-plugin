@@ -2,6 +2,7 @@ package cz.mendelu.xotradov.test.basic;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -18,6 +19,12 @@ public class BasicTest_fourDUpUpEDownTest {
     @Rule
     public JenkinsRule jenkinsRule = new JenkinsRule();
     private TestHelper helper = new TestHelper(jenkinsRule);
+
+    @After
+    public void waitForClean() throws Exception {
+        jenkinsRule.jenkins.getQueue().clear();
+        jenkinsRule.waitUntilNoActivity();
+    }
 
 
     @Test

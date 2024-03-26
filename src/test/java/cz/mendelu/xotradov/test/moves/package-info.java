@@ -4,6 +4,6 @@ package cz.mendelu.xotradov.test.moves;
  * sometimes some leftover was not garbagecollected in time, and thus one or two tests randomly failed
  * on cleanup, because the *rule* could not clean between runs.
  *
- * To ahve each of them in own file, with own RULE is much slower, but the concurency issue moreover disapeared
+ * To have each of them in own file, with own RULE is much slower, but the concurency issue moreover disapeared
  * Still, may appear from time to time:(
  */

@@ -13,7 +13,7 @@ Orders buildable items only, for that reason [blocked](hhttps://stackoverflow.co
 ![Screenshot](images/queue_screenshot.png "Simple Queue screenshot")
 
 # CLI
-For CLI see documentation in docs/CLI.md
+For CLI see documentation at https://jenkinsci.github.io/simple-queue-plugin
 
 # Other useful plugins
 If this plugin does not fit your needs, try using some of the plugins below that use more automatic approach:\
@@ -29,9 +29,4 @@ If you want to read more about this plugin, Jenkins queue and plugin development
 ![Sequence diagram](images/basicUsageSequence.png "Simple Queue screenshot")
 ![Sequence diagram](images/moveUpSequence.png "Simple Queue screenshot")
 ![Sequence diagram](images/resetSequence.png "Simple Queue screenshot")
-## Testing build
-mvn hpi:run
-## Performing release
-Always test connection before release. \
-Testing connection: ssh -T git@github.com \
-Release: mvn release:prepare release:perform
+

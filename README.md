@@ -30,6 +30,10 @@ There are two types of moves: one up/down or fast way to top/bottom. The third m
 The user must have an Administer/Overall or MANAGE/Overall permission for changing the queue order. (since plugin version 1.3.5)\
     For using Manage permission is needed plugin: https://plugins.jenkins.io/manage-permission/
 Orders buildable items only, for that reason [blocked](hhttps://stackoverflow.com/questions/56182285/difference-between-blocked-stuck-pending-buildable-jobs-in-jenkins) items do NOT have an arrow.<br />
+
+#### Screenshot
+![Screenshot](images/queue_screenshot.png "Simple Queue screenshot")
+
 # CLI
 When hovering over priority arrows, you cans see that it executes special url aka:
 ```
@@ -108,8 +112,6 @@ This is annoying, and PR to improve this is welcomed. However such cross plugin 
 #### HTTP return value
 Unluckily, currently plugin always returns `302 Found` so you will not know if call suceeded. This may chanege, but is not planned
 
-#### Screenshot
-![Screenshot](images/queue_screenshot.png "Simple Queue screenshot")
 # Other useful plugins
 If this plugin does not fit your needs, try using some of the plugins below that use more automatic approach:\
 https://plugins.jenkins.io/PrioritySorter/ \

@@ -1,26 +1,4 @@
-* [simple-queue-plugin](#simple-queue-plugin)
-* [usage](#usage)
-* [cli](#cli)
-* [cli-human-api](#cli-human-api)
-  * [overview](#overview)
-  * [examples](#examples)
-    * [global movement](#global-movement)
-      * DOWN/DOWN_FAST
-      * UP/UP_FAST
-    * [in-view movement](#in-view-movement)
-      * BOTTOM
-      * TOP
-    * [Complex names](#complex-names)
-      * escaping
-      * full names
-    * [HTTP return value](#http-return-value)
-* [screenshot](#screenshot)
-* [other-useful-plugins](#other-useful-plugins)
-* [question--issues](#question--issues)
-* [for-developers](#for-developers)
-* [esting-build](#testing-build)
-* [performing-release](#performing-release)
-# simple-queue-plugin
+# Simple Queue Plugin
 [![Jenkins Version](https://img.shields.io/badge/Jenkins-2.414.1-green.svg?label=min.%20Jenkins)](https://jenkins.io/download/)
 [![Build Status](https://ci.jenkins.io/job/Plugins/job/simple-queue-plugin/job/master/badge/icon)](https://ci.jenkins.io/job/Plugins/job/simple-queue-plugin/job/master/) \
 Plugin for Jenkins enabling changing a build queue order from UI manually.

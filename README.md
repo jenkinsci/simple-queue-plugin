@@ -10,12 +10,12 @@ The user must have an Administer/Overall or MANAGE/Overall permission for changi
 Orders buildable items only, for that reason [blocked](hhttps://stackoverflow.com/questions/56182285/difference-between-blocked-stuck-pending-buildable-jobs-in-jenkins) items do NOT have an arrow.<br />
 
 #### Screenshot
-![Screenshot](images/queue_screenshot.png "Simple Queue screenshot")
+![Screenshot](docs_src/docs/images/queue_screenshot.png "Simple Queue screenshot")
 
 # CLI
 For CLI see documentation at https://jenkinsci.github.io/simple-queue-plugin
 
-# Other useful plugins
+# Other useful plugins - Alternatives
 If this plugin does not fit your needs, try using some of the plugins below that use more automatic approach:\
 https://plugins.jenkins.io/PrioritySorter/ \
 https://plugins.jenkins.io/dependency-queue-plugin/ \
@@ -25,8 +25,7 @@ Javadoc & releases can be found on https://repo.jenkins-ci.org/releases/io/jenki
 As well as Jenkins core our plugin uses JIRA for reporting issues. https://issues.jenkins.io \
 If you want to read more about this plugin, Jenkins queue and plugin development help yourself with 
 44 pages long document in Czech language - https://github.com/otradovec/baka/blob/master/bakaText.pdf 
-# For developers
-![Sequence diagram](images/basicUsageSequence.png "Simple Queue screenshot")
-![Sequence diagram](images/moveUpSequence.png "Simple Queue screenshot")
-![Sequence diagram](images/resetSequence.png "Simple Queue screenshot")
+
+# License
+This plugin is published under MIT license. For further information see LICENSE.txt
 

@@ -1,5 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <div id="target-div" data-inserted-from-java-url="${rootURL}" data-inserted-from-java-view-name="${view.viewName}"></div>
     <st:documentation>
         Displays the build queue as &lt;l:pane>
         Follows https://github.com/jenkinsci/jenkins/blob/master/core/src/main/resources/lib/hudson/queue.jelly
@@ -134,7 +135,10 @@
     <j:if test="${ajax==null and !h.isAutoRefresh(request) and h.hasPermission(app.READ)}">
         <j:choose>
                 <script defer="defer">
-                    refreshPart('buildSimpleQueue',"${rootURL}/updateQueue/ajaxBuildQueue?name=${view.viewName}");
+                    var targetDiv = document.querySelector('#target-div');
+                    var rootURL = targetDiv.getAttribute('data-inserted-from-java-url');
+                    var viewName = targetDiv.getAttribute('data-inserted-from-java-view-name');
+                    refreshPart('buildSimpleQueue',rootURL+"/updateQueue/ajaxBuildQueue?name="+viewName);
                 </script>
         </j:choose>
     </j:if>

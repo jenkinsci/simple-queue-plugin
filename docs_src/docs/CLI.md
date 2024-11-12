@@ -63,10 +63,11 @@ curl "http://jenkins_url/simpleMove/move?moveType=TOP&itemId=my-job-name&viewNam
 ```
 for move to top of view - the item run last of all others in this view
 #### Complex names
-As investigated at https://github.com/jenkinsci/simple-queue-plugin/pull/3#discussion_r1306649177 ,  there are two cornercases
- * **escaping**: if your name contains **%** or **/** they have to be URL escaped. So / will become **%2F** and % will become **%25**
-   * generally spoken, your **full name** (see lower) should be **fully escaped**
- * **full names**: somem plugins - e.g.   Pipeline: Nodes and Processes plugin **or** git branches plugin  - uses lets say *fully qualified names*. Such name must contain its full dispaly name. eg
+As investigated at https://github.com/jenkinsci/simple-queue-plugin/pull/3#discussion_r1306649177 ,  there are two cornercases:
+
+ * **escaping**: if your name contains `%` or `/` they have to be URL escaped. So `/` will become `%2F` and `%` will become `%25` and `#` will become `%23`
+   * generally spoken, your **full name** (see below) should be **fully escaped**
+ * **full names**: some plugins - e.g.   Pipeline: Nodes and Processes plugin **or** git branches plugin  - uses lets say *fully qualified names*. Such name must contain its full display name. eg
    * `SAUR/Rex/release%2F1.5` must be passed in a display name like
    * `part of SAUR » Rex » release/1.5 #413` should pe passed in as
    * `itemId=part%20of%20SAUR%20%C2%BB%20Rex%20%C2%BB%20release%2F1.5%20%23413`

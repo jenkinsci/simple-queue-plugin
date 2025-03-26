@@ -66,37 +66,37 @@
                                 <j:when test="${buildable and h.hasPermission(app.MANAGE)}">
                                     <j:if test="${filtered}">
                                         <td class="pane" align="center" valign="middle">
-                                            <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=TOP&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
+                                            <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=TOP&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
                                                 <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_top_10.png"/>
-                                            </a>
+                                            </f:link>
                                         </td>
                                     </j:if>
                                     <td class="pane" align="center" valign="middle">
-                                        <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP_FAST&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
+                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP_FAST&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
                                             <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_up_fast_10.png"/>
-                                        </a>
+                                        </f:link>
                                     </td>
                                     <td class="pane" align="center" valign="middle">
-                                        <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
+                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
                                             <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_up_10.png"/>
-                                        </a>
+                                        </f:link>
 
                                     </td>
                                     <td class="pane" align="center" valign="middle">
-                                        <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
+                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
                                             <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_down_10.png"/>
-                                        </a>
+                                        </f:link>
                                     </td>
                                     <td class="pane" align="center" valign="middle">
-                                        <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN_FAST&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
+                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN_FAST&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
                                             <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_down_fast_10.png"/>
-                                        </a>
+                                        </f:link>
                                     </td>
                                     <j:if test="${filtered}">
                                         <td class="pane" align="center" valign="middle">
-                                            <a href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=BOTTOM&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
+                                            <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=BOTTOM&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
                                                 <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_bottom_10.png"/>
-                                            </a>
+                                            </f:link>
                                         </td>
                                     </j:if>
                                 </j:when>

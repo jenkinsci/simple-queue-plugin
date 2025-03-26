@@ -10,11 +10,14 @@ import org.kohsuke.stapler.StaplerResponse;
 import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.util.logging.Logger;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 @SuppressWarnings("unused")
 @Extension
 public class ResetAction implements RootAction {
     private static Logger logger = Logger.getLogger(ResetAction.class.getName());
+
+    @RequirePOST
     public void doReset(final StaplerRequest request, final StaplerResponse response) {
         if (!Jenkins.get().hasPermission(PermissionHandler.SIMPLE_QUEUE_RESET_PERMISSION)) return;
         QueueSorter queueSorter = Jenkins.get().getQueue().getSorter();

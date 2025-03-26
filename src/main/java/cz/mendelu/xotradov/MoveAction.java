@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 /**
  * Handles request to move one buildable item in a build queue, which is the core functionality of this plugin.
@@ -56,6 +57,7 @@ public class MoveAction implements RootAction {
      * @param request Stapler request from user
      * @param response Stapler response send back to users browser
      */
+    @RequirePOST
     public void doMove(final StaplerRequest request, final StaplerResponse response) {
         Jenkins j;
         if ((j = Jenkins.getInstanceOrNull()) != null) {

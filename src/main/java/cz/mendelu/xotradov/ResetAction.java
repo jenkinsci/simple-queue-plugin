@@ -2,13 +2,11 @@ package cz.mendelu.xotradov;
 
 import hudson.Extension;
 import hudson.model.RootAction;
-import hudson.model.queue.QueueSorter;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import javax.annotation.CheckForNull;
-import java.io.IOException;
 import java.util.logging.Logger;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
@@ -20,16 +18,9 @@ public class ResetAction implements RootAction {
     @RequirePOST
     public void doReset(final StaplerRequest request, final StaplerResponse response) {
         if (!Jenkins.get().hasPermission(PermissionHandler.SIMPLE_QUEUE_RESET_PERMISSION)) return;
-        QueueSorter queueSorter = Jenkins.get().getQueue().getSorter();
-        if (queueSorter instanceof SimpleQueueSorter){
-            ((SimpleQueueSorter) queueSorter).reset();
-        }
-        try {
-            response.sendRedirect2(request.getRootPath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        ResetActionUnsafe.doImpl(request, response);
     }
+
     @CheckForNull
     @Override
     public String getIconFileName() {

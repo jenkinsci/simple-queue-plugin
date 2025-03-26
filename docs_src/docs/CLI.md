@@ -62,6 +62,44 @@ for move to bottom of view - the item run before all others in this view
 curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveType=TOP&itemId=my-job-name&viewName=my_view"
 ```
 for move to top of view - the item run last of all others in this view
+
+### Legacy Api
+The old, unsecure GET approach can still be used, if enabled in main settings:
+
+When hovering over priority arrows, you cans see that it executes special url aka:
+```
+curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=DOWN_FAST&itemId=1074193&viewName=.executors"
+```
+for item to bottom, or
+```
+curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=DOWN&itemId=1074184&viewName=.executors"
+```
+for item one step forward, or
+```
+curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=BOTTOM&itemId=1073889&viewName=.executors"
+```
+for move to bottom of view
+
+The `viewName` is optional and is obvious. The `moveType` too (its full enumeration is in https://github.com/jenkinsci/simple-queue-plugin/blob/master/src/main/java/cz/mendelu/xotradov/MoveType.java .  The `itemId` is super sure for jenkins to jenkins communication, but useless for human usage. Thus the https://github.com/jenkinsci/simple-queue-plugin/pull/2 added feature to move by name, so `itemId` can be also job name. If no job is found, the plugin will simply fall throug, so to speed up job **my-job-name** (in view my_view) you end up on:
+```
+curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=DOWN_FAST&itemId=my-job-name"
+```
+for item to bottom, or
+```
+curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=DOWN&itemId=my-job-name"
+```
+for item one step forward, or
+```
+curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=BOTTOM&itemId=my-job-name&viewName=my_view"
+```
+for move to bottom of view
+
+even the reset
+```
+http://jenkins_url/simpleQueueResetUnsafe/reset
+```
+have working unsafe variant (if enabled)
+
 #### Complex names
 As investigated at https://github.com/jenkinsci/simple-queue-plugin/pull/3#discussion_r1306649177 ,  there are two cornercases
  * **escaping**: if your name contains **%** or **/** they have to be URL escaped. So / will become **%2F** and % will become **%25**

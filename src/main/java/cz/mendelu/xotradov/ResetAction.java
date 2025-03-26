@@ -18,7 +18,7 @@ public class ResetAction implements RootAction {
     @RequirePOST
     public void doReset(final StaplerRequest request, final StaplerResponse response) {
         if (!Jenkins.get().hasPermission(PermissionHandler.SIMPLE_QUEUE_RESET_PERMISSION)) return;
-        ResetActionUnsafe.doImpl(request, response);
+        UnsafeResetAction.doImpl(request, response);
     }
 
     @CheckForNull

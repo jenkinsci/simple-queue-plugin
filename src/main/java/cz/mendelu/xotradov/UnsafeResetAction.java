@@ -2,7 +2,6 @@ package cz.mendelu.xotradov;
 
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -16,11 +15,14 @@ import jenkins.model.Jenkins;
 
 @SuppressWarnings("unused")
 @Extension
-public class ResetActionUnsafe implements RootAction {
-    private static Logger logger = Logger.getLogger(ResetActionUnsafe.class.getName());
+public class UnsafeResetAction implements RootAction {
+    private static Logger logger = Logger.getLogger(UnsafeResetAction.class.getName());
 
     //curl http://my.url:8080/simpleQueueResetUnsafe/reset
     public void doReset(final StaplerRequest request, final StaplerResponse response) {
+        if (!SimpleQueueConfig.getInstance().isEnableUnsafe()) {
+            throw new IllegalArgumentException("Unsafe reset api attempted without being enabled");
+        }
         doImpl(request, response);
     }
 

@@ -37,6 +37,9 @@ public class UnsafeMoveAction extends MoveActionWorker implements RootAction {
 
 
     public void doMove(final StaplerRequest request, final StaplerResponse response) {
+        if (!SimpleQueueConfig.getInstance().isEnableUnsafe()) {
+            throw new IllegalArgumentException("Unsafe reset api attempted without being enabled");
+        }
         Jenkins j;
         if ((j = Jenkins.getInstanceOrNull()) != null) {
             Queue queue = j.getQueue();

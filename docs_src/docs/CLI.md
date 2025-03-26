@@ -21,6 +21,7 @@ for move to bottom of view. However, get "id" is impossible for human use, so th
    * [in-view movement](#in-view-movement)
      * BOTTOM
      * TOP
+   * [Legacy api](#legacy-api)
    * [Complex names](#complex-names)
      * escaping
      * full names
@@ -66,17 +67,16 @@ for move to top of view - the item run last of all others in this view
 ### Legacy Api
 The old, unsecure GET approach can still be used, if enabled in main settings:
 
-When hovering over priority arrows, you cans see that it executes special url aka:
 ```
-curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=DOWN_FAST&itemId=1074193&viewName=.executors"
+curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=DOWN_FAST&itemId=my-job-name&viewName=.executors"
 ```
 for item to bottom, or
 ```
-curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=DOWN&itemId=1074184&viewName=.executors"
+curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=DOWN&itemId=my-job-name&viewName=.executors"
 ```
 for item one step forward, or
 ```
-curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=BOTTOM&itemId=1073889&viewName=.executors"
+curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=BOTTOM&itemId=my-job-name&viewName=.executors"
 ```
 for move to bottom of view
 

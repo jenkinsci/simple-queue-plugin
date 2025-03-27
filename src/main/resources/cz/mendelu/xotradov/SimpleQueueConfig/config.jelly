@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
     <f:section title="Simple Queue plugi">
-        <f:entry title="Enable Unsafe (no cfr protection, no login) api" field="enableUnsafe">
+        <f:entry title="Enable Unsafe (no CSRF protection, no login) api" field="enableUnsafe">
             <f:checkbox/>
         </f:entry>
     </f:section>

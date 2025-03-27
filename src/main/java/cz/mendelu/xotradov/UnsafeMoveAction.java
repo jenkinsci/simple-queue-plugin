@@ -43,7 +43,7 @@ public class UnsafeMoveAction extends MoveActionWorker implements RootAction {
         Jenkins j;
         if ((j = Jenkins.getInstanceOrNull()) != null) {
             Queue queue = j.getQueue();
-            doMoveImpl(request, queue, j);
+            moveImpl(request, queue, j);
         }
         try {
             response.forwardToPreviousPage(request);

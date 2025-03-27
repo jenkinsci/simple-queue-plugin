@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 
 
 import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +30,7 @@ public class MoveActionWorker {
 
 
 
-    protected void doMoveImpl(StaplerRequest request, Queue queue, Jenkins j) {
+    protected void moveImpl(StaplerRequest request, Queue queue, Jenkins j) {
         try {
             String idParam = request.getParameter(ITEM_ID_PARAM_NAME);
             Queue.Item item = null;

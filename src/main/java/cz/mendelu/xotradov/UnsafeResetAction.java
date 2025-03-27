@@ -23,10 +23,10 @@ public class UnsafeResetAction implements RootAction {
         if (!SimpleQueueConfig.getInstance().isEnableUnsafe()) {
             throw new IllegalArgumentException("Unsafe reset api attempted without being enabled");
         }
-        doImpl(request, response);
+        resetImpl(request, response);
     }
 
-    public static void  doImpl(final StaplerRequest request, final StaplerResponse response) {
+    public static void resetImpl(final StaplerRequest request, final StaplerResponse response) {
         QueueSorter queueSorter = Jenkins.get().getQueue().getSorter();
         if (queueSorter instanceof SimpleQueueSorter){
             ((SimpleQueueSorter) queueSorter).reset();

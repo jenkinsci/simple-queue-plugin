@@ -49,7 +49,7 @@ public class MoveAction extends MoveActionWorker implements RootAction  {
         if ((j = Jenkins.getInstanceOrNull()) != null) {
             Queue queue = j.getQueue();
             if (queue != null & j.hasPermission(PermissionHandler.SIMPLE_QUEUE_MOVE_PERMISSION)) {
-                doMoveImpl(request, queue, j);
+                moveImpl(request, queue, j);
             }
         }
         try {

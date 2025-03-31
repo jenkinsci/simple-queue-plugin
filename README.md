@@ -9,6 +9,8 @@ The user must have an Administer/Overall or MANAGE/Overall permission for changi
     For using Manage permission is needed plugin: https://plugins.jenkins.io/manage-permission/
 Orders buildable items only, for that reason [blocked](hhttps://stackoverflow.com/questions/56182285/difference-between-blocked-stuck-pending-buildable-jobs-in-jenkins) items do NOT have an arrow.<br />
 
+**Since 1.4.7**, breaking *changes* were introduced into *human* usable **api**: https://github.com/jenkinsci/simple-queue-plugin/releases/tag/simple-queue-1.4.7
+
 #### Screenshot
 ![Screenshot](docs_src/docs/images/queue_screenshot.png "Simple Queue screenshot")
 

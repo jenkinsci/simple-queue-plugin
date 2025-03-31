@@ -695,13 +695,15 @@
 </code></pre>
 <p>have working unsafe variant (if enabled)</p>
 <h4 id="complex-names">Complex names</h4>
-<p>As investigated at https://github.com/jenkinsci/simple-queue-plugin/pull/3#discussion_r1306649177 ,  there are two cornercases
- * <strong>escaping</strong>: if your name contains <strong>%</strong> or <strong>/</strong> they have to be URL escaped. So / will become <strong>%2F</strong> and % will become <strong>%25</strong>
-   * generally spoken, your <strong>full name</strong> (see lower) should be <strong>fully escaped</strong>
- * <strong>full names</strong>: somem plugins - e.g.   Pipeline: Nodes and Processes plugin <strong>or</strong> git branches plugin  - uses lets say <em>fully qualified names</em>. Such name must contain its full dispaly name. eg
-   * <code>SAUR/Rex/release%2F1.5</code> must be passed in a display name like
-   * <code>part of SAUR » Rex » release/1.5 #413</code> should pe passed in as
-   * <code>itemId=part%20of%20SAUR%20%C2%BB%20Rex%20%C2%BB%20release%2F1.5%20%23413</code></p>
+<p>As investigated at https://github.com/jenkinsci/simple-queue-plugin/pull/3#discussion_r1306649177 ,  there are two cornercases:</p>
+<ul>
+<li><strong>escaping</strong>: if your name contains <code>%</code> or <code>/</code> they have to be URL escaped. So <code>/</code> will become <code>%2F</code> and <code>%</code> will become <code>%25</code> and <code>#</code> will become <code>%23</code></li>
+<li>generally spoken, your <strong>full name</strong> (see below) should be <strong>fully escaped</strong></li>
+<li><strong>full names</strong>: some plugins - e.g.   Pipeline: Nodes and Processes plugin <strong>or</strong> git branches plugin  - uses lets say <em>fully qualified names</em>. Such name must contain its full display name. eg</li>
+<li><code>SAUR/Rex/release%2F1.5</code> must be passed in a display name like</li>
+<li><code>part of SAUR » Rex » release/1.5 #413</code> should pe passed in as</li>
+<li><code>itemId=part%20of%20SAUR%20%C2%BB%20Rex%20%C2%BB%20release%2F1.5%20%23413</code></li>
+</ul>
 <p>This is annoying, and PR to improve this is welcomed. However, such cross plugin playing is requiring some class-name/reflection playing.</p>
 <h4 id="http-return-value">HTTP return value</h4>
 <p>Unluckily, currently plugin always returns <code>302 Found</code> so you will not know if call succeeded. This may change, but is not planned</p>

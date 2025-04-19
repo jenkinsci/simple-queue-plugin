@@ -49,7 +49,8 @@ public class MoveActionWorker {
                     items = new Queue.Item[1];
                     items[0] = item;
                 } else {
-                    items = findItemsByPattern(queue, Pattern.compile(idParam));
+                    if (idParam.startsWith("~/") && idParam.endsWith("/"))
+                        items = findItemsByPattern(queue, Pattern.compile(idParam));
                 }
             }
             MoveType moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));

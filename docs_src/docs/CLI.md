@@ -77,7 +77,7 @@ curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveTyp
 ```
 for move to top of view - the item run last of all others in this view
 
-### Legacy Api
+### Legacy API
 The old, unsecure GET approach can still be used, if enabled in main settings:
 
 ```
@@ -121,6 +121,11 @@ even the reset
 http://jenkins_url/simpleQueueResetUnsafe/reset
 ```
 have working unsafe variant (if enabled)
+
+Regular expressions to match the queue item(s) to move should be encased in tilde-slash markup like `~/.../`, e.g.:
+```
+curl "http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=~/.*my-job-name.*#1234.*/"
+```
 
 #### Complex names
 As investigated at https://github.com/jenkinsci/simple-queue-plugin/pull/3#discussion_r1306649177 ,  there are two corner cases:

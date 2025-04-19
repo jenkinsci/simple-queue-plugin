@@ -24,41 +24,41 @@ public class SimpleQueueUpdateAction implements RootAction {
     ///For compilation reasons
     public SimpleQueueUpdateAction() {
     }
-    public static String getMoveTypeName(){return MoveAction.MOVE_TYPE_PARAM_NAME;}
-    public static String getItemIdName(){return MoveAction.ITEM_ID_PARAM_NAME;}
-    public static String getViewNameParamName(){return MoveAction.VIEW_NAME_PARAM_NAME;}
+    public static String getMoveTypeName() { return MoveAction.MOVE_TYPE_PARAM_NAME;}
+    public static String getItemIdName() { return MoveAction.ITEM_ID_PARAM_NAME;}
+    public static String getViewNameParamName() { return MoveAction.VIEW_NAME_PARAM_NAME;}
     ///Used by Jelly
     @Restricted(NoExternalUse.class)
-    public Queue.Item[] getItems(){
-        if (!Jenkins.get().hasPermission(Permission.READ)){
+    public Queue.Item[] getItems() {
+        if (!Jenkins.get().hasPermission(Permission.READ)) {
             return null;
-        }else {
+        } else {
             View view = Jenkins.get().getView(Stapler.getCurrentRequest().getParameter("name"));
             Collection<Queue.Item> x;
             if (view != null) {
                 x = view.getQueueItems();
                 return x.toArray(new Queue.Item[x.size()]);
-            }else {
+            } else {
                 return null;
             }
         }
     }
     @Restricted(NoExternalUse.class) // Jelly
-    public boolean isFilterQueue(){
-        if (!Jenkins.get().hasPermission(Permission.READ)){
+    public boolean isFilterQueue() {
+        if (!Jenkins.get().hasPermission(Permission.READ)) {
             return false;
-        }else {
+        } else {
             View view = Jenkins.get().getView(Stapler.getCurrentRequest().getParameter("name"));
             return view != null && view.isFilterQueue();
         }
     }
     @Restricted(NoExternalUse.class) // Jelly
-    public String getViewName(){
-        if (!Jenkins.get().hasPermission(Permission.READ)){
+    public String getViewName() {
+        if (!Jenkins.get().hasPermission(Permission.READ)) {
             return "";
-        }else {
+        } else {
             View view = Jenkins.get().getView(Stapler.getCurrentRequest().getParameter("name"));
-            return view!=null?view.getViewName():"";
+            return (view != null) ? view.getViewName() : "";
         }
     }
     public String getIconFileName() {
@@ -68,9 +68,9 @@ public class SimpleQueueUpdateAction implements RootAction {
         return null;
     }
     public String getUrlName() {
-        if (Jenkins.get().hasPermission(Permission.READ)){
+        if (Jenkins.get().hasPermission(Permission.READ)) {
             return "updateQueue";
-        }else {
+        } else {
             return null;
         }
     }

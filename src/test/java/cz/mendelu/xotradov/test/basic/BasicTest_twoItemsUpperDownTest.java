@@ -34,17 +34,17 @@ public class BasicTest_twoItemsUpperDownTest {
         Queue queue = Queue.getInstance();
         //now can be queue filled predictably
         FreeStyleProject projectC = helper.createAndSchedule("projectC", 20000);
-        FreeStyleProject projectD = helper.createAndSchedule("projectD",20000);
+        FreeStyleProject projectD = helper.createAndSchedule("projectD", 20000);
         queue.maintain();
-        assertEquals(projectD.getDisplayName(),queue.getItems()[0].task.getDisplayName());
-        assertEquals(projectC.getDisplayName(),queue.getItems()[1].task.getDisplayName());
+        assertEquals(projectD.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+        assertEquals(projectC.getDisplayName(), queue.getItems()[1].task.getDisplayName());
         assertTrue(jenkinsRule.jenkins.hasPermission(Jenkins.ADMINISTER));
-        assertEquals(2,queue.getBuildableItems().size());
-        assertEquals(2,queue.getItems().length);
+        assertEquals(2, queue.getBuildableItems().size());
+        assertEquals(2, queue.getItems().length);
         MoveAction moveAction = (MoveAction)jenkinsRule.jenkins.getActions().get(1);
-        moveAction.moveDown(queue.getItems()[0],queue);
+        moveAction.moveDown(queue.getItems()[0], queue);
         queue.maintain();
-        assertEquals(projectC.getDisplayName(),queue.getItems()[0].task.getDisplayName());
-        assertEquals(projectD.getDisplayName(),queue.getItems()[1].task.getDisplayName());
+        assertEquals(projectC.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+        assertEquals(projectD.getDisplayName(), queue.getItems()[1].task.getDisplayName());
     }
 }

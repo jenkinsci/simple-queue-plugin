@@ -37,24 +37,24 @@ public class MoveAction_moveDownFilteredTest {
         try {
             long maxTestTime = 10000;
             helper.fillQueueFor(maxTestTime);
-            FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
-            FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
-            FreeStyleProject E = helper.createAndSchedule("E",maxTestTime);
-            FreeStyleProject F = helper.createAndSchedule("F",maxTestTime);
-            FreeStyleProject G = helper.createAndSchedule("G",maxTestTime);
+            FreeStyleProject C = helper.createAndSchedule("C", maxTestTime);
+            FreeStyleProject D = helper.createAndSchedule("D", maxTestTime);
+            FreeStyleProject E = helper.createAndSchedule("E", maxTestTime);
+            FreeStyleProject F = helper.createAndSchedule("F", maxTestTime);
+            FreeStyleProject G = helper.createAndSchedule("G", maxTestTime);
             MoveAction moveAction = helper.getMoveAction();
             assertNotNull(C.getQueueItem());
             Queue queue =jenkinsRule.jenkins.getQueue();
-            assertEquals(F.getDisplayName(),queue.getItems()[1].task.getDisplayName());
-            assertEquals(C.getDisplayName(),queue.getItems()[4].task.getDisplayName());
+            assertEquals(F.getDisplayName(), queue.getItems()[1].task.getDisplayName());
+            assertEquals(C.getDisplayName(), queue.getItems()[4].task.getDisplayName());
             View view = Mockito.mock(View.class);
             when(view.isFilterQueue()).thenReturn(true);
             List<Queue.Item> list = Arrays.asList(queue.getItems());
             when(view.getQueueItems()).thenReturn(list);
-            moveAction.moveDownFiltered(F.getQueueItem(),queue,view);
+            moveAction.moveDownFiltered(F.getQueueItem(), queue, view);
             queue.maintain();
-            assertEquals(F.getDisplayName(),queue.getItems()[2].task.getDisplayName());
-        }catch (Exception e){
+            assertEquals(F.getDisplayName(), queue.getItems()[2].task.getDisplayName());
+        } catch (Exception e) {
             fail();
         }
     }

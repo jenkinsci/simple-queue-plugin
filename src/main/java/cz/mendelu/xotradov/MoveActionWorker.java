@@ -23,10 +23,10 @@ import jenkins.model.Jenkins;
 
 public class MoveActionWorker {
     protected static final Logger logger = Logger.getLogger(MoveActionWorker.class.getName());
-    public static final String MOVE_TYPE_PARAM_NAME= "moveType";
-    public static final String ITEM_ID_PARAM_NAME="itemId";
-    public static final String VIEW_NAME_PARAM_NAME="viewName";
-    protected boolean isSorterSet=false;
+    public static final String MOVE_TYPE_PARAM_NAME = "moveType";
+    public static final String ITEM_ID_PARAM_NAME = "itemId";
+    public static final String VIEW_NAME_PARAM_NAME = "viewName";
+    protected boolean isSorterSet = false;
 
 
 
@@ -86,7 +86,7 @@ public class MoveActionWorker {
                 moveDown(item, queue);
                 break;
             case DOWN_FAST:
-                moveToBottom(item,queue);
+                moveToBottom(item, queue);
                 break;
             case TOP:
             case BOTTOM:
@@ -94,49 +94,49 @@ public class MoveActionWorker {
         }
     }
 
-    private void moveFiltered(@Nonnull Queue queue,@Nonnull Queue.Item item,@Nonnull MoveType moveType,@Nonnull View view) {
-        switch (moveType){
+    private void moveFiltered(@Nonnull Queue queue, @Nonnull Queue.Item item, @Nonnull MoveType moveType, @Nonnull View view) {
+        switch (moveType) {
             case TOP:
-                moveToTop(item,queue);
+                moveToTop(item, queue);
                 break;
             case UP_FAST:
-                moveToTopFiltered(item,queue,view);
+                moveToTopFiltered(item, queue, view);
                 break;
             case UP:
-                moveUpFiltered(item,queue,view);
+                moveUpFiltered(item, queue, view);
                 break;
             case DOWN:
-                moveDownFiltered(item,queue,view);
+                moveDownFiltered(item, queue, view);
                 break;
             case DOWN_FAST:
-                moveToBottomFiltered(item,queue,view);
+                moveToBottomFiltered(item, queue, view);
                 break;
             case BOTTOM:
-                moveToBottom(item,queue);
+                moveToBottom(item, queue);
                 break;
         }
     }
 
     @VisibleForTesting
-    public void moveToBottomFiltered(Queue.Item itemToBottom, Queue queue,@Nonnull View view) {
+    public void moveToBottomFiltered(Queue.Item itemToBottom, Queue queue, @Nonnull View view) {
         Queue.Item oldBottomItem = getBottom(view.getQueueItems());
-        if (oldBottomItem!=null){
-            putABelowB(itemToBottom,oldBottomItem,queue);
+        if (oldBottomItem != null) {
+            putABelowB(itemToBottom, oldBottomItem, queue);
         }
     }
 
     private void putABelowB(Queue.Item itemToBottom, Queue.Item oldBottomItem, Queue queue) {
         Queue.Item[] items = queue.getItems();
-        List<Queue.Item> itemsC = getItemsBetween(itemToBottom,oldBottomItem, items);
-        if (!isSorterSet){
+        List<Queue.Item> itemsC = getItemsBetween(itemToBottom, oldBottomItem, items);
+        if (!isSorterSet) {
             setSorter(queue);
         }
         QueueSorter queueSorter = queue.getSorter();
-        if (queueSorter instanceof SimpleQueueSorter){
+        if (queueSorter instanceof SimpleQueueSorter) {
             SimpleQueueComparator comparator = ((SimpleQueueSorter) queueSorter).getSimpleQueueComparator();
-            comparator.addDesire(itemToBottom.getId(),oldBottomItem.getId());
-            for (Queue.Item itemC: itemsC){
-                comparator.addDesire(itemToBottom.getId(),itemC.getId());
+            comparator.addDesire(itemToBottom.getId(), oldBottomItem.getId());
+            for (Queue.Item itemC: itemsC) {
+                comparator.addDesire(itemToBottom.getId(), itemC.getId());
             }
             resort(queue);
         }
@@ -144,18 +144,18 @@ public class MoveActionWorker {
 
     @VisibleForTesting
     public @CheckForNull Queue.Item getBottom(@Nonnull List<Queue.Item> queueItems) {
-        if (queueItems.size()>0){
-            return queueItems.get(queueItems.size()-1);
-        }else {
+        if (queueItems.size() > 0) {
+            return queueItems.get(queueItems.size() - 1);
+        } else {
             return null;
         }
     }
 
     @VisibleForTesting
     public void moveDownFiltered(Queue.Item itemToDown, Queue queue, View view) {
-        Queue.Item oldItemBelow = getItemAfter(itemToDown,view.getQueueItems().toArray(new Queue.Item[view.getQueueItems().size()]));
-        if (oldItemBelow!=null){
-            putABelowB(itemToDown,oldItemBelow,queue);
+        Queue.Item oldItemBelow = getItemAfter(itemToDown, view.getQueueItems().toArray(new Queue.Item[view.getQueueItems().size()]));
+        if (oldItemBelow != null) {
+            putABelowB(itemToDown, oldItemBelow, queue);
         }
     }
 
@@ -167,54 +167,54 @@ public class MoveActionWorker {
      */
     @VisibleForTesting
     public void moveUpFiltered(Queue.Item itemToUp, Queue queue, View view) {
-        Queue.Item oldItemAbove = getItemBefore(itemToUp,view.getQueueItems().toArray(new Queue.Item[view.getQueueItems().size()]));
-        if (oldItemAbove!=null){
-            putAOnTopOfB(itemToUp,oldItemAbove,queue);
+        Queue.Item oldItemAbove = getItemBefore(itemToUp, view.getQueueItems().toArray(new Queue.Item[view.getQueueItems().size()]));
+        if (oldItemAbove != null) {
+            putAOnTopOfB(itemToUp, oldItemAbove, queue);
         }
     }
 
 
     private void moveToTopFiltered(@Nonnull Queue.Item item, @Nonnull Queue queue, @Nonnull View view) {
             Queue.Item oldTopItem = getTop(view.getQueueItems());
-            if (oldTopItem!=null){
-                putAOnTopOfB(item,oldTopItem,queue);
+            if (oldTopItem != null) {
+                putAOnTopOfB(item, oldTopItem, queue);
             }
     }
 
     @VisibleForTesting
-    public void putAOnTopOfB(@Nonnull Queue.Item itemA, @Nonnull Queue.Item itemB,@Nonnull Queue queue) {
+    public void putAOnTopOfB(@Nonnull Queue.Item itemA, @Nonnull Queue.Item itemB, @Nonnull Queue queue) {
         Queue.Item[] items = queue.getItems();
-        List<Queue.Item> itemsC = getItemsBetween(itemA,itemB, items);
-            if (!isSorterSet){
+        List<Queue.Item> itemsC = getItemsBetween(itemA, itemB, items);
+            if (!isSorterSet) {
                 setSorter(queue);
             }
             QueueSorter queueSorter = queue.getSorter();
-            if (queueSorter instanceof SimpleQueueSorter){
+            if (queueSorter instanceof SimpleQueueSorter) {
                 SimpleQueueComparator comparator = ((SimpleQueueSorter) queueSorter).getSimpleQueueComparator();
-                comparator.addDesire(itemB.getId(),itemA.getId());
-                for (Queue.Item itemC: itemsC){
-                    comparator.addDesire(itemC.getId(),itemA.getId());
+                comparator.addDesire(itemB.getId(), itemA.getId());
+                for (Queue.Item itemC: itemsC) {
+                    comparator.addDesire(itemC.getId(), itemA.getId());
                 }
                 resort(queue);
             }
     }
 
     private List<Queue.Item> getItemsBetween(Queue.Item itemA, Queue.Item itemB, Queue.Item[] items) {
-        if (isABeforeB(itemA,itemB,items)){
-            return getItemsBetweenTopFirst(itemB,itemA,items);
-        }else {
-            return getItemsBetweenTopFirst(itemA,itemB,items);
+        if (isABeforeB(itemA, itemB, items)) {
+            return getItemsBetweenTopFirst(itemB, itemA, items);
+        } else {
+            return getItemsBetweenTopFirst(itemA, itemB, items);
         }
     }
 
     ///We suppose that both items are in the queue present
     private boolean isABeforeB(Queue.Item itemA, Queue.Item itemB, Queue.Item[] items) {
-        List<Queue.Item> itemsBefore = getItemsBefore(itemA,items);
-         for(Queue.Item item:itemsBefore){
-             if (item.getId()==itemB.getId()){
-                 return false;
-             }
-         }
+        List<Queue.Item> itemsBefore = getItemsBefore(itemA, items);
+        for (Queue.Item item: itemsBefore) {
+            if (item.getId() == itemB.getId()) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -224,15 +224,15 @@ public class MoveActionWorker {
         if (items.length > 2) {
             boolean seenBottom = false;
             boolean seenTop = false;
-            for (Queue.Item item:items){
-                if (!seenTop){
-                    if (item.getId()==bottomItem.getId()){
-                        seenBottom=true;
+            for (Queue.Item item: items) {
+                if (!seenTop) {
+                    if (item.getId() == bottomItem.getId()) {
+                        seenBottom = true;
                     }
-                    if (seenBottom){
-                        if (item.getId()==topItem.getId()){
+                    if (seenBottom) {
+                        if (item.getId() == topItem.getId()) {
                             seenTop = true;
-                        }else {
+                        } else {
                             returnList.add(item);
                         }
                     }
@@ -248,12 +248,12 @@ public class MoveActionWorker {
     @VisibleForTesting
     public @CheckForNull Queue.Item getTop(Collection<Queue.Item> items) {
         int size = items.size();
-        if (size>0){
+        if (size > 0) {
             for (int i = size; i > 1 ; i--) {
                 items.iterator().next();
             }
             return items.iterator().next();
-        }else {
+        } else {
             return null;
         }
     }
@@ -262,18 +262,18 @@ public class MoveActionWorker {
      * @param itemA Item with least importance
      */
     @VisibleForTesting
-    public void moveToTop(@Nonnull Queue.Item itemA,@Nonnull Queue queue){
+    public void moveToTop(@Nonnull Queue.Item itemA, @Nonnull Queue queue) {
         Queue.Item[] items = queue.getItems();
         List<Queue.Item> itemsB = getItemsBefore(itemA, items);
-        if (itemsB.size()!=0){
-            if (!isSorterSet){
+        if (itemsB.size() != 0) {
+            if (!isSorterSet) {
                 setSorter(queue);
             }
             QueueSorter queueSorter = queue.getSorter();
-            if (queueSorter instanceof SimpleQueueSorter){
+            if (queueSorter instanceof SimpleQueueSorter) {
                 SimpleQueueComparator comparator = ((SimpleQueueSorter) queueSorter).getSimpleQueueComparator();
-                for (Queue.Item itemB: itemsB){
-                    comparator.addDesire(itemB.getId(),itemA.getId());
+                for (Queue.Item itemB: itemsB) {
+                    comparator.addDesire(itemB.getId(), itemA.getId());
                 }
                 resort(queue);
             }
@@ -287,13 +287,13 @@ public class MoveActionWorker {
     public void moveUp(Queue.Item itemA, Queue queue) {
         Queue.Item[] items = queue.getItems();
         Queue.Item itemB = getItemBefore(itemA, items);
-        if (itemB!=null){
-            if (!isSorterSet){
+        if (itemB != null) {
+            if (!isSorterSet) {
                 setSorter(queue);
             }
             QueueSorter queueSorter = queue.getSorter();
-            if (queueSorter instanceof SimpleQueueSorter){
-                ((SimpleQueueSorter) queueSorter).getSimpleQueueComparator().addDesire(itemB.getId(),itemA.getId());
+            if (queueSorter instanceof SimpleQueueSorter) {
+                ((SimpleQueueSorter) queueSorter).getSimpleQueueComparator().addDesire(itemB.getId(), itemA.getId());
                 resort(queue);
             }
         }
@@ -303,13 +303,13 @@ public class MoveActionWorker {
     public void moveDown(Queue.Item itemA, Queue queue) {
         Queue.Item[] items = queue.getItems();
         Queue.Item itemB = getItemAfter(itemA, items);
-        if (itemB!=null){
-            if (!isSorterSet){
+        if (itemB != null) {
+            if (!isSorterSet) {
                 setSorter(queue);
             }
             QueueSorter queueSorter = queue.getSorter();
-            if (queueSorter instanceof SimpleQueueSorter){
-                ((SimpleQueueSorter) queueSorter).getSimpleQueueComparator().addDesire(itemA.getId(),itemB.getId());
+            if (queueSorter instanceof SimpleQueueSorter) {
+                ((SimpleQueueSorter) queueSorter).getSimpleQueueComparator().addDesire(itemA.getId(), itemB.getId());
                 resort(queue);
             }
         }
@@ -319,18 +319,18 @@ public class MoveActionWorker {
      * @param itemA The most important item
      * */
     @VisibleForTesting
-    public void moveToBottom(@Nonnull Queue.Item itemA,@Nonnull Queue queue){
+    public void moveToBottom(@Nonnull Queue.Item itemA, @Nonnull Queue queue) {
         Queue.Item[] items = queue.getItems();
         List<Queue.Item> itemsB = getItemsAfter(itemA, items);
-        if (itemsB.size()!=0){
-            if (!isSorterSet){
+        if (itemsB.size() != 0) {
+            if (!isSorterSet) {
                 setSorter(queue);
             }
             QueueSorter queueSorter = queue.getSorter();
-            if (queueSorter instanceof SimpleQueueSorter){
+            if (queueSorter instanceof SimpleQueueSorter) {
                 SimpleQueueComparator comparator = ((SimpleQueueSorter) queueSorter).getSimpleQueueComparator();
-                for (Queue.Item itemB : itemsB){
-                    comparator.addDesire(itemA.getId(),itemB.getId());
+                for (Queue.Item itemB : itemsB) {
+                    comparator.addDesire(itemA.getId(), itemB.getId());
                 }
                 resort(queue);
             }
@@ -338,15 +338,15 @@ public class MoveActionWorker {
     }
 
     @Nonnull
-    private List<Queue.Item> getItemsBefore(@Nonnull Queue.Item itemA,@Nonnull Queue.Item[] items) {
+    private List<Queue.Item> getItemsBefore(@Nonnull Queue.Item itemA, @Nonnull Queue.Item[] items) {
         List<Queue.Item> returnList = new ArrayList<>();
         if (items.length >= 2) {
-            boolean seenItemA= false;
-            for (Queue.Item item:items){
-                if (!seenItemA){
-                    if (item.getId()==itemA.getId()){
+            boolean seenItemA = false;
+            for (Queue.Item item: items) {
+                if (!seenItemA) {
+                    if (item.getId() == itemA.getId()) {
                         seenItemA = true;
-                    }else {
+                    } else {
                         returnList.add(item);
                     }
                 }
@@ -356,15 +356,15 @@ public class MoveActionWorker {
     }
 
     @Nonnull
-    private List<Queue.Item> getItemsAfter(@Nonnull Queue.Item itemA,@Nonnull Queue.Item[] items) {
+    private List<Queue.Item> getItemsAfter(@Nonnull Queue.Item itemA, @Nonnull Queue.Item[] items) {
         List<Queue.Item> returnList = new ArrayList<>();
         if (items.length >= 2) {
             boolean seenItemA = false;
-            for (Queue.Item item: items){
-                if (seenItemA){
+            for (Queue.Item item: items) {
+                if (seenItemA) {
                     //add item
                     returnList.add(item);
-                }else {
+                } else {
                     //check for item
                     if (item.getId() == itemA.getId()) seenItemA = true;
                 }
@@ -379,14 +379,14 @@ public class MoveActionWorker {
      * @return Returns item that is after in the queue order = the with higher priority = goes before to execution
      */
     @CheckForNull
-    private Queue.Item getItemAfter(@Nonnull Queue.Item itemA,@Nonnull Queue.Item[] items) {
+    private Queue.Item getItemAfter(@Nonnull Queue.Item itemA, @Nonnull Queue.Item[] items) {
         if (items.length >= 2) {
             Queue.Item previous = null;
             for (Queue.Item itemB : items) {
-                if ((previous!=null) && (previous.getId() == itemA.getId())) {
+                if ((previous != null) && (previous.getId() == itemA.getId())) {
                     return itemB;
                 }
-                previous=itemB;
+                previous = itemB;
             }
         }
         return null;
@@ -400,19 +400,19 @@ public class MoveActionWorker {
                 if (itemFor.getId() == itemA.getId()) {
                     return itemB;
                 }
-                itemB=itemFor;
+                itemB = itemFor;
             }
         }
         return null;
     }
 
     private void setSorter(Queue queue) {
-        if (!isSorterSet){
+        if (!isSorterSet) {
             QueueSorter originalQueueSorter = queue.getSorter();
             if (originalQueueSorter == null) originalQueueSorter = new DefaultSorter();
             SimpleQueueSorter simpleQueueSorter = new SimpleQueueSorter(originalQueueSorter);
             queue.setSorter(simpleQueueSorter);
-            isSorterSet=true;
+            isSorterSet = true;
         }
     }
 

@@ -685,7 +685,7 @@ public class MoveActionWorker {
                     itemsAid.add(itemA.getId());
             }
 
-            for (Queue.Item item:items) {
+            for (Queue.Item item: items) {
                 if (itemsAid.contains(item.getId()))
                     break;
                 returnList.add(item);

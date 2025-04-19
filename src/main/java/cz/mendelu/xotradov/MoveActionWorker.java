@@ -37,7 +37,7 @@ public class MoveActionWorker {
             try {
                 item = queue.getItem(Long.parseLong(idParam));
             } catch (NumberFormatException nfe) {
-                item = findIemByName(queue, idParam);
+                item = findItemByName(queue, idParam);
             }
             MoveType moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));
             View view = j.getView(request.getParameter(VIEW_NAME_PARAM_NAME));
@@ -55,7 +55,7 @@ public class MoveActionWorker {
         }
     }
 
-    protected Queue.Item findIemByName(Queue queue, String idParam) {
+    protected Queue.Item findItemByName(Queue queue, String idParam) {
         for (Queue.Item item : queue.getItems()) {
             if (item.isBuildable()) {
                 if (item.task != null && item.task.getDisplayName().equals(idParam)) {

@@ -17,6 +17,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cz.mendelu.xotradov.MoveAction;
@@ -56,6 +57,62 @@ public class MoveAction_doMoveByNameTest {
             moveAction.doMove(request, response);
             assertEquals(C.getDisplayName(), queue.getItems()[0].task.getDisplayName());
             assertEquals(D.getDisplayName(), queue.getItems()[1].task.getDisplayName());
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+
+    @Test
+    public void doMoveByNameManyByRegex() throws Exception {
+        try {
+            long maxTestTime = 10000;
+            helper.fillQueueFor(maxTestTime);
+            FreeStyleProject C = helper.createAndSchedule("C", maxTestTime);
+            FreeStyleProject D = helper.createAndSchedule("D", maxTestTime);
+            FreeStyleProject E = helper.createAndSchedule("E", maxTestTime);
+            FreeStyleProject F = helper.createAndSchedule("F", maxTestTime);
+            FreeStyleProject G = helper.createAndSchedule("G", maxTestTime);
+            FreeStyleProject H = helper.createAndSchedule("H", maxTestTime);
+
+            Queue queue = jenkinsRule.jenkins.getQueue();
+
+            assertEquals(H.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+            assertEquals(G.getDisplayName(), queue.getItems()[1].task.getDisplayName());
+            assertEquals(F.getDisplayName(), queue.getItems()[2].task.getDisplayName());
+            assertEquals(E.getDisplayName(), queue.getItems()[3].task.getDisplayName());
+            assertEquals(D.getDisplayName(), queue.getItems()[4].task.getDisplayName());
+            assertEquals(C.getDisplayName(), queue.getItems()[5].task.getDisplayName());
+
+            List<Action> list = jenkinsRule.jenkins.getActions();
+            MoveAction moveAction = helper.getMoveAction();
+            StaplerRequest request = Mockito.mock(StaplerRequest.class);
+            StaplerResponse response = Mockito.mock(StaplerResponse.class);
+            when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
+            //when(request.getParameter(ITEM_ID_PARAM_NAME)).thenReturn("~/^.*[Fd].*$/i");
+            when(request.getParameter(ITEM_ID_PARAM_NAME)).thenReturn("~/[Fd]/i");
+
+            // Debugging aid:
+            ArrayList<String> namesBefore = new ArrayList<>();
+            for (Queue.Item item: queue.getItems())
+                namesBefore.add(item.getDisplayName());
+
+            moveAction.doMove(request, response);
+
+            // Debugging aid:
+            ArrayList<String> namesAfter = new ArrayList<>();
+            for (Queue.Item item: queue.getItems())
+                namesAfter.add(item.getDisplayName());
+
+            // We asked to move F and D up (lower their priority, closer to [0]), so
+            // they become just above whoever was at just one point lower priority
+            // than the lowest-prio of these two (G):
+            assertEquals(H.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+            assertEquals(F.getDisplayName(), queue.getItems()[1].task.getDisplayName());
+            assertEquals(D.getDisplayName(), queue.getItems()[2].task.getDisplayName());
+            assertEquals(G.getDisplayName(), queue.getItems()[3].task.getDisplayName());
+            assertEquals(E.getDisplayName(), queue.getItems()[4].task.getDisplayName());
+            assertEquals(C.getDisplayName(), queue.getItems()[5].task.getDisplayName());
         } catch (Exception e) {
             fail();
         }

@@ -563,16 +563,25 @@ public class MoveActionWorker {
     @VisibleForTesting
     public void moveUp(Queue.Item[] itemsA, Queue queue) {
         Queue.Item[] items = queue.getItems();
-        Queue.Item itemB = getItemBefore(itemsA, items);
-        if (itemB != null) {
+        Queue.Item itemBedge = getItemBefore(itemsA, items);
+        List<Queue.Item> itemsB = getItemsBefore(itemsA, items);
+        if (!(itemsB.isEmpty())) {
             if (!isSorterSet) {
                 setSorter(queue);
             }
             QueueSorter queueSorter = queue.getSorter();
             if (queueSorter instanceof SimpleQueueSorter) {
                 SimpleQueueComparator comparator = ((SimpleQueueSorter) queueSorter).getSimpleQueueComparator();
-                for (Queue.Item itemA: itemsA) {
-                    comparator.addDesire(itemB.getId(), itemA.getId());
+                boolean sawBedge = (itemBedge == null); // start out considering all itemsB if we have no edge
+                for (Queue.Item itemB: itemsB) {
+                    if (!sawBedge && itemBedge != null && itemB.getId() == itemBedge.getId())
+                        // else: skip items that are over the edge in priority - closer to minimum prio (start of list)
+                        sawBedge = true;
+                    if (sawBedge) {
+                        for (Queue.Item itemA : itemsA) {
+                            comparator.addDesire(itemB.getId(), itemA.getId());
+                        }
+                    }
                 }
                 resort(queue);
             }
@@ -605,16 +614,25 @@ public class MoveActionWorker {
     @VisibleForTesting
     public void moveDown(Queue.Item[] itemsA, Queue queue) {
         Queue.Item[] items = queue.getItems();
-        Queue.Item itemB = getItemAfter(itemsA, items);
-        if (itemB != null) {
+        Queue.Item itemBedge = getItemAfter(itemsA, items);
+        List<Queue.Item> itemsB = getItemsAfter(itemsA, items);
+        if (!(itemsB.isEmpty())) {
             if (!isSorterSet) {
                 setSorter(queue);
             }
             QueueSorter queueSorter = queue.getSorter();
             if (queueSorter instanceof SimpleQueueSorter) {
                 SimpleQueueComparator comparator = ((SimpleQueueSorter) queueSorter).getSimpleQueueComparator();
-                for (Queue.Item itemA: itemsA) {
-                    comparator.addDesire(itemA.getId(), itemB.getId());
+                boolean sawBedge = false; // start out considering all itemsB
+                for (Queue.Item itemB: itemsB) {
+                    if (!sawBedge) {
+                        for (Queue.Item itemA: itemsA) {
+                            comparator.addDesire(itemA.getId(), itemB.getId());
+                        }
+                        if (itemBedge != null && itemB.getId() == itemBedge.getId())
+                            // skip further items that are over the edge in priority
+                            sawBedge = true;
+                    }
                 }
                 resort(queue);
             }

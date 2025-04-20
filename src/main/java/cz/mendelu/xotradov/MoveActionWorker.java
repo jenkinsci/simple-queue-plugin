@@ -678,6 +678,7 @@ public class MoveActionWorker {
         return returnList;
     }
 
+    /** Get items which are before ALL entries in itemsA[] (except entries in itemsA itself) */
     @Nonnull
     private List<Queue.Item> getItemsBefore(@Nonnull Queue.Item[] itemsA, @Nonnull Queue.Item[] items) {
         if (itemsA.length == 1)
@@ -692,10 +693,16 @@ public class MoveActionWorker {
                     itemsAid.add(itemA.getId());
             }
 
+            int countdown = itemsAid.size();
             for (Queue.Item item: items) {
-                if (itemsAid.contains(item.getId()))
-                    break;
-                returnList.add(item);
+                if (itemsAid.contains(item.getId())) {
+                    countdown--;
+                    // Have we seen all itemsA[] entries yet?
+                    if (countdown < 1)
+                        break;
+                } else {
+                    returnList.add(item);
+                }
             }
         }
         return returnList;

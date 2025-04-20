@@ -233,8 +233,8 @@ public class MoveActionWorker {
 
     /**
      * Similar to single-item putABelowB(), this method puts a whole array
-     * of specified items "under" the oldBottomItem in the resulting queue,
-     * keeping the order they have in the original queue.
+     * of specified more-important items "under" the oldBottomItem in the
+     * resulting queue, keeping the order they had in the original queue.
      *
      * @param itemsToBottom
      * @param oldBottomItem
@@ -508,7 +508,7 @@ public class MoveActionWorker {
     }
 
     /**
-     * @param itemsA Array of Items all with least importance (kept in same order)
+     * @param itemsA Array of Items all with least importance (kept in same order they had in original queue)
      */
     @VisibleForTesting
     public void moveToTop(@Nonnull Queue.Item[] itemsA, @Nonnull Queue queue) {
@@ -588,6 +588,13 @@ public class MoveActionWorker {
         }
     }
 
+    /** Relocate ALL of itemsA[] to have priority just one higher than the previously
+     * highest-priority other item just above the highest-priority element in itemsA[],
+     * keeping relative order of relocated entries as they were in original items[].
+     *
+     * @param itemsA
+     * @param queue
+     */
     @VisibleForTesting
     public void moveDown(Queue.Item[] itemsA, Queue queue) {
         Queue.Item[] items = queue.getItems();
@@ -609,7 +616,7 @@ public class MoveActionWorker {
 
     /**
      * @param itemA The most important item
-     * */
+     */
     @VisibleForTesting
     public void moveToBottom(@Nonnull Queue.Item itemA, @Nonnull Queue queue) {
         Queue.Item[] items = queue.getItems();

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import static cz.mendelu.xotradov.MoveAction.ITEM_ID_PARAM_NAME;
 import static cz.mendelu.xotradov.MoveAction.MOVE_TYPE_PARAM_NAME;
 
+import hudson.model.Queue;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,17 +44,18 @@ public class MoveAction_doMoveByNameTest {
             helper.fillQueueFor(maxTestTime);
             FreeStyleProject C = helper.createAndSchedule("C", maxTestTime);
             FreeStyleProject D = helper.createAndSchedule("D", maxTestTime);
-            assertEquals(C.getDisplayName(), jenkinsRule.jenkins.getQueue().getItems()[1].task.getDisplayName());
+            Queue queue = jenkinsRule.jenkins.getQueue();
+            assertEquals(C.getDisplayName(), queue.getItems()[1].task.getDisplayName());
             List<Action> list = jenkinsRule.jenkins.getActions();
             MoveAction moveAction = helper.getMoveAction();
             StaplerRequest request = Mockito.mock(StaplerRequest.class);
             StaplerResponse response = Mockito.mock(StaplerResponse.class);
             when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
             when(request.getParameter(ITEM_ID_PARAM_NAME)).thenReturn(
-                    String.valueOf(jenkinsRule.jenkins.getQueue().getItems()[1].task.getDisplayName()));
+                    String.valueOf(queue.getItems()[1].task.getDisplayName()));
             moveAction.doMove(request, response);
-            assertEquals(C.getDisplayName(), jenkinsRule.jenkins.getQueue().getItems()[0].task.getDisplayName());
-            assertEquals(D.getDisplayName(), jenkinsRule.jenkins.getQueue().getItems()[1].task.getDisplayName());
+            assertEquals(C.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+            assertEquals(D.getDisplayName(), queue.getItems()[1].task.getDisplayName());
         } catch (Exception e) {
             fail();
         }

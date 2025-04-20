@@ -127,6 +127,11 @@ Regular expressions to match the queue item(s) to move should be encased in tild
 curl "http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=~/.*my-job-name.*#1234.*/"
 ```
 
+Case-insensitive regular expressions match can be used by adding `i` in the end, like `~/.../i`, e.g.:
+```
+curl "http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=~/.*My-jOb-naMe.*#1234.*/i"
+```
+
 #### Complex names
 As investigated at https://github.com/jenkinsci/simple-queue-plugin/pull/3#discussion_r1306649177 ,  there are two corner cases:
 

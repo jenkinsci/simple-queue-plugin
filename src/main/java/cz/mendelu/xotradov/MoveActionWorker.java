@@ -49,8 +49,15 @@ public class MoveActionWorker {
                     items = new Queue.Item[1];
                     items[0] = item;
                 } else {
-                    if (idParam.startsWith("~/") && idParam.endsWith("/"))
-                        items = findItemsByPattern(queue, Pattern.compile(idParam));
+                    boolean caseInsensitive = idParam.endsWith("/i");
+                    if (idParam.startsWith("~/") && (idParam.endsWith("/") || caseInsensitive)) {
+                        char[] tmp = new char[idParam.length()];
+                        idParam.getChars(2, idParam.length() - (caseInsensitive ? 2 : 1), tmp, 0);
+                        String regexStr = String.valueOf(tmp).trim();
+                        items = findItemsByPattern(queue,
+                                Pattern.compile(regexStr, caseInsensitive ? Pattern.CASE_INSENSITIVE : 0)
+                        );
+                    }
                 }
             }
             MoveType moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));

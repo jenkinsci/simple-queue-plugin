@@ -3,6 +3,7 @@ package cz.mendelu.xotradov;
 import com.google.common.annotations.VisibleForTesting;
 
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.util.ArrayList;
@@ -705,6 +706,7 @@ public class MoveActionWorker {
 
     /** Get items which are before ALL entries in itemsA[] (except entries in itemsA itself) */
     @Nonnull
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "It is currently not certain that this logic will never be used - new use-cases or corner-case fallbacks may appear later")
     private List<Queue.Item> getItemsBefore(@Nonnull Queue.Item[] itemsA, @Nonnull Queue.Item[] items) {
         if (itemsA.length == 1)
             return getItemsBefore(itemsA[0], items);
@@ -788,6 +790,7 @@ public class MoveActionWorker {
      *  itemsA[] entries themselves
      */
     @Nonnull
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "It is currently not certain that this logic will never be used - new use-cases or corner-case fallbacks may appear later")
     private List<Queue.Item> getItemsAfter(@Nonnull Queue.Item[] itemsA, @Nonnull Queue.Item[] items) {
         if (itemsA.length == 1)
             return getItemsAfter(itemsA[0], items);

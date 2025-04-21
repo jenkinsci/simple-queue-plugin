@@ -520,7 +520,7 @@ public class MoveActionWorker {
     @VisibleForTesting
     public void moveToTop(@Nonnull Queue.Item[] itemsA, @Nonnull Queue queue) {
         Queue.Item[] items = queue.getItems();
-        List<Queue.Item> itemsB = getItemsBefore(itemsA, items);
+        List<Queue.Item> itemsB = getItemsBeforeLast(itemsA, items);
         if (!itemsB.isEmpty()) {
             if (!isSorterSet) {
                 setSorter(queue);
@@ -564,7 +564,7 @@ public class MoveActionWorker {
     public void moveUp(Queue.Item[] itemsA, Queue queue) {
         Queue.Item[] items = queue.getItems();
         Queue.Item itemBedge = getItemBefore(itemsA, items);
-        List<Queue.Item> itemsB = getItemsBefore(itemsA, items);
+        List<Queue.Item> itemsB = getItemsBeforeLast(itemsA, items);
         if (!(itemsB.isEmpty())) {
             if (!isSorterSet) {
                 setSorter(queue);
@@ -615,7 +615,7 @@ public class MoveActionWorker {
     public void moveDown(Queue.Item[] itemsA, Queue queue) {
         Queue.Item[] items = queue.getItems();
         Queue.Item itemBedge = getItemAfter(itemsA, items);
-        List<Queue.Item> itemsB = getItemsAfter(itemsA, items);
+        List<Queue.Item> itemsB = getItemsAfterFirst(itemsA, items);
         if (!(itemsB.isEmpty())) {
             if (!isSorterSet) {
                 setSorter(queue);
@@ -667,8 +667,8 @@ public class MoveActionWorker {
     @VisibleForTesting
     public void moveToBottom(@Nonnull Queue.Item[] itemsA, @Nonnull Queue queue) {
         Queue.Item[] items = queue.getItems();
-        List<Queue.Item> itemsB = getItemsAfter(itemsA, items);
-        if (itemsB.size() != 0) {
+        List<Queue.Item> itemsB = getItemsAfterFirst(itemsA, items);
+        if (itemsB.size() > 0) {
             if (!isSorterSet) {
                 setSorter(queue);
             }
@@ -733,6 +733,36 @@ public class MoveActionWorker {
         return returnList;
     }
 
+    /** Get items which are before the latest seen entry in itemsA[] (except entries in itemsA itself) */
+    @Nonnull
+    private List<Queue.Item> getItemsBeforeLast(@Nonnull Queue.Item[] itemsA, @Nonnull Queue.Item[] items) {
+        if (itemsA.length == 1)
+            return getItemsBefore(itemsA[0], items);
+
+        List<Queue.Item> returnList = new ArrayList<>();
+        if (items.length >= 2 && itemsA.length > 0) {
+            // Cache IDs to ignore in a quick-to-search Set:
+            HashSet<Long> itemsAid = new HashSet<>();
+            for (Queue.Item itemA : itemsA) {
+                if (itemA != null)
+                    itemsAid.add(itemA.getId());
+            }
+
+            int countdown = itemsAid.size();
+            for (Queue.Item item: items) {
+                if (itemsAid.contains(item.getId())) {
+                    countdown--;
+                    // Have we seen all itemsA[] entries yet?
+                    if (countdown < 1)
+                        break;
+                } else {
+                    returnList.add(item);
+                }
+            }
+        }
+        return returnList;
+    }
+
     /** Return all items after itemA (as walking the items[] from [0] upwards) excluding the itemA itself */
     @Nonnull
     private List<Queue.Item> getItemsAfter(@Nonnull Queue.Item itemA, @Nonnull Queue.Item[] items) {
@@ -752,9 +782,10 @@ public class MoveActionWorker {
         return returnList;
     }
 
-    /** Return all items after the top-most itemsA[] entry
-     *  (encountered as walking the items[] from [0] upwards)
-     *  excluding the itemsA[] entries themselves
+    /** Return all items after the bottom-most itemsA[] entry
+     *  (nearest to end of items[], encountered as walking the
+     *  items[] from [0] to higher offsets) excluding the
+     *  itemsA[] entries themselves
      */
     @Nonnull
     private List<Queue.Item> getItemsAfter(@Nonnull Queue.Item[] itemsA, @Nonnull Queue.Item[] items) {
@@ -778,6 +809,39 @@ public class MoveActionWorker {
                     // Ultimately return whatever is after the last-most item in itemA
                     // excluding this item itself
                     returnList.clear();
+                } else if (seenItemA) {
+                    //add item
+                    returnList.add(item);
+                }
+            }
+        }
+        return returnList;
+    }
+
+    /** Return all items after the top-most itemsA[] entry
+     *  (first seen in items[], encountered as walking the
+     *  items[] from [0] to higher offsets) excluding the
+     *  itemsA[] entries themselves
+     */
+    @Nonnull
+    private List<Queue.Item> getItemsAfterFirst(@Nonnull Queue.Item[] itemsA, @Nonnull Queue.Item[] items) {
+        if (itemsA.length == 1)
+            return getItemsAfter(itemsA[0], items);
+
+        List<Queue.Item> returnList = new ArrayList<>();
+        if (items.length >= 2 && itemsA.length > 0) {
+            // Cache IDs to ignore in a quick-to-search Set:
+            HashSet<Long> itemsAid = new HashSet<>();
+            for (Queue.Item itemA : itemsA) {
+                if (itemA != null)
+                    itemsAid.add(itemA.getId());
+            }
+
+            boolean seenItemA = false;
+            for (Queue.Item item: items) {
+                if (itemsAid.contains(item.getId())) {
+                    // keep checking for item ID always, so we can skip those in itemsA[] array
+                    seenItemA = true;
                 } else if (seenItemA) {
                     //add item
                     returnList.add(item);
@@ -853,6 +917,7 @@ public class MoveActionWorker {
         return null;
     }
 
+    /** Find the first item in items[] which is above each itemA in the argument itemsA[] array */
     @CheckForNull
     private Queue.Item getItemBefore(@Nonnull Queue.Item[] itemsA, @Nonnull Queue.Item[] items) {
         if (itemsA.length < 1 || items.length < 2) {

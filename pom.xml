@@ -9,7 +9,7 @@
     </parent>
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>simple-queue</artifactId>
-    <version>1.4.8</version>
+    <version>1.4.9-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.426.1</jenkins.version>

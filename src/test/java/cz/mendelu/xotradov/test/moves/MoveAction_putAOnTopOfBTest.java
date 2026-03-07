@@ -31,30 +31,30 @@ public class MoveAction_putAOnTopOfBTest {
         try {
             long maxTestTime = 30000;
             helper.fillQueueFor(maxTestTime);
-            FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
-            FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
-            FreeStyleProject E = helper.createAndSchedule("E",maxTestTime);
-            FreeStyleProject F = helper.createAndSchedule("F",maxTestTime);
+            FreeStyleProject C = helper.createAndSchedule("C", maxTestTime);
+            FreeStyleProject D = helper.createAndSchedule("D", maxTestTime);
+            FreeStyleProject E = helper.createAndSchedule("E", maxTestTime);
+            FreeStyleProject F = helper.createAndSchedule("F", maxTestTime);
             MoveAction moveAction = helper.getMoveAction();
             Queue queue = jenkinsRule.jenkins.getQueue();
-            assertEquals(C.getDisplayName(),queue.getItems()[3].task.getDisplayName());
-            moveAction.putAOnTopOfB(C.getQueueItem(),D.getQueueItem(),queue);
+            assertEquals(C.getDisplayName(), queue.getItems()[3].task.getDisplayName());
+            moveAction.putAOnTopOfB(C.getQueueItem(), D.getQueueItem(), queue);
             queue.maintain();
-            assertEquals(C.getDisplayName(),queue.getItems()[2].task.getDisplayName());
-            assertEquals(D.getDisplayName(),queue.getItems()[3].task.getDisplayName());
-            moveAction.putAOnTopOfB(D.getQueueItem(),E.getQueueItem(),queue);
+            assertEquals(C.getDisplayName(), queue.getItems()[2].task.getDisplayName());
+            assertEquals(D.getDisplayName(), queue.getItems()[3].task.getDisplayName());
+            moveAction.putAOnTopOfB(D.getQueueItem(), E.getQueueItem(), queue);
             queue.maintain();
-            assertEquals(F.getDisplayName(),queue.getItems()[0].task.getDisplayName());
-            assertEquals(D.getDisplayName(),queue.getItems()[1].task.getDisplayName());
-            assertEquals(E.getDisplayName(),queue.getItems()[2].task.getDisplayName());
-            assertEquals(C.getDisplayName(),queue.getItems()[3].task.getDisplayName());
-            moveAction.putAOnTopOfB(E.getQueueItem(),F.getQueueItem(),queue);
+            assertEquals(F.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+            assertEquals(D.getDisplayName(), queue.getItems()[1].task.getDisplayName());
+            assertEquals(E.getDisplayName(), queue.getItems()[2].task.getDisplayName());
+            assertEquals(C.getDisplayName(), queue.getItems()[3].task.getDisplayName());
+            moveAction.putAOnTopOfB(E.getQueueItem(), F.getQueueItem(), queue);
             queue.maintain();
-            assertEquals(E.getDisplayName(),queue.getItems()[0].task.getDisplayName());
-            assertEquals(F.getDisplayName(),queue.getItems()[1].task.getDisplayName());
-            assertEquals(D.getDisplayName(),queue.getItems()[2].task.getDisplayName());
-            assertEquals(C.getDisplayName(),queue.getItems()[3].task.getDisplayName());
-        }catch (Exception e){
+            assertEquals(E.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+            assertEquals(F.getDisplayName(), queue.getItems()[1].task.getDisplayName());
+            assertEquals(D.getDisplayName(), queue.getItems()[2].task.getDisplayName());
+            assertEquals(C.getDisplayName(), queue.getItems()[3].task.getDisplayName());
+        } catch (Exception e) {
             fail();
         }
     }

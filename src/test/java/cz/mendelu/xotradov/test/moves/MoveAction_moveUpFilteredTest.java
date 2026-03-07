@@ -37,21 +37,21 @@ public class MoveAction_moveUpFilteredTest {
         try {
             long maxTestTime = 20000;
             helper.fillQueueFor(maxTestTime);
-            FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
-            FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
+            FreeStyleProject C = helper.createAndSchedule("C", maxTestTime);
+            FreeStyleProject D = helper.createAndSchedule("D", maxTestTime);
             MoveAction moveAction = helper.getMoveAction();
             assertNotNull(C.getQueueItem());
             Queue queue = jenkinsRule.jenkins.getQueue();
-            assertEquals(D.getDisplayName(),queue.getItems()[0].task.getDisplayName());
-            assertEquals(C.getDisplayName(),queue.getItems()[1].task.getDisplayName());
+            assertEquals(D.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+            assertEquals(C.getDisplayName(), queue.getItems()[1].task.getDisplayName());
             View view = Mockito.mock(View.class);
             when(view.isFilterQueue()).thenReturn(true);
             List<Queue.Item> list = Arrays.asList(queue.getItems());
             when(view.getQueueItems()).thenReturn(list);
-            moveAction.moveUpFiltered(C.getQueueItem(),queue,view);
+            moveAction.moveUpFiltered(C.getQueueItem(), queue, view);
             queue.maintain();
-            assertEquals(C.getDisplayName(),queue.getItems()[0].task.getDisplayName());
-        }catch (Exception e){
+            assertEquals(C.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+        } catch (Exception e) {
             fail();
         }
     }

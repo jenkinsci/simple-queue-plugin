@@ -10,7 +10,7 @@ import java.util.logging.Logger;
  * It stores all current desires - acts of will concerning order of build items.
  * @author Jaroslav Otradovec
  */
-public class SimpleQueueComparator implements Comparator<Queue.BuildableItem>{
+public class SimpleQueueComparator implements Comparator<Queue.BuildableItem> {
     private static Logger logger = Logger.getLogger(SimpleQueueComparator.class.getName());
     private Hashtable<Long, List<Long>> moveDesires = new Hashtable<>();
 
@@ -18,10 +18,10 @@ public class SimpleQueueComparator implements Comparator<Queue.BuildableItem>{
         static final SimpleQueueComparator INSTANCE = new SimpleQueueComparator();
     }
 
-    public static SimpleQueueComparator getInstance(){
+    public static SimpleQueueComparator getInstance() {
         return SimpleQueueComparatorHolder.INSTANCE;
     }
-    public boolean hasDesiresFor(long key){
+    public boolean hasDesiresFor(long key) {
         return moveDesires.containsKey(key);
     }
     /**
@@ -29,18 +29,18 @@ public class SimpleQueueComparator implements Comparator<Queue.BuildableItem>{
      */
     @Override
     public int compare(Queue.BuildableItem buildableItem1, Queue.BuildableItem buildableItem2) {
-        if (isFirstItemOverSecond(buildableItem1.getId(),buildableItem2.getId())){
+        if (isFirstItemOverSecond(buildableItem1.getId(), buildableItem2.getId())) {
             return -1;
-        }else if (isFirstItemOverSecond(buildableItem2.getId(),buildableItem1.getId())){
+        } else if (isFirstItemOverSecond(buildableItem2.getId(), buildableItem1.getId())) {
             return 1;
-        }else {
+        } else {
             return 0;
         }
     }
     private boolean isFirstItemOverSecond(long id0, long id1) {
-        if (moveDesires.get(id0)!=null){
+        if (moveDesires.get(id0) != null) {
             return moveDesires.get(id0).contains(id1);
-        }else {
+        } else {
             return false;
         }
     }
@@ -50,19 +50,19 @@ public class SimpleQueueComparator implements Comparator<Queue.BuildableItem>{
      * @param longA Id of desired more important item
      * @param longB Id of less important Queue.Item
      */
-    public void addDesire( long longA, long longB){
+    public void addDesire( long longA, long longB) {
         List<Long> bList;
-        if (!moveDesires.containsKey(longA)){
+        if (!moveDesires.containsKey(longA)) {
             bList = new ArrayList<>();
-            moveDesires.put(longA,bList);
-        }else {
+            moveDesires.put(longA, bList);
+        } else {
             bList = moveDesires.get(longA);
         }
-        if(bList!=null){
-            if(bList.isEmpty()){
+        if (bList != null) {
+            if (bList.isEmpty()) {
                 bList.add(longB);
-            }else {
-                if (!bList.contains(longB)){
+            } else {
+                if (!bList.contains(longB)) {
                     bList.add(longB);
                 }
             }
@@ -77,11 +77,11 @@ public class SimpleQueueComparator implements Comparator<Queue.BuildableItem>{
         }
     }
     @VisibleForTesting
-    public void removeDesireOfKey(long id){
+    public void removeDesireOfKey(long id) {
         moveDesires.remove(id);
     }
     @VisibleForTesting
-    public void resetDesires(){
+    public void resetDesires() {
         moveDesires.clear();
     }
 

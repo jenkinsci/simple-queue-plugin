@@ -14,8 +14,8 @@ import java.io.IOException;
 public class TestHelper {
     private final JenkinsRule r;
 
-    public TestHelper(JenkinsRule r){
-        this.r=r;
+    public TestHelper(JenkinsRule r) {
+        this.r = r;
     }
 
     public JenkinsRule getRule() {
@@ -34,10 +34,11 @@ public class TestHelper {
                     enteredTheQueueA = true;
                 }
             }
-            for (Computer computer: Jenkins.get().getComputers()){
-                if (computer!=null){
-                    for (Executor executor: computer.getExecutors()){
-                        if(executor.getCurrentWorkUnit()!=null && executor.getCurrentWorkUnit().context.task.getDisplayName().equals(projectA.getDisplayName()))return futureA;
+            for (Computer computer: Jenkins.get().getComputers()) {
+                if (computer != null) {
+                    for (Executor executor: computer.getExecutors()) {
+                        if (executor.getCurrentWorkUnit() != null && executor.getCurrentWorkUnit().context.task.getDisplayName().equals(projectA.getDisplayName()))
+                            return futureA;
                     }
                 }
             }
@@ -53,24 +54,24 @@ public class TestHelper {
         return projectA;
     }
     public FreeStyleProject createAndSchedule(@Nonnull String projectName, long millisOfBuild)  throws Exception {
-        FreeStyleProject projectA = createProject(projectName,millisOfBuild);
+        FreeStyleProject projectA = createProject(projectName, millisOfBuild);
         schedule(projectA);
         return projectA;
     }
     public void fillQueueFor(long millis) throws Exception {
-        FreeStyleProject projectA = createProject("projectA",millis);
-        schedule(projectA); //projectA.doBuild(req,rsp,7000);
+        FreeStyleProject projectA = createProject("projectA", millis);
+        schedule(projectA); //projectA.doBuild(req, rsp, 7000);
         FreeStyleProject projectB = createProject("projectB", millis);
         schedule(projectB);
         Queue queue = Queue.getInstance();
-        while (!queue.getBuildableItems().isEmpty()){
+        while (!queue.getBuildableItems().isEmpty()) {
             Thread.sleep(10);
         }
     }
 
     public ResetAction getResetAction() {
-        for (Action action: r.jenkins.getActions()){
-            if (action instanceof ResetAction){
+        for (Action action: r.jenkins.getActions()) {
+            if (action instanceof ResetAction) {
                 return (ResetAction) action;
             }
         }
@@ -78,8 +79,8 @@ public class TestHelper {
     }
 
     public MoveAction getMoveAction() {
-        for (Action action: r.jenkins.getActions()){
-            if (action instanceof MoveAction){
+        for (Action action: r.jenkins.getActions()) {
+            if (action instanceof MoveAction) {
                 return (MoveAction) action;
             }
         }

@@ -33,20 +33,20 @@ public class MoveAction_getTopTest {
         try {
             long maxTestTime = 20000;
             helper.fillQueueFor(maxTestTime);
-            FreeStyleProject C = helper.createAndSchedule("C",maxTestTime);
-            FreeStyleProject D = helper.createAndSchedule("D",maxTestTime);
-            FreeStyleProject E = helper.createAndSchedule("E",maxTestTime);
+            FreeStyleProject C = helper.createAndSchedule("C", maxTestTime);
+            FreeStyleProject D = helper.createAndSchedule("D", maxTestTime);
+            FreeStyleProject E = helper.createAndSchedule("E", maxTestTime);
             MoveAction moveAction = helper.getMoveAction();
             Queue queue = jenkinsRule.jenkins.getQueue();
-            assertEquals(E.getDisplayName(),queue.getItems()[0].task.getDisplayName());
-            assertEquals(E.getDisplayName(),moveAction.getTop(Arrays.asList(queue.getItems())).task.getDisplayName());
-            moveAction.moveUp(D.getQueueItem(),queue);
+            assertEquals(E.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+            assertEquals(E.getDisplayName(), moveAction.getTop(Arrays.asList(queue.getItems())).task.getDisplayName());
+            moveAction.moveUp(D.getQueueItem(), queue);
             queue.maintain();
-            assertEquals(D.getDisplayName(),moveAction.getTop(Arrays.asList(queue.getItems())).task.getDisplayName());
-            moveAction.moveToTop(C.getQueueItem(),queue);
+            assertEquals(D.getDisplayName(), moveAction.getTop(Arrays.asList(queue.getItems())).task.getDisplayName());
+            moveAction.moveToTop(C.getQueueItem(), queue);
             queue.maintain();
-            assertEquals(C.getDisplayName(),moveAction.getTop(Arrays.asList(queue.getItems())).task.getDisplayName());
-        }catch (Exception e){
+            assertEquals(C.getDisplayName(), moveAction.getTop(Arrays.asList(queue.getItems())).task.getDisplayName());
+        } catch (Exception e) {
             fail();
         }
     }

@@ -26,6 +26,33 @@
             <j:set var="title" value="Build Queue (${items.size()})" />
         </j:otherwise>
     </j:choose>
+
+    <j:if test="${h.hasPermission(app.MANAGE)}">
+        <!-- Keep the textbox out of AJAX pane so it is not erased every couple of seconds -->
+        <l:pane title="Build Queue Bulk Move (by regex)" width="2" id="buildSimpleQueueBulkMove">
+            <tr>
+                <f:entry>
+                    <!-- The first TD is where stage/job/part names appear normally -->
+                    <td class="pane" width="100%" style="white-space: normal;">
+                        <f:textbox name="BulkMoveRegex" value="~//"/>
+                    </td>
+                    <td class="pane" align="center" valign="middle">
+                        <!-- Inspired by validateButton() at https://github.com/jenkinsci/jenkins/blob/838cafb8fb86fd843b85d2e22e957e09a1ce86a9/war/src/main/webapp/scripts/hudson-behavior.js#L2581 -->
+                        <button onClick="var parameters = {}; parameters['${it.getMoveTypeName()}']='UP_FAST'; parameters['${it.getItemIdName()}']=findPreviousFormItem(this, 'BulkMoveRegex').value; fetch('${rootURL}/simpleMove/move', { method: 'post', body: objectToUrlFormEncoded(parameters), headers: crumb.wrap({'Content-Type': 'application/x-www-form-urlencoded',})})" >
+                            <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_up_fast_10.png"/>
+                        </button>
+                    </td>
+                    <td class="pane" align="center" valign="middle">
+                        <button onClick="var parameters = {}; parameters['${it.getMoveTypeName()}']='DOWN_FAST'; parameters['${it.getItemIdName()}']=findPreviousFormItem(this, 'BulkMoveRegex').value; fetch('${rootURL}/simpleMove/move', { method: 'post', body: objectToUrlFormEncoded(parameters), headers: crumb.wrap({'Content-Type': 'application/x-www-form-urlencoded',})})" >
+                            <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_down_fast_10.png"/>
+                        </button>
+                    </td>
+                </f:entry>
+                <!-- TOTHINK: Position to cancel all builds, maybe? -->
+            </tr>
+        </l:pane>
+    </j:if>
+
     <l:pane title="${title}" width="2" id="buildSimpleQueue">
         <st:adjunct includes="lib.form.link.link"/>
         <j:if test="${app.quietingDown}">

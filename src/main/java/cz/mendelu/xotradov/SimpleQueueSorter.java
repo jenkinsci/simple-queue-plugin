@@ -24,12 +24,38 @@ public class SimpleQueueSorter extends QueueSorter {
 
     @Override
     public void sortBuildableItems(List<Queue.BuildableItem> list) {
-        if(this.originalQueueSorter != null) {
+        if (this.originalQueueSorter != null) {
+            // Note: if DefaultSorter (usually is), we pre-sort by timestamps
+            // and then follow up below with desires for relative priorities
+            // of specific items.
             this.originalQueueSorter.sortBuildableItems(list);
         }
+        // Note: the sort() method does not compare everyone to everyone,
+        // it passes the list comparing nearby couples and only steps back
+        // a bit if some two (neighboring!) entries were swapped. Example:
+        //   * list start: [C]3 [A]4 [D]5 [B]6 [E]7
+        //   * comparator desires, one: 7 (more important) => [6, 4]
+        //     so E should move to the middle of the list, A and B to the right?..
+        //   * comparisons as traced in debugger (steps into the compare()
+        //     method and its two args):
+        //     * Round 1, starting with C A D B E:
+        //       * A, C => 0
+        //       * D, A => 0
+        //       * B, D => 0
+        //       * E, B => -1 (E more important)
+        //     * List swapped (E vs B)
+        //     * Round 2, proceeding with C A D E B
+        //       * E, D => 0
+        //       * E, B => -1
+        //     * No more swapping (correct order of E vs B already),
+        //     * List remains C A D E B
+        //   * Note that [E]7 was never compared to A[4], they were too far away
+        //     so the expected desire for C D E A B (nor C D E B A technically)
+        //     was not fulfilled UNTIL desires for A  vs. D and A vs. E got defined,
+        //     and the move*() methods for arrays got more complex that initially.
         Collections.sort(list, simpleQueueComparator);
     }
-    public SimpleQueueComparator getSimpleQueueComparator(){
+    public SimpleQueueComparator getSimpleQueueComparator() {
         return simpleQueueComparator;
     }
 

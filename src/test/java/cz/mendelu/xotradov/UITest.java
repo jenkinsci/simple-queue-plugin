@@ -29,11 +29,11 @@ public class UITest {
 
     @Test
     @Ignore("seems to be not supported in newer jenkins")
-    public void HoverText() throws Exception{
+    public void HoverText() throws Exception {
         long maxTestTime = 30000;
         helper.fillQueueFor(maxTestTime);
-        helper.createAndSchedule("C",maxTestTime);
-        helper.createAndSchedule("D",maxTestTime);
+        helper.createAndSchedule("C", maxTestTime);
+        helper.createAndSchedule("D", maxTestTime);
         HtmlPage page = jenkinsRule.createWebClient().goTo("");
         DomNode queueElement = page.getElementById("buildSimpleQueue");
         DomNode div = queueElement.getChildren().iterator().next().getNextSibling();
@@ -47,7 +47,7 @@ public class UITest {
     public void initWidgetTest() throws Exception {
         long maxTestTime = 30000;
         helper.fillQueueFor(maxTestTime);
-        helper.createAndSchedule("C",maxTestTime);
+        helper.createAndSchedule("C", maxTestTime);
         HtmlPage page = jenkinsRule.createWebClient().goTo("");
         DomNode queueDefaultElement = page.getElementById("buildQueue");
         DomNode queueSimpleElement = page.getElementById("buildSimpleQueue");

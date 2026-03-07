@@ -37,7 +37,7 @@ public class UITest {
         HtmlPage page = jenkinsRule.createWebClient().goTo("");
         DomNode queueElement = page.getElementById("buildSimpleQueue");
         DomNode div = queueElement.getChildren().iterator().next().getNextSibling();
-        DomNode a = div.getFirstChild().getNextSibling().getFirstChild().getFirstChild().getFirstChild().getFirstChild();
+        DomNode a = div.getFirstChild().getFirstChild().getFirstChild().getFirstChild().getFirstChild();
         assertFalse(a.asXml().contains("WaitingFor"));
         assertTrue(a.asXml().contains("sec"));
     }

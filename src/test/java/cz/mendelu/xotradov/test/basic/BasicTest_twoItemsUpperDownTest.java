@@ -3,6 +3,8 @@ package cz.mendelu.xotradov.test.basic;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import hudson.model.Action;
+import java.util.List;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,7 +43,7 @@ public class BasicTest_twoItemsUpperDownTest {
         assertTrue(jenkinsRule.jenkins.hasPermission(Jenkins.ADMINISTER));
         assertEquals(2,queue.getBuildableItems().size());
         assertEquals(2,queue.getItems().length);
-        MoveAction moveAction = (MoveAction)jenkinsRule.jenkins.getActions().get(1);
+        MoveAction moveAction = helper.getMoveAction();
         moveAction.moveDown(queue.getItems()[0],queue);
         queue.maintain();
         assertEquals(projectC.getDisplayName(),queue.getItems()[0].task.getDisplayName());

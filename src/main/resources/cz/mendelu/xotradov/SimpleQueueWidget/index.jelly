@@ -1,22 +1,9 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <div id="target-div" data-inserted-from-java-url="${rootURL}" data-inserted-from-java-view-name="${view.viewName}"></div>
-    <st:documentation>
-        Displays the build queue as &lt;l:pane>
-        Follows https://github.com/jenkinsci/jenkins/blob/master/core/src/main/resources/lib/hudson/queue.jelly
-
-        <st:attribute name="items" use="required">
-            Queue items to be displayed. Normally you should specify ${app.queue.items},
-            but for example you can specify a sublist after some filtering to narrow down
-            the list.
-        </st:attribute>
-        <st:attribute name="filtered" use="optional">
-            Indicates that the queue has been filtered, i.e. might not show all items.
-        </st:attribute>
-    </st:documentation>
-    <j:set var="items" value="${view.queueItems}"/>
-    <j:set var="filtered" value="${view.isFilterQueue()}"/>
-    <j:set var="viewName" value="${view.getViewName()}"/>
+    <j:set var="items" value="${it.queueItems}"/>
+    <j:set var="filtered" value="${it.isFiltered()}"/>
+    <j:set var="viewName" value="${it.getViewName()}"/>
+    <j:set var="viewOwner" value="${it.getViewOwner()}"/>
     <t:setIconSize/>
     <j:choose>
         <j:when test="${filtered}">
@@ -27,7 +14,6 @@
         </j:otherwise>
     </j:choose>
     <l:pane title="${title}" width="2" id="buildSimpleQueue">
-        <st:adjunct includes="lib.form.link.link"/>
         <j:if test="${app.quietingDown}">
             <tr>
                 <td class="pane" colspan="2" style="white-space: normal;">
@@ -76,35 +62,35 @@
                             <j:when test="${buildable and h.hasPermission(app.MANAGE)}">
                                 <j:if test="${filtered}">
                                     <td class="pane" align="center" valign="middle">
-                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=TOP&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
-                                            <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_top_10.png"/>
+                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=TOP&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}&amp;${it.getViewOwnerParamName()}=${viewOwner}">
+                                          <l:icon src="symbol-arrow-top plugin-simple-queue" class="icon-sm"/>
                                         </f:link>
                                     </td>
                                 </j:if>
                                 <td class="pane" align="center" valign="middle">
-                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP_FAST&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
-                                            <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_up_fast_10.png"/>
+                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP_FAST&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}&amp;${it.getViewOwnerParamName()}=${viewOwner}">
+                                          <l:icon src="symbol-arrow-up-fast plugin-simple-queue" class="icon-sm"/>
                                         </f:link>
                                 </td>
                                     <td class="pane"  align="center" valign="middle">
-                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
-                                            <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_up_10.png"/>
+                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=UP&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}&amp;${it.getViewOwnerParamName()}=${viewOwner}">
+                                          <l:icon src="symbol-chevron-up" class="icon-sm"/>
                                         </f:link>
                                     </td>
                                     <td class="pane" align="center" valign="middle">
-                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
-                                            <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_down_10.png"/>
+                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}&amp;${it.getViewOwnerParamName()}=${viewOwner}">
+                                          <l:icon src="symbol-chevron-down" class="icon-sm"/>
                                         </f:link>
                                     </td>
                                     <td class="pane" align="center" valign="middle">
-                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN_FAST&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
-                                            <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_down_fast_10.png"/>
+                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=DOWN_FAST&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}&amp;${it.getViewOwnerParamName()}=${viewOwner}">
+                                          <l:icon src="symbol-arrow-down-fast plugin-simple-queue" class="icon-sm"/>
                                         </f:link>
                                     </td>
                                 <j:if test="${filtered}">
                                     <td class="pane" width="16" align="center" valign="middle">
-                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=BOTTOM&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}">
-                                            <l:icon src="${rootURL}/plugin/simple-queue/images/arrow_bottom_10.png"/>
+                                        <f:link post="true" href="${rootURL}/simpleMove/move?${it.getMoveTypeName()}=BOTTOM&amp;${it.getItemIdName()}=${item.id}&amp;${it.getViewNameParamName()}=${viewName}&amp;${it.getViewOwnerParamName()}=${viewOwner}">
+                                          <l:icon src="symbol-arrow-bottom plugin-simple-queue" class="icon-sm"/>
                                         </f:link>
                                     </td>
                                 </j:if>
@@ -132,14 +118,8 @@
         </j:choose>
     </l:pane>
     <!-- schedule updates only for the full page reload-->
-    <j:if test="${ajax==null and !h.isAutoRefresh(request) and h.hasPermission(app.READ)}">
-        <j:choose>
-                <script defer="defer">
-                    var targetDiv = document.querySelector('#target-div');
-                    var rootURL = targetDiv.getAttribute('data-inserted-from-java-url');
-                    var viewName = targetDiv.getAttribute('data-inserted-from-java-view-name');
-                    refreshPart('buildSimpleQueue',rootURL+"/updateQueue/ajaxBuildQueue?name="+viewName);
-                </script>
-        </j:choose>
-    </j:if>
+  <j:if test="${ajax==null and h.hasPermission(app.READ)}">
+    <div class="widget-refresh-reference" data-id="buildSimpleQueue" data-url="${rootURL}/${it.url}ajax"/>
+    <st:adjunct includes="lib.hudson.widget-refresh"/>
+  </j:if>
 </j:jelly>

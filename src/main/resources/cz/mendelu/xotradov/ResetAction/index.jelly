@@ -6,9 +6,7 @@
             <h1>Reset simple queue desires</h1>
             <br/>
             <f:form name="reset" action="reset" method="post">
-                <f:block>
-                    <input type="submit" value="Reset" />
-                </f:block>
+              <f:submit value="Reset"/>
             </f:form>
         </l:main-panel>
     </l:layout>

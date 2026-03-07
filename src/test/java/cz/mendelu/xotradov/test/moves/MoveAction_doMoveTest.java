@@ -10,14 +10,15 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.mockito.Mockito;
 
 import java.util.List;
 
 import static cz.mendelu.xotradov.MoveAction.ITEM_ID_PARAM_NAME;
 import static cz.mendelu.xotradov.MoveAction.MOVE_TYPE_PARAM_NAME;
+import static cz.mendelu.xotradov.MoveActionWorker.VIEW_NAME_PARAM_NAME;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
@@ -44,9 +45,10 @@ public class MoveAction_doMoveTest {
             assertEquals(C.getDisplayName(), jenkinsRule.jenkins.getQueue().getItems()[1].task.getDisplayName());
             List<Action> list = jenkinsRule.jenkins.getActions();
             MoveAction moveAction = helper.getMoveAction();
-            StaplerRequest request = Mockito.mock(StaplerRequest.class);
-            StaplerResponse response = Mockito.mock(StaplerResponse.class);
+            StaplerRequest2 request = Mockito.mock(StaplerRequest2.class);
+            StaplerResponse2 response = Mockito.mock(StaplerResponse2.class);
             when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
+            when(request.getParameter(VIEW_NAME_PARAM_NAME)).thenReturn("all");
             when(request.getParameter(ITEM_ID_PARAM_NAME)).thenReturn(
                     String.valueOf(jenkinsRule.jenkins.getQueue().getItems()[1].getId()));
             moveAction.doMove(request, response);

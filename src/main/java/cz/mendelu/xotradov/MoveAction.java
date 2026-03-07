@@ -1,12 +1,12 @@
 package cz.mendelu.xotradov;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.Extension;
 import hudson.model.*;
 import jenkins.model.Jenkins;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
-import javax.annotation.CheckForNull;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
 /**
@@ -44,7 +44,7 @@ public class MoveAction extends MoveActionWorker implements RootAction  {
      * @param response Stapler response send back to users browser
      */
     @RequirePOST
-    public void doMove(final StaplerRequest request, final StaplerResponse response) {
+    public void doMove(final StaplerRequest2 request, final StaplerResponse2 response) {
         Jenkins j;
         if ((j = Jenkins.getInstanceOrNull()) != null) {
             Queue queue = j.getQueue();

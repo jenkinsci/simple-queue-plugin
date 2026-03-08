@@ -24,9 +24,9 @@ public class ResetAction implements RootAction {
     @CheckForNull
     @Override
     public String getIconFileName() {
-        if (Jenkins.get().hasPermission(PermissionHandler.SIMPLE_QUEUE_RESET_PERMISSION)){
+        if (Jenkins.get().hasPermission(PermissionHandler.SIMPLE_QUEUE_RESET_PERMISSION)) {
             return "/plugin/simple-queue/images/reset_64.png";
-        }else {
+        } else {
             return null;
         }
     }
@@ -34,9 +34,9 @@ public class ResetAction implements RootAction {
     @CheckForNull
     @Override
     public String getDisplayName() {
-        if (Jenkins.get().hasPermission(PermissionHandler.SIMPLE_QUEUE_RESET_PERMISSION)){
+        if (Jenkins.get().hasPermission(PermissionHandler.SIMPLE_QUEUE_RESET_PERMISSION)) {
             return "Reset Simple-Queue";
-        }else {
+        } else {
             return null;
         }
     }
@@ -44,9 +44,9 @@ public class ResetAction implements RootAction {
     @CheckForNull
     @Override
     public String getUrlName() {
-        if (Jenkins.get().hasPermission(PermissionHandler.SIMPLE_QUEUE_RESET_PERMISSION)){
+        if (Jenkins.get().hasPermission(PermissionHandler.SIMPLE_QUEUE_RESET_PERMISSION)) {
             return "simpleQueueReset";
-        }else {
+        } else {
             return null;
         }
     }

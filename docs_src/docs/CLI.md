@@ -1,4 +1,6 @@
 # CLI
+**Since 1.4.7**, breaking *changes* were introduced into *human* usable **api**: https://github.com/jenkinsci/simple-queue-plugin/releases/tag/simple-queue-1.4.7
+
 When hovering over priority arrows, you can see that it executes special url aka:
 ```
 http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=1074193&viewName=.executors

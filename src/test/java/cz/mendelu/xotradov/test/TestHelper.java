@@ -54,7 +54,7 @@ public class TestHelper {
         return projectA;
     }
     public FreeStyleProject createAndSchedule(@NonNull String projectName, long millisOfBuild)  throws Exception {
-        FreeStyleProject projectA = createProject(projectName,millisOfBuild);
+        FreeStyleProject projectA = createProject(projectName, millisOfBuild);
         schedule(projectA);
         return projectA;
     }

@@ -9,6 +9,9 @@ import hudson.Util;
 import hudson.model.Item;
 import hudson.model.ViewGroup;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest2;
 
 import java.util.ArrayList;
@@ -33,7 +36,7 @@ public class MoveActionWorker {
     public static final String VIEW_OWNER_PARAM_NAME="viewOwner";
     protected boolean isSorterSet=false;
 
-    protected void moveImpl(StaplerRequest2 request, StaplerResponse2 response, Queue queue, Jenkins j) {
+    protected void moveImpl(StaplerRequest2 request, StaplerResponse2 response, Queue queue, Jenkins j) throws IOException {
         try {
             String idParam = request.getParameter(ITEM_ID_PARAM_NAME);
             Queue.Item item = null;
@@ -44,7 +47,11 @@ public class MoveActionWorker {
             }
             if (item == null) {
                 logger.info("Wrong item id " + idParam + " (or not found in view " + request.getParameter(VIEW_NAME_PARAM_NAME) + ")");
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Wrong item id " + idParam + " (or not found in view " + request.getParameter(VIEW_NAME_PARAM_NAME) + ")");
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                PrintWriter writer = response.getWriter();
+                JSONObject message = new JSONObject();
+                message.put("message", "Wrong item id " + idParam + " (or not found in view '" + request.getParameter(VIEW_NAME_PARAM_NAME) + "')");
+                writer.println(message.toString(2));
                 return;
             }
             MoveType moveType = null;
@@ -52,7 +59,11 @@ public class MoveActionWorker {
                 moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));
             } catch (IllegalArgumentException iae) {
                 logger.info("Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME));
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME));
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                PrintWriter writer = response.getWriter();
+                JSONObject message = new JSONObject();
+                message.put("message", "Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME));
+                writer.println(message.toString(2));
                 return;
             }
 
@@ -68,7 +79,11 @@ public class MoveActionWorker {
             }
             if (viewGroup == null) {
                 logger.info("Unable to find view owner with name " + viewOwnerName);
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to find view owner with name " + viewOwnerName);
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                PrintWriter writer = response.getWriter();
+                JSONObject message = new JSONObject();
+                message.put("message", "Unable to find view owner with name " + viewOwnerName);
+                writer.println(message.toString(2));
                 return;
             }
             View view = viewGroup.getView(request.getParameter(VIEW_NAME_PARAM_NAME));
@@ -82,6 +97,7 @@ public class MoveActionWorker {
         } catch (Exception ex) {
             logger.info("unable to simple-queue item " + request.getParameterMap().entrySet().stream().map(a -> a.getKey() + ": " + Arrays.stream(a.getValue()).collect(
                     Collectors.joining(","))).collect(Collectors.joining("; ")));
+            throw ex;
         }
     }
 

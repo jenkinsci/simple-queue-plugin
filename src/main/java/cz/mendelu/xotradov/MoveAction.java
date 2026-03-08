@@ -3,6 +3,7 @@ package cz.mendelu.xotradov;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.Extension;
 import hudson.model.*;
+import jakarta.servlet.http.HttpServletResponse;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
@@ -45,17 +46,18 @@ public class MoveAction extends MoveActionWorker implements RootAction  {
      */
     @RequirePOST
     public void doMove(final StaplerRequest2 request, final StaplerResponse2 response) {
-        Jenkins j;
-        if ((j = Jenkins.getInstanceOrNull()) != null) {
-            Queue queue = j.getQueue();
-            if (queue != null & j.hasPermission(PermissionHandler.SIMPLE_QUEUE_MOVE_PERMISSION)) {
-                moveImpl(request, queue, j);
-            }
+        Jenkins j = Jenkins.get();
+        if (!j.hasPermission(PermissionHandler.SIMPLE_QUEUE_MOVE_PERMISSION)) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
         }
         try {
-            response.forwardToPreviousPage(request);
+            Queue queue = j.getQueue();
+            if (queue != null & j.hasPermission(PermissionHandler.SIMPLE_QUEUE_MOVE_PERMISSION)) {
+                moveImpl(request, response, queue, j);
+            }
         } catch (Exception e) {
-            logger.warning(e.toString());
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 

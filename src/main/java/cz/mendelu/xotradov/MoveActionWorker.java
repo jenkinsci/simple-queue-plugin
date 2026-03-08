@@ -7,8 +7,8 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Util;
 import hudson.model.Item;
-import hudson.model.ItemGroup;
 import hudson.model.ViewGroup;
+import jakarta.servlet.http.HttpServletResponse;
 import org.kohsuke.stapler.StaplerRequest2;
 
 import java.util.ArrayList;
@@ -22,6 +22,7 @@ import hudson.model.Queue;
 import hudson.model.View;
 import hudson.model.queue.QueueSorter;
 import jenkins.model.Jenkins;
+import org.kohsuke.stapler.StaplerResponse2;
 
 
 public class MoveActionWorker {
@@ -32,9 +33,7 @@ public class MoveActionWorker {
     public static final String VIEW_OWNER_PARAM_NAME="viewOwner";
     protected boolean isSorterSet=false;
 
-
-
-    protected void moveImpl(StaplerRequest2 request, Queue queue, Jenkins j) {
+    protected void moveImpl(StaplerRequest2 request, StaplerResponse2 response, Queue queue, Jenkins j) {
         try {
             String idParam = request.getParameter(ITEM_ID_PARAM_NAME);
             Queue.Item item = null;
@@ -43,10 +42,23 @@ public class MoveActionWorker {
             } catch (NumberFormatException nfe) {
                 item = findItemByName(queue, idParam);
             }
-            MoveType moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));
+            if (item == null) {
+                logger.info("Wrong item id " + idParam + " (or not found in view " + request.getParameter(VIEW_NAME_PARAM_NAME) + ")");
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Wrong item id " + idParam + " (or not found in view " + request.getParameter(VIEW_NAME_PARAM_NAME) + ")");
+                return;
+            }
+            MoveType moveType = null;
+            try {
+                moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));
+            } catch (IllegalArgumentException iae) {
+                logger.info("Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME));
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME));
+                return;
+            }
+
             String viewOwnerName = request.getParameter(VIEW_OWNER_PARAM_NAME);
             ViewGroup viewGroup = null;
-            if (Util.fixEmptyAndTrim(viewOwnerName) == null ){
+            if (Util.fixEmptyAndTrim(viewOwnerName) == null){
                 viewGroup = Jenkins.get();
             } else {
                 Item viewOwner = j.getItemByFullName(viewOwnerName);
@@ -55,7 +67,8 @@ public class MoveActionWorker {
                 }
             }
             if (viewGroup == null) {
-                logger.info("Wrong view owner name " + viewOwnerName);
+                logger.info("Unable to find view owner with name " + viewOwnerName);
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to find view owner with name " + viewOwnerName);
                 return;
             }
             View view = viewGroup.getView(request.getParameter(VIEW_NAME_PARAM_NAME));
@@ -63,14 +76,9 @@ public class MoveActionWorker {
                 logger.info("Wrong view name " + request.getParameter(VIEW_NAME_PARAM_NAME));
                 view = Jenkins.get().getPrimaryView();
             }
-            if (item != null) {
-                move(queue, item, moveType, view);
-                Queue.getInstance().maintain();
-            } else {
-                logger.info("Wrong item id " + idParam + " (or not found in view " + request.getParameter(VIEW_NAME_PARAM_NAME) + ")");
-            }
-        } catch (IllegalArgumentException iae) {
-            logger.info("Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME));
+            move(queue, item, moveType, view);
+            Queue.getInstance().maintain();
+            response.setStatus(HttpServletResponse.SC_OK);
         } catch (Exception ex) {
             logger.info("unable to simple-queue item " + request.getParameterMap().entrySet().stream().map(a -> a.getKey() + ": " + Arrays.stream(a.getValue()).collect(
                     Collectors.joining(","))).collect(Collectors.joining("; ")));

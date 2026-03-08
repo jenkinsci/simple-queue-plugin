@@ -3,6 +3,8 @@ package cz.mendelu.xotradov;
 import com.google.common.annotations.VisibleForTesting;
 
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.util.ArrayList;
@@ -12,8 +14,6 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 
 import hudson.model.Queue;
 import hudson.model.View;
@@ -66,7 +66,7 @@ public class MoveActionWorker {
         return null;
     }
 
-    protected void move(@Nonnull Queue queue, @Nonnull Queue.Item item, @Nonnull MoveType moveType, View view) {
+    protected void move(@NonNull Queue queue, @NonNull Queue.Item item, @NonNull MoveType moveType, View view) {
         if (view == null || !view.isFilterQueue()) {
             moveUnfiltered(queue, item, moveType);
         } else {
@@ -74,7 +74,7 @@ public class MoveActionWorker {
         }
     }
 
-    private void moveUnfiltered(@Nonnull Queue queue, @Nonnull Queue.Item item, @Nonnull MoveType moveType) {
+    private void moveUnfiltered(@NonNull Queue queue, @NonNull Queue.Item item, @NonNull MoveType moveType) {
         switch (moveType) {
             case UP_FAST:
                 moveToTop(item, queue);
@@ -94,7 +94,7 @@ public class MoveActionWorker {
         }
     }
 
-    private void moveFiltered(@Nonnull Queue queue,@Nonnull Queue.Item item,@Nonnull MoveType moveType,@Nonnull View view) {
+    private void moveFiltered(@NonNull Queue queue,@NonNull Queue.Item item,@NonNull MoveType moveType,@NonNull View view) {
         switch (moveType){
             case TOP:
                 moveToTop(item,queue);
@@ -118,7 +118,7 @@ public class MoveActionWorker {
     }
 
     @VisibleForTesting
-    public void moveToBottomFiltered(Queue.Item itemToBottom, Queue queue,@Nonnull View view) {
+    public void moveToBottomFiltered(Queue.Item itemToBottom, Queue queue,@NonNull View view) {
         Queue.Item oldBottomItem = getBottom(view.getQueueItems());
         if (oldBottomItem!=null){
             putABelowB(itemToBottom,oldBottomItem,queue);
@@ -143,7 +143,7 @@ public class MoveActionWorker {
     }
 
     @VisibleForTesting
-    public @CheckForNull Queue.Item getBottom(@Nonnull List<Queue.Item> queueItems) {
+    public @CheckForNull Queue.Item getBottom(@NonNull List<Queue.Item> queueItems) {
         if (queueItems.size()>0){
             return queueItems.get(queueItems.size()-1);
         }else {
@@ -174,7 +174,7 @@ public class MoveActionWorker {
     }
 
 
-    private void moveToTopFiltered(@Nonnull Queue.Item item, @Nonnull Queue queue, @Nonnull View view) {
+    private void moveToTopFiltered(@NonNull Queue.Item item, @NonNull Queue queue, @NonNull View view) {
             Queue.Item oldTopItem = getTop(view.getQueueItems());
             if (oldTopItem!=null){
                 putAOnTopOfB(item,oldTopItem,queue);
@@ -182,7 +182,7 @@ public class MoveActionWorker {
     }
 
     @VisibleForTesting
-    public void putAOnTopOfB(@Nonnull Queue.Item itemA, @Nonnull Queue.Item itemB,@Nonnull Queue queue) {
+    public void putAOnTopOfB(@NonNull Queue.Item itemA, @NonNull Queue.Item itemB,@NonNull Queue queue) {
         Queue.Item[] items = queue.getItems();
         List<Queue.Item> itemsC = getItemsBetween(itemA,itemB, items);
             if (!isSorterSet){
@@ -262,7 +262,7 @@ public class MoveActionWorker {
      * @param itemA Item with least importance
      */
     @VisibleForTesting
-    public void moveToTop(@Nonnull Queue.Item itemA,@Nonnull Queue queue){
+    public void moveToTop(@NonNull Queue.Item itemA,@NonNull Queue queue){
         Queue.Item[] items = queue.getItems();
         List<Queue.Item> itemsB = getItemsBefore(itemA, items);
         if (itemsB.size()!=0){
@@ -319,7 +319,7 @@ public class MoveActionWorker {
      * @param itemA The most important item
      * */
     @VisibleForTesting
-    public void moveToBottom(@Nonnull Queue.Item itemA,@Nonnull Queue queue){
+    public void moveToBottom(@NonNull Queue.Item itemA,@NonNull Queue queue){
         Queue.Item[] items = queue.getItems();
         List<Queue.Item> itemsB = getItemsAfter(itemA, items);
         if (itemsB.size()!=0){
@@ -337,8 +337,8 @@ public class MoveActionWorker {
         }
     }
 
-    @Nonnull
-    private List<Queue.Item> getItemsBefore(@Nonnull Queue.Item itemA,@Nonnull Queue.Item[] items) {
+    @NonNull
+    private List<Queue.Item> getItemsBefore(@NonNull Queue.Item itemA,@NonNull Queue.Item[] items) {
         List<Queue.Item> returnList = new ArrayList<>();
         if (items.length >= 2) {
             boolean seenItemA= false;
@@ -355,8 +355,8 @@ public class MoveActionWorker {
         return returnList;
     }
 
-    @Nonnull
-    private List<Queue.Item> getItemsAfter(@Nonnull Queue.Item itemA,@Nonnull Queue.Item[] items) {
+    @NonNull
+    private List<Queue.Item> getItemsAfter(@NonNull Queue.Item itemA,@NonNull Queue.Item[] items) {
         List<Queue.Item> returnList = new ArrayList<>();
         if (items.length >= 2) {
             boolean seenItemA = false;
@@ -379,7 +379,7 @@ public class MoveActionWorker {
      * @return Returns item that is after in the queue order = the with higher priority = goes before to execution
      */
     @CheckForNull
-    private Queue.Item getItemAfter(@Nonnull Queue.Item itemA,@Nonnull Queue.Item[] items) {
+    private Queue.Item getItemAfter(@NonNull Queue.Item itemA,@NonNull Queue.Item[] items) {
         if (items.length >= 2) {
             Queue.Item previous = null;
             for (Queue.Item itemB : items) {

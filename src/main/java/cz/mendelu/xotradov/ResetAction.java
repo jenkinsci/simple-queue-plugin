@@ -1,12 +1,12 @@
 package cz.mendelu.xotradov;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.Extension;
 import hudson.model.RootAction;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import javax.annotation.CheckForNull;
 import java.util.logging.Logger;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 

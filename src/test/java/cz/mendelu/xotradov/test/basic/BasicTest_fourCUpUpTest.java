@@ -36,7 +36,7 @@ public class BasicTest_fourCUpUpTest {
         FreeStyleProject projectF = helper.createAndSchedule("projectF",25000);
         Queue queue = Queue.getInstance();
         assertEquals(4,queue.getBuildableItems().size());
-        MoveAction moveAction = (MoveAction)jenkinsRule.jenkins.getActions().get(1);
+        MoveAction moveAction = helper.getMoveAction();
         assertEquals(projectC.getDisplayName(),queue.getItems()[3].task.getDisplayName());
         moveAction.moveUp(queue.getItems()[3],queue);
         queue.maintain();

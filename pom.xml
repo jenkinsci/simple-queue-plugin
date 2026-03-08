@@ -4,16 +4,16 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>6.2138.v03274d462c13</version>
+        <version>4.72</version>
         <relativePath />
     </parent>
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>simple-queue</artifactId>
-    <version>1.4.8-SNAPSHOT</version>
+    <version>1.4.10-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
-        <jenkins.baseline>2.528</jenkins.baseline>
-        <jenkins.version>${jenkins.baseline}.3</jenkins.version>
+        <jenkins.version>2.426.1</jenkins.version>
+        <useBeta>true</useBeta> <!--can be deleted when manage permission does not require it anymore. https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/jenkins/model/Jenkins.java -->
     </properties>
     <name>Simple Queue Plugin</name>
     <description>Enables to change queue order by simple up &amp; down arrow buttons. UI Queue Sorter.</description>
@@ -37,7 +37,7 @@
         <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
-      <tag>HEAD</tag>
+      <tag>simple-queue-1.4.8</tag>
     </scm>
 
     <repositories>

@@ -14,7 +14,7 @@ public class TestHelperTest {
     private TestHelper helper = new TestHelper(jenkinsRule);
 
     @Test
-    public void getMoveAction(){
+    public void getMoveAction() {
         MoveAction moveAction = helper.getMoveAction();
         assertNotNull(moveAction);
     }

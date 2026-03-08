@@ -27,9 +27,9 @@ public class MoveAction extends MoveActionWorker implements RootAction  {
 
     @Override
     public String getUrlName() {
-        if (Jenkins.get().hasPermission(PermissionHandler.SIMPLE_QUEUE_MOVE_PERMISSION)){
+        if (Jenkins.get().hasPermission(PermissionHandler.SIMPLE_QUEUE_MOVE_PERMISSION)) {
             return "simpleMove";
-        }else {
+        } else {
             return null;
         }
     }

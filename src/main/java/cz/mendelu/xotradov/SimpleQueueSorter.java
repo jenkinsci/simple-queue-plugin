@@ -24,12 +24,12 @@ public class SimpleQueueSorter extends QueueSorter {
 
     @Override
     public void sortBuildableItems(List<Queue.BuildableItem> list) {
-        if(this.originalQueueSorter != null) {
+        if (this.originalQueueSorter != null) {
             this.originalQueueSorter.sortBuildableItems(list);
         }
         Collections.sort(list, simpleQueueComparator);
     }
-    public SimpleQueueComparator getSimpleQueueComparator(){
+    public SimpleQueueComparator getSimpleQueueComparator() {
         return simpleQueueComparator;
     }
 

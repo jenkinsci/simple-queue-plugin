@@ -33,15 +33,15 @@ public class SimpleQueueSorterTest {
         list.add(c);
         list.add(d);
         sorter.sortBuildableItems(list);
-        assertEquals(a.getId(),list.get(0).getId());
-        assertEquals(b.getId(),list.get(1).getId());
-        assertEquals(c.getId(),list.get(2).getId());
-        assertEquals(d.getId(),list.get(3).getId());
-        sorter.getSimpleQueueComparator().addDesire(b.getId(),a.getId());
+        assertEquals(a.getId(), list.get(0).getId());
+        assertEquals(b.getId(), list.get(1).getId());
+        assertEquals(c.getId(), list.get(2).getId());
+        assertEquals(d.getId(), list.get(3).getId());
+        sorter.getSimpleQueueComparator().addDesire(b.getId(), a.getId());
         sorter.sortBuildableItems(list);
-        assertEquals(b.getId(),list.get(0).getId());
-        assertEquals(a.getId(),list.get(1).getId());
-        assertEquals(c.getId(),list.get(2).getId());
-        assertEquals(d.getId(),list.get(3).getId());
+        assertEquals(b.getId(), list.get(0).getId());
+        assertEquals(a.getId(), list.get(1).getId());
+        assertEquals(c.getId(), list.get(2).getId());
+        assertEquals(d.getId(), list.get(3).getId());
     }
 }

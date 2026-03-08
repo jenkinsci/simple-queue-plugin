@@ -58,11 +58,11 @@ public class SimpleQueueWidget extends Widget {
     }
 
     @SuppressWarnings("unused") // jelly
-    public static String getMoveTypeName(){return MoveAction.MOVE_TYPE_PARAM_NAME;}
+    public static String getMoveTypeName() { return MoveAction.MOVE_TYPE_PARAM_NAME;}
     @SuppressWarnings("unused") // jelly
-    public static String getItemIdName(){return MoveAction.ITEM_ID_PARAM_NAME;}
+    public static String getItemIdName() { return MoveAction.ITEM_ID_PARAM_NAME;}
     @SuppressWarnings("unused") // jelly
-    public static String getViewNameParamName(){return MoveAction.VIEW_NAME_PARAM_NAME;}
+    public static String getViewNameParamName() { return MoveAction.VIEW_NAME_PARAM_NAME;}
 
     @Extension(ordinal = 100)
     public static final class ViewFactoryImpl extends WidgetFactory<View, SimpleQueueWidget> {

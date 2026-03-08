@@ -30,25 +30,25 @@ public class BasicTest_fourDUpUpEDownTest {
     @Test
     public void fourDUpUpEDown() throws Exception {
         helper.fillQueueFor(30000);
-        FreeStyleProject projectC = helper.createAndSchedule("projectC",25000);
-        FreeStyleProject projectD = helper.createAndSchedule("projectD",25000);
-        FreeStyleProject projectE = helper.createAndSchedule("projectE",25000);
-        FreeStyleProject projectF = helper.createAndSchedule("projectF",25000);
+        FreeStyleProject projectC = helper.createAndSchedule("projectC", 25000);
+        FreeStyleProject projectD = helper.createAndSchedule("projectD", 25000);
+        FreeStyleProject projectE = helper.createAndSchedule("projectE", 25000);
+        FreeStyleProject projectF = helper.createAndSchedule("projectF", 25000);
         Queue queue = Queue.getInstance();
         MoveAction moveAction = helper.getMoveAction();
-        assertEquals(projectD.getDisplayName(),queue.getItems()[2].task.getDisplayName());
-        moveAction.moveUp(queue.getItems()[2],queue);//D
+        assertEquals(projectD.getDisplayName(), queue.getItems()[2].task.getDisplayName());
+        moveAction.moveUp(queue.getItems()[2], queue);//D
         queue.maintain();
-        assertEquals(projectD.getDisplayName(),queue.getItems()[1].task.getDisplayName());
-        moveAction.moveUp(queue.getItems()[1],queue);//D
+        assertEquals(projectD.getDisplayName(), queue.getItems()[1].task.getDisplayName());
+        moveAction.moveUp(queue.getItems()[1], queue);//D
         queue.maintain();
-        assertEquals(projectE.getDisplayName(),queue.getItems()[2].task.getDisplayName());
-        moveAction.moveDown(queue.getItems()[2],queue);//E
+        assertEquals(projectE.getDisplayName(), queue.getItems()[2].task.getDisplayName());
+        moveAction.moveDown(queue.getItems()[2], queue);//E
         queue.maintain();
-        assertEquals(projectD.getDisplayName(),queue.getItems()[0].task.getDisplayName());
-        assertEquals(projectF.getDisplayName(),queue.getItems()[1].task.getDisplayName());
-        assertEquals(projectC.getDisplayName(),queue.getItems()[2].task.getDisplayName());
-        assertEquals(projectE.getDisplayName(),queue.getItems()[3].task.getDisplayName());
+        assertEquals(projectD.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+        assertEquals(projectF.getDisplayName(), queue.getItems()[1].task.getDisplayName());
+        assertEquals(projectC.getDisplayName(), queue.getItems()[2].task.getDisplayName());
+        assertEquals(projectE.getDisplayName(), queue.getItems()[3].task.getDisplayName());
     }
 
 }

@@ -27,7 +27,7 @@ public class UnsafeResetAction implements RootAction {
 
     public static void resetImpl(final StaplerRequest request, final StaplerResponse response) {
         QueueSorter queueSorter = Jenkins.get().getQueue().getSorter();
-        if (queueSorter instanceof SimpleQueueSorter){
+        if (queueSorter instanceof SimpleQueueSorter) {
             ((SimpleQueueSorter) queueSorter).reset();
         }
         try {

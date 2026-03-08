@@ -30,8 +30,8 @@ public class DefaultSorterTest {
         list.add(b);
         list.add(c);
         sorter.sortBuildableItems(list);
-        assertEquals(a.getId(),list.get(0).getId());
-        assertEquals(b.getId(),list.get(1).getId());
-        assertEquals(c.getId(),list.get(2).getId());
+        assertEquals(a.getId(), list.get(0).getId());
+        assertEquals(b.getId(), list.get(1).getId());
+        assertEquals(c.getId(), list.get(2).getId());
     }
 }

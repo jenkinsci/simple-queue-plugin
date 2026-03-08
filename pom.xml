@@ -14,11 +14,6 @@
     <properties>
         <jenkins.version>2.426.1</jenkins.version>
         <useBeta>true</useBeta> <!--can be deleted when manage permission does not require it anymore. https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/jenkins/model/Jenkins.java -->
-        <java.level>21</java.level>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <maven.compiler.release>21</maven.compiler.release>
-        <maven.compiler.testRelease>21</maven.compiler.testRelease>
     </properties>
     <name>Simple Queue Plugin</name>
     <description>Enables to change queue order by simple up &amp; down arrow buttons. UI Queue Sorter.</description>
@@ -64,17 +59,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <release>21</release>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
      <reporting>
     </reporting>
 </project>

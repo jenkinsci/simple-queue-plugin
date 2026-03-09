@@ -28,7 +28,6 @@ public class UITest {
     }
 
     @Test
-    @Ignore("seems to be not supported in newer jenkins")
     public void HoverText() throws Exception {
         long maxTestTime = 30000;
         helper.fillQueueFor(maxTestTime);
@@ -37,13 +36,12 @@ public class UITest {
         HtmlPage page = jenkinsRule.createWebClient().goTo("");
         DomNode queueElement = page.getElementById("buildSimpleQueue");
         DomNode div = queueElement.getChildren().iterator().next().getNextSibling();
-        DomNode a = div.getFirstChild().getNextSibling().getFirstChild().getFirstChild().getFirstChild().getFirstChild();
+        DomNode a = div.getFirstChild().getFirstChild().getFirstChild().getFirstChild().getFirstChild();
         assertFalse(a.asXml().contains("WaitingFor"));
         assertTrue(a.asXml().contains("sec"));
     }
 
     @Test
-    @Ignore("seems to be not supported in newer jenkins")
     public void initWidgetTest() throws Exception {
         long maxTestTime = 30000;
         helper.fillQueueFor(maxTestTime);

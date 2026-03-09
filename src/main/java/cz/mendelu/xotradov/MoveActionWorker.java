@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-
 import hudson.model.Queue;
 import hudson.model.View;
 import hudson.model.queue.QueueSorter;

@@ -1,12 +1,12 @@
 package cz.mendelu.xotradov;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.Extension;
 import hudson.model.*;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
-import javax.annotation.CheckForNull;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
 /**
@@ -16,6 +16,7 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
 @SuppressWarnings("unused")
 @Extension
 public class MoveAction extends MoveActionWorker implements RootAction  {
+
     @CheckForNull
     @Override
     public String getIconFileName() {

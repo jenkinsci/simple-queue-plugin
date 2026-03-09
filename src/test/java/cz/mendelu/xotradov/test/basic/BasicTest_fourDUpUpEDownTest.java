@@ -35,7 +35,7 @@ public class BasicTest_fourDUpUpEDownTest {
         FreeStyleProject projectE = helper.createAndSchedule("projectE", 25000);
         FreeStyleProject projectF = helper.createAndSchedule("projectF", 25000);
         Queue queue = Queue.getInstance();
-        MoveAction moveAction = (MoveAction)jenkinsRule.jenkins.getActions().get(1);
+        MoveAction moveAction = helper.getMoveAction();
         assertEquals(projectD.getDisplayName(), queue.getItems()[2].task.getDisplayName());
         moveAction.moveUp(queue.getItems()[2], queue);//D
         queue.maintain();

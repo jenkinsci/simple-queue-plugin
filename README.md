@@ -1,5 +1,5 @@
 # Simple Queue Plugin
-[![Jenkins Version](https://img.shields.io/badge/Jenkins-2.414.1-green.svg?label=min.%20Jenkins)](https://jenkins.io/download/)
+    [![Jenkins Version](https://img.shields.io/badge/Jenkins-2.414.1-green.svg?label=min.%20Jenkins)](https://jenkins.io/download/)
 [![Build Status](https://ci.jenkins.io/job/Plugins/job/simple-queue-plugin/job/master/badge/icon)](https://ci.jenkins.io/job/Plugins/job/simple-queue-plugin/job/master/) \
 Plugin for Jenkins enabling changing a build queue order from UI manually.
 # Usage
@@ -9,7 +9,8 @@ The user must have an Administer/Overall or MANAGE/Overall permission for changi
     For using Manage permission is needed plugin: https://plugins.jenkins.io/manage-permission/
 Orders buildable items only, for that reason [blocked](hhttps://stackoverflow.com/questions/56182285/difference-between-blocked-stuck-pending-buildable-jobs-in-jenkins) items do NOT have an arrow.<br />
 
-**Since 1.4.7**, breaking *changes* were introduced into *human* usable **api**: https://github.com/jenkinsci/simple-queue-plugin/releases/tag/simple-queue-1.4.7
+**Documentation** https://jenkinsci.github.io/simple-queue-plugin
+
 
 #### Screenshot
 ![Screenshot](docs_src/docs/images/queue_screenshot.png "Simple Queue screenshot")

@@ -2,13 +2,13 @@ package cz.mendelu.xotradov.test;
 
 import cz.mendelu.xotradov.MoveAction;
 import cz.mendelu.xotradov.ResetAction;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.*;
 import hudson.model.queue.QueueTaskFuture;
 import jenkins.model.Jenkins;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.SleepBuilder;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 
 public class TestHelper {
@@ -22,7 +22,7 @@ public class TestHelper {
         return r;
     }
 
-    public QueueTaskFuture<FreeStyleBuild> schedule(@Nonnull FreeStyleProject projectA) throws Exception {
+    public QueueTaskFuture<FreeStyleBuild> schedule(@NonNull FreeStyleProject projectA) throws Exception {
         QueueTaskFuture<FreeStyleBuild> futureA = projectA.scheduleBuild2(0);
         if (futureA == null) {
             throw new Exception("the task could not be scheduled");
@@ -47,13 +47,13 @@ public class TestHelper {
         return futureA;
     }
 
-    public FreeStyleProject createProject(@Nonnull String projectName, long time) throws IOException {
+    public FreeStyleProject createProject(@NonNull String projectName, long time) throws IOException {
         FreeStyleProject projectA = r.createFreeStyleProject(projectName);
         projectA.getBuildersList().add(new SleepBuilder(time));
         projectA.setDisplayName(projectName);
         return projectA;
     }
-    public FreeStyleProject createAndSchedule(@Nonnull String projectName, long millisOfBuild)  throws Exception {
+    public FreeStyleProject createAndSchedule(@NonNull String projectName, long millisOfBuild)  throws Exception {
         FreeStyleProject projectA = createProject(projectName, millisOfBuild);
         schedule(projectA);
         return projectA;

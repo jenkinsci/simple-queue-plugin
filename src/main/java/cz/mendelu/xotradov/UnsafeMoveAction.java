@@ -1,11 +1,11 @@
 package cz.mendelu.xotradov;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import java.util.logging.Logger;
 
-import javax.annotation.CheckForNull;
 
 import hudson.Extension;
 import hudson.model.Queue;

@@ -41,7 +41,7 @@ public class BasicTest_twoItemsUpperDownTest {
         assertTrue(jenkinsRule.jenkins.hasPermission(Jenkins.ADMINISTER));
         assertEquals(2, queue.getBuildableItems().size());
         assertEquals(2, queue.getItems().length);
-        MoveAction moveAction = (MoveAction)jenkinsRule.jenkins.getActions().get(1);
+        MoveAction moveAction = helper.getMoveAction();
         moveAction.moveDown(queue.getItems()[0], queue);
         queue.maintain();
         assertEquals(projectC.getDisplayName(), queue.getItems()[0].task.getDisplayName());

@@ -25,7 +25,7 @@ public class ResetAction implements RootAction {
     @Override
     public String getIconFileName() {
         if (Jenkins.get().hasPermission(PermissionHandler.SIMPLE_QUEUE_RESET_PERMISSION)) {
-            return "/plugin/simple-queue/images/reset_64.png";
+            return "symbol-sync-outline plugin-ionicons-api";
         } else {
             return null;
         }

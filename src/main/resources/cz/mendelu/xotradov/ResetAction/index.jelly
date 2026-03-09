@@ -1,14 +1,11 @@
 <?jelly escape-by-default='false'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <j:getStatic var="permission" className="jenkins.model.Jenkins" field="MANAGE"/>
-    <l:layout norefresh="true" permission="${permission}" title="Reset simple queue desires">
+    <l:layout norefresh="true" permission="${app.MANAGE}" title="Reset simple queue desires">
         <l:main-panel>
             <h1>Reset simple queue desires</h1>
             <br/>
             <f:form name="reset" action="reset" method="post">
-                <f:block>
-                    <input type="submit" value="Reset" />
-                </f:block>
+                <f:submit value="Reset"/>
             </f:form>
         </l:main-panel>
     </l:layout>

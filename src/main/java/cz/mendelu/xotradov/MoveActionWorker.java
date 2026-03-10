@@ -2,7 +2,6 @@ package cz.mendelu.xotradov;
 
 import com.google.common.annotations.VisibleForTesting;
 
-
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -23,15 +22,12 @@ import hudson.model.View;
 import hudson.model.queue.QueueSorter;
 import jenkins.model.Jenkins;
 
-
 public class MoveActionWorker {
     protected static final Logger logger = Logger.getLogger(MoveActionWorker.class.getName());
     public static final String MOVE_TYPE_PARAM_NAME = "moveType";
     public static final String ITEM_ID_PARAM_NAME = "itemId";
     public static final String VIEW_NAME_PARAM_NAME = "viewName";
     protected boolean isSorterSet = false;
-
-
 
     protected void moveImpl(StaplerRequest request, Queue queue, Jenkins j) {
         try {
@@ -55,7 +51,18 @@ public class MoveActionWorker {
                         idParam.getChars(2, idParam.length() - (caseInsensitive ? 2 : 1), tmp, 0);
                         String regexStr = String.valueOf(tmp).trim();
                         items = findItemsByPattern(queue,
-                                Pattern.compile(regexStr, caseInsensitive ? Pattern.CASE_INSENSITIVE : 0)
+                                Pattern.compile(regexStr, caseInsensitive ? Pattern.CASE_INSENSITIVE : 0),
+                                true
+                        );
+                    } else {
+                        /* Assume the whole idParam string makes sense as a java-style regex
+                         * (meaning it Matcher::matches() the whole item.task.getDisplayName()
+                         * string), and the value must be surrounded by `.*` to match from
+                         * start and/or to the end of string respectively (like find() above
+                         * does by default) */
+                        items = findItemsByPattern(queue,
+                                Pattern.compile(idParam),
+                                false
                         );
                     }
                 }
@@ -87,14 +94,26 @@ public class MoveActionWorker {
         return null;
     }
 
-    protected Queue.Item[] findItemsByPattern(Queue queue, Pattern idParamPattern) {
+    /**
+     * Finds items in the queue that match the given pattern.
+     * @param queue The queue to search in.
+     * @param idParamPattern The pattern to match against task display names.
+     * @param useMatcherFind Whether to use Matcher.find() instead of Matcher.matches().
+     * @return An array of matching Queue.Item objects, or null if no matches are found.
+     */
+    protected Queue.Item[] findItemsByPattern(Queue queue, Pattern idParamPattern, boolean useMatcherFind) {
         List<Queue.Item> items = new ArrayList<>();
         for (Queue.Item item : queue.getItems()) {
             if (item.isBuildable()) {
                 if (item.task != null) {
                     Matcher matcher = idParamPattern.matcher(item.task.getDisplayName());
-                    if (matcher.find())
-                        items.add(item);
+                    if (useMatcherFind) {
+                        if (matcher.find())
+                            items.add(item);
+                    } else {
+                        if (matcher.matches())
+                            items.add(item);
+                    }
                 }
             }
         }

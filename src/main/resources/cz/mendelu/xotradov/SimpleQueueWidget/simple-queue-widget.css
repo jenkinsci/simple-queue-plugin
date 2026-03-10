@@ -2,3 +2,7 @@
     display: flex;
     align-items: center;
 }
+
+.BulkMoveRegex_button {
+    padding: 2px 6px;
+}

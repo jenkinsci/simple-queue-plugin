@@ -2,7 +2,3 @@
     display: flex;
     align-items: center;
 }
-
-.pane-bulk-queue-widget {
-    --section-padding:0;
-}

@@ -1,6 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
   <l:ajax>
+    <j:set var="ajax_mode" value="true"/>
     <st:include page="index"/>
   </l:ajax>
 </j:jelly>

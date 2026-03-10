@@ -26,12 +26,14 @@ public class MoveActionWorker {
     protected static final Logger logger = Logger.getLogger(MoveActionWorker.class.getName());
     public static final String MOVE_TYPE_PARAM_NAME = "moveType";
     public static final String ITEM_ID_PARAM_NAME = "itemId";
+    public static final String ITEM_ID_PARAM_MODE = "itemIdMode";
     public static final String VIEW_NAME_PARAM_NAME = "viewName";
     protected boolean isSorterSet = false;
 
     protected void moveImpl(StaplerRequest request, Queue queue, Jenkins j) {
         try {
             String idParam = request.getParameter(ITEM_ID_PARAM_NAME);
+            String idParamMode = request.getParameter(ITEM_ID_PARAM_MODE);
             Queue.Item[] items = null;
             try {
                 Queue.Item item = queue.getItem(Long.parseLong(idParam));
@@ -44,7 +46,7 @@ public class MoveActionWorker {
                 if (item != null) {
                     items = new Queue.Item[1];
                     items[0] = item;
-                } else {
+                } else if (idParamMode.equals("regex")) {
                     boolean caseInsensitive = idParam.endsWith("/i");
                     if (idParam.startsWith("~/") && (idParam.endsWith("/") || caseInsensitive)) {
                         char[] tmp = new char[idParam.length()];

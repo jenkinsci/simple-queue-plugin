@@ -1,5 +1,6 @@
 package cz.mendelu.xotradov.test.moves;
 
+import static cz.mendelu.xotradov.MoveActionWorker.ITEM_ID_PARAM_MODE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -89,6 +90,7 @@ public class MoveAction_doMoveByNameTest {
             StaplerResponse response = Mockito.mock(StaplerResponse.class);
             when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
             // Use direct Java regex syntax for Matcher::find() :
+            when(request.getParameter(ITEM_ID_PARAM_MODE)).thenReturn("regex");
             when(request.getParameter(ITEM_ID_PARAM_NAME)).thenReturn(".*(?i)[Fd](?-i).*");
 
             // Debugging aid:
@@ -144,6 +146,7 @@ public class MoveAction_doMoveByNameTest {
             StaplerResponse response = Mockito.mock(StaplerResponse.class);
             when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
             // Use ~/.../ syntax for Matcher::matches() :
+            when(request.getParameter(ITEM_ID_PARAM_MODE)).thenReturn("regex");
             when(request.getParameter(ITEM_ID_PARAM_NAME)).thenReturn("~/[Fd]/i");
 
             // Debugging aid:
@@ -166,6 +169,60 @@ public class MoveAction_doMoveByNameTest {
             assertEquals(D.getDisplayName(), queue.getItems()[2].task.getDisplayName());
             assertEquals(G.getDisplayName(), queue.getItems()[3].task.getDisplayName());
             assertEquals(E.getDisplayName(), queue.getItems()[4].task.getDisplayName());
+            assertEquals(C.getDisplayName(), queue.getItems()[5].task.getDisplayName());
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void doMoveByNameManyByRegexFindNoMode() throws Exception {
+        try {
+            long maxTestTime = 10000;
+            helper.fillQueueFor(maxTestTime);
+            FreeStyleProject C = helper.createAndSchedule("C", maxTestTime);
+            FreeStyleProject D = helper.createAndSchedule("D", maxTestTime);
+            FreeStyleProject E = helper.createAndSchedule("E", maxTestTime);
+            FreeStyleProject F = helper.createAndSchedule("F", maxTestTime);
+            FreeStyleProject G = helper.createAndSchedule("G", maxTestTime);
+            FreeStyleProject H = helper.createAndSchedule("H", maxTestTime);
+
+            Queue queue = jenkinsRule.jenkins.getQueue();
+
+            assertEquals(H.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+            assertEquals(G.getDisplayName(), queue.getItems()[1].task.getDisplayName());
+            assertEquals(F.getDisplayName(), queue.getItems()[2].task.getDisplayName());
+            assertEquals(E.getDisplayName(), queue.getItems()[3].task.getDisplayName());
+            assertEquals(D.getDisplayName(), queue.getItems()[4].task.getDisplayName());
+            assertEquals(C.getDisplayName(), queue.getItems()[5].task.getDisplayName());
+
+            List<Action> list = jenkinsRule.jenkins.getActions();
+            MoveAction moveAction = helper.getMoveAction();
+            StaplerRequest request = Mockito.mock(StaplerRequest.class);
+            StaplerResponse response = Mockito.mock(StaplerResponse.class);
+            when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
+            // Use ~/.../ syntax for Matcher::matches() :
+            when(request.getParameter(ITEM_ID_PARAM_NAME)).thenReturn("~/[Fd]/i");
+
+            // Debugging aid:
+            ArrayList<String> namesBefore = new ArrayList<>();
+            for (Queue.Item item: queue.getItems())
+                namesBefore.add(item.getDisplayName());
+
+            moveAction.doMove(request, response);
+
+            // Debugging aid:
+            ArrayList<String> namesAfter = new ArrayList<>();
+            for (Queue.Item item: queue.getItems())
+                namesAfter.add(item.getDisplayName());
+
+            // We did not ask for regex mode, and the string should not have matched
+            // anything as an exact name hit, so no changes in the list:
+            assertEquals(H.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+            assertEquals(G.getDisplayName(), queue.getItems()[1].task.getDisplayName());
+            assertEquals(F.getDisplayName(), queue.getItems()[2].task.getDisplayName());
+            assertEquals(E.getDisplayName(), queue.getItems()[3].task.getDisplayName());
+            assertEquals(D.getDisplayName(), queue.getItems()[4].task.getDisplayName());
             assertEquals(C.getDisplayName(), queue.getItems()[5].task.getDisplayName());
         } catch (Exception e) {
             fail();

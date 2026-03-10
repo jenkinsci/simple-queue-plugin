@@ -13,8 +13,7 @@
         </j:otherwise>
     </j:choose>
 
-    <!-- ajax_mode is set in ajax.jelly which re-includes this page -->
-    <j:if test="${ajax_mode!='true' and h.hasPermission(app.MANAGE)}">
+    <j:if test="${ajax==null and h.hasPermission(app.MANAGE)}">
         <!-- Keep the textbox out of AJAX pane so it is not erased every couple of seconds -->
         <l:pane title="Build Queue Bulk Move (by regex)" width="2" id="buildSimpleQueueBulkMove">
             <tr>

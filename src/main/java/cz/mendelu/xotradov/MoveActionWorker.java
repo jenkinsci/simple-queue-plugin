@@ -17,7 +17,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-
 import hudson.model.Queue;
 import hudson.model.View;
 import hudson.model.queue.QueueSorter;

@@ -6,7 +6,7 @@ import org.kohsuke.stapler.StaplerResponse;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.Extension;
 import hudson.model.RootAction;
 import hudson.model.queue.QueueSorter;
@@ -49,6 +49,7 @@ public class UnsafeResetAction implements RootAction {
     }
 
     @Override
+    @CheckForNull
     public String getUrlName() {
         return "simpleQueueResetUnsafe";
     }

@@ -24,12 +24,12 @@
                         <f:textbox name="BulkMoveRegex" value="~//"/>
                     </td>
                     <td class="pane" align="center" valign="middle">
-                        <button id="BulkMoveRegex_button_up_fast">
+                        <button id="BulkMoveRegex_button_up_fast" class="BulkMoveRegex_button" data-var="UP_FAST">
                             <l:icon src="symbol-arrow-up-fast plugin-simple-queue" class="icon-sm"/>
                         </button>
                     </td>
                     <td class="pane" align="center" valign="middle">
-                        <button id="BulkMoveRegex_button_down_fast">
+                        <button id="BulkMoveRegex_button_down_fast" class="BulkMoveRegex_button" data-var="DOWN_FAST">
                             <l:icon src="symbol-arrow-down-fast plugin-simple-queue" class="icon-sm"/>
                         </button>
                     </td>

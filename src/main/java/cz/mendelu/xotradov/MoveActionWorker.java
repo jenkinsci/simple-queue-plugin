@@ -5,6 +5,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.util.ArrayList;
@@ -16,7 +17,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 
 import hudson.model.Queue;
 import hudson.model.View;
@@ -705,7 +705,7 @@ public class MoveActionWorker {
 
     /** Get items which are before ALL entries in itemsA[] (except entries in itemsA itself) */
     @NonNull
-    @SuppressWarnings("UPM_UNCALLED_PRIVATE_METHOD") /* justification = "It is currently not certain that this logic will never be used - new use-cases or corner-case fallbacks may appear later" */
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "It is currently not certain that this logic will never be used - new use-cases or corner-case fallbacks may appear later")
     private List<Queue.Item> getItemsBefore(@NonNull Queue.Item[] itemsA, @NonNull Queue.Item[] items) {
         if (itemsA.length == 1)
             return getItemsBefore(itemsA[0], items);
@@ -789,7 +789,7 @@ public class MoveActionWorker {
      *  itemsA[] entries themselves
      */
     @NonNull
-    @SuppressWarnings("UPM_UNCALLED_PRIVATE_METHOD") /* justification = "It is currently not certain that this logic will never be used - new use-cases or corner-case fallbacks may appear later" */
+    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "It is currently not certain that this logic will never be used - new use-cases or corner-case fallbacks may appear later")
     private List<Queue.Item> getItemsAfter(@NonNull Queue.Item[] itemsA, @NonNull Queue.Item[] items) {
         if (itemsA.length == 1)
             return getItemsAfter(itemsA[0], items);

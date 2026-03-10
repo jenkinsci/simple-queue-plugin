@@ -6,7 +6,6 @@ import org.kohsuke.stapler.StaplerResponse;
 
 import java.util.logging.Logger;
 
-
 import hudson.Extension;
 import hudson.model.Queue;
 import hudson.model.RootAction;

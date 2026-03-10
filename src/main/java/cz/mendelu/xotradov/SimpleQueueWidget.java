@@ -62,6 +62,8 @@ public class SimpleQueueWidget extends Widget {
     @SuppressWarnings("unused") // jelly
     public static String getItemIdName() { return MoveAction.ITEM_ID_PARAM_NAME;}
     @SuppressWarnings("unused") // jelly
+    public static String getItemIdMode() { return MoveAction.ITEM_ID_PARAM_MODE;}
+    @SuppressWarnings("unused") // jelly
     public static String getViewNameParamName() { return MoveAction.VIEW_NAME_PARAM_NAME;}
 
     @Extension(ordinal = 100)

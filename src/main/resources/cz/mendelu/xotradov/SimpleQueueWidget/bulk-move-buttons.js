@@ -17,3 +17,5 @@ document.querySelectorAll('.BulkMoveRegex_button').forEach(button => {
     }
 })
 
+// Avoid extra blank space in the bulk move dialog
+document.getElementById('buildSimpleQueueBulkMove').classList.add('pane-bulk-queue-widget');

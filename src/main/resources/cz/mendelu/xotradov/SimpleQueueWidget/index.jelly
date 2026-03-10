@@ -17,7 +17,7 @@
     <j:if test="${ajax_mode!='true' and h.hasPermission(app.MANAGE)}">
         <!-- Keep the textbox out of AJAX pane so it is not erased every couple of seconds -->
         <l:pane title="Build Queue Bulk Move (by regex)" width="2" id="buildSimpleQueueBulkMove">
-            <tr style="--section-padding:0;">
+            <tr>
                 <f:entry>
                     <!-- The first TD is where stage/job/part names appear normally -->
                     <td class="pane" width="100%" style="white-space: normal;">

@@ -48,7 +48,10 @@ the [Complex names](#complex-names) section below.
    * [HTTP return value](#http-return-value)
 
 ### overview
-The `viewName` is optional and is obvious. The `moveType` too (its [full enumeration](https://github.com/jenkinsci/simple-queue-plugin/blob/master/src/main/java/cz/mendelu/xotradov/MoveType.java)).
+The `viewName` is optional and is obvious.
+
+The `moveType` too (see its [full
+enumeration](https://github.com/jenkinsci/simple-queue-plugin/blob/master/src/main/java/cz/mendelu/xotradov/MoveType.java)).
 
 The `itemId` is super certain for Jenkins-to-Jenkins communication (numeric ID of the `Queue.Item` involved),
 but useless for human usage. Thus, the https://github.com/jenkinsci/simple-queue-plugin/pull/2 added a feature

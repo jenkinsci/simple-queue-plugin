@@ -6,6 +6,7 @@ import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.Action;
 import hudson.model.FreeStyleProject;
 
+import hudson.model.Queue;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,23 +36,30 @@ public class MoveAction_doMoveTest {
     }
 
     @Test
-    public void doMove() throws Exception {
+    public void doMoveByQueueItemId() throws Exception {
         try {
             long maxTestTime = 10000;
             helper.fillQueueFor(maxTestTime);
             FreeStyleProject C = helper.createAndSchedule("C", maxTestTime);
             FreeStyleProject D = helper.createAndSchedule("D", maxTestTime);
-            assertEquals(C.getDisplayName(), jenkinsRule.jenkins.getQueue().getItems()[1].task.getDisplayName());
+            Queue queue = jenkinsRule.jenkins.getQueue();
+
+            assertEquals(D.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+            assertEquals(C.getDisplayName(), queue.getItems()[1].task.getDisplayName());
+
             List<Action> list = jenkinsRule.jenkins.getActions();
             MoveAction moveAction = helper.getMoveAction();
             StaplerRequest request = Mockito.mock(StaplerRequest.class);
             StaplerResponse response = Mockito.mock(StaplerResponse.class);
             when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
             when(request.getParameter(ITEM_ID_PARAM_NAME)).thenReturn(
-                    String.valueOf(jenkinsRule.jenkins.getQueue().getItems()[1].getId()));
+                    String.valueOf(queue.getItems()[1].getId()));
             moveAction.doMove(request, response);
-            assertEquals(C.getDisplayName(), jenkinsRule.jenkins.getQueue().getItems()[0].task.getDisplayName());
-            assertEquals(D.getDisplayName(), jenkinsRule.jenkins.getQueue().getItems()[1].task.getDisplayName());
+
+            // We asked to move C up (lower its priority, closer to [0]), so it
+            // becomes just above whoever was at just one point lower priority (D):
+            assertEquals(C.getDisplayName(), queue.getItems()[0].task.getDisplayName());
+            assertEquals(D.getDisplayName(), queue.getItems()[1].task.getDisplayName());
         } catch (Exception e) {
             fail();
         }

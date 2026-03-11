@@ -43,6 +43,8 @@ but can be called in CLI mode (e.g. in a browser, you can Copy Link of a button 
 
 If no job is found, the plugin will simply fall through.
 
+The default supported HTTP method is `POST` (but for [Legacy API](#legacy-api) mode you can specifically enable `GET`).
+
 ### examples
 #### global movement
 `viewName` have no effect, it is only for in-view movement (see later). If you use some special custom default view, you may need to add it. If so, enhance below **four** DOWN/UP examples by `viewName=my_weird_default_view`.
@@ -80,49 +82,28 @@ curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveTyp
 for move to top of view - the item run last of all others in this view
 
 ### Legacy API
-The old, unsecure GET approach can still be used, if enabled in main settings:
+The old, unsecure HTTP `GET` method approach can still be used, but only if enabled in the main settings, e.g.:
 
 ```
 curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=DOWN_FAST&itemId=my-job-name&viewName=.executors"
 ```
-for item to bottom, or
+for moving an item to the bottom of the queue, or
 ```
 curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=DOWN&itemId=my-job-name&viewName=.executors"
 ```
-for item one step forward, or
+for moving an item one step forward, or
 ```
 curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=BOTTOM&itemId=my-job-name&viewName=.executors"
 ```
-for move to bottom of view
+for moving an item to the bottom of the view.
 
-The `viewName` is optional and is obvious. The `moveType` too (its full enumeration is in https://github.com/jenkinsci/simple-queue-plugin/blob/master/src/main/java/cz/mendelu/xotradov/MoveType.java .
+Query parameters for `GET` queries are the same as in the `POST` examples above.
 
-The `itemId` is super sure for jenkins to jenkins communication (numeric ID of the `Queue.Item` involved), but useless for human usage.
-Thus the https://github.com/jenkinsci/simple-queue-plugin/pull/2 added a feature to move by name, so `itemId` can be *also job name*.
-
-Subsequently, a feature was added to select a number of queue items by a regular expression, to move them in bulk
-(e.g. to change priority of many stages of some job that are queued to different worker nodes, or of several
-scheduled builds of the same pull request or branch iterations).
-
-If no job is found, the plugin will simply fall through, so to speed up job **my-job-name** (in view my_view) you end up on:
-```
-curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=DOWN_FAST&itemId=my-job-name"
-```
-for item to bottom, or
-```
-curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=DOWN&itemId=my-job-name"
-```
-for item one step forward, or
-```
-curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=BOTTOM&itemId=my-job-name&viewName=my_view"
-```
-for move to bottom of view
-
-even the reset
+Even the queue reset action has a working unsafe variant (if enabled):
 ```
 http://jenkins_url/simpleQueueResetUnsafe/reset
 ```
-have working unsafe variant (if enabled)
+
 
 Regular expressions to match the queue item(s) to move should be encased in tilde-slash markup like `~/.../`, e.g.:
 ```

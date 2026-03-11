@@ -1,5 +1,6 @@
 # Simple Queue Plugin
-    [![Jenkins Version](https://img.shields.io/badge/Jenkins-2.414.1-green.svg?label=min.%20Jenkins)](https://jenkins.io/download/)
+
+[![Jenkins Version](https://img.shields.io/badge/Jenkins-2.528-green.svg?label=min.%20Jenkins)](https://jenkins.io/download/)
 [![Build Status](https://ci.jenkins.io/job/Plugins/job/simple-queue-plugin/job/master/badge/icon)](https://ci.jenkins.io/job/Plugins/job/simple-queue-plugin/job/master/)
 
 Plugin for Jenkins for changing a build queue order from UI or via CLI manually.

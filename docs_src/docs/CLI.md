@@ -5,15 +5,15 @@ https://github.com/jenkinsci/simple-queue-plugin/releases/tag/simple-queue-1.4.7
 When hovering over priority arrows, you can see that it executes a special URL,
 for example:
 ```
-http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=1074193&viewName=.executors
+http://${JENKINS_URL}/simpleMove/move?moveType=DOWN_FAST&itemId=1074193&viewName=.executors
 ```
 for moving an item to the bottom of the whole queue, or
 ```
-http://jenkins_url/simpleMove/move?moveType=DOWN&itemId=1074184&viewName=.executors
+http://${JENKINS_URL}/simpleMove/move?moveType=DOWN&itemId=1074184&viewName=.executors
 ```
 for moving an item one step forward, or
 ```
-http://jenkins_url/simpleMove/move?moveType=BOTTOM&itemId=1073889&viewName=.executors
+http://${JENKINS_URL}/simpleMove/move?moveType=BOTTOM&itemId=1073889&viewName=.executors
 ```
 for moving an item to the bottom of a specified view.
 
@@ -63,22 +63,22 @@ In this case, enhance below **four** DOWN/UP examples by `&viewName=my_weird_def
 ##### DOWN/DOWN_FAST
 Used to speed up completion of the job called **my-job-name**:
 ```
-curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=my-job-name"
+curl -XPOST --user username:apitoken "http://${JENKINS_URL}/simpleMove/move?moveType=DOWN_FAST&itemId=my-job-name"
 ```
 for moving an item to the bottom of the queue, meaning it would run before all others now.
 ```
-curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveType=DOWN&itemId=my-job-name"
+curl -XPOST --user username:apitoken "http://${JENKINS_URL}/simpleMove/move?moveType=DOWN&itemId=my-job-name"
 ```
 for moving an item one step forward: to run before the job, which was supposed to run before this one originally.
 
 ##### UP/UP_FAST
 Used to slow down completion of the job called **my-job-name**:
 ```
-curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveType=UP_FAST&itemId=my-job-name"
+curl -XPOST --user username:apitoken "http://${JENKINS_URL}/simpleMove/move?moveType=UP_FAST&itemId=my-job-name"
 ```
 for moving an item to the top of the queue, meaning it would run last, after all other items known now.
 ```
-curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveType=UP&itemId=my-job-name"
+curl -XPOST --user username:apitoken "http://${JENKINS_URL}/simpleMove/move?moveType=UP&itemId=my-job-name"
 ```
 for moving an item one step up: to run later than the job, which was supposed to run right after this one originally.
 
@@ -90,12 +90,12 @@ To jump to the top/bottom of the specified view, there are two additional comman
 
 ##### BOTTOM
 ```
-curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveType=BOTTOM&itemId=my-job-name&viewName=my_view"
+curl -XPOST --user username:apitoken "http://${JENKINS_URL}/simpleMove/move?moveType=BOTTOM&itemId=my-job-name&viewName=my_view"
 ```
 for moving an item to the bottom of view: the item would run before all others in this view
 ##### TOP
 ```
-curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveType=TOP&itemId=my-job-name&viewName=my_view"
+curl -XPOST --user username:apitoken "http://${JENKINS_URL}/simpleMove/move?moveType=TOP&itemId=my-job-name&viewName=my_view"
 ```
 for moving an item to the top of view: the item would run as the last one of all others in this view
 
@@ -103,15 +103,15 @@ for moving an item to the top of view: the item would run as the last one of all
 The old, unsecure HTTP `GET` method approach can still be used, but only if enabled in the main settings, e.g.:
 
 ```
-curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=DOWN_FAST&itemId=my-job-name&viewName=.executors"
+curl "http://${JENKINS_URL}/simpleMoveUnsafe/move?moveType=DOWN_FAST&itemId=my-job-name&viewName=.executors"
 ```
 for moving an item to the bottom of the queue, or
 ```
-curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=DOWN&itemId=my-job-name&viewName=.executors"
+curl "http://${JENKINS_URL}/simpleMoveUnsafe/move?moveType=DOWN&itemId=my-job-name&viewName=.executors"
 ```
 for moving an item one step forward, or
 ```
-curl "http://jenkins_url/simpleMoveUnsafe/move?moveType=BOTTOM&itemId=my-job-name&viewName=.executors"
+curl "http://${JENKINS_URL}/simpleMoveUnsafe/move?moveType=BOTTOM&itemId=my-job-name&viewName=.executors"
 ```
 for moving an item to the bottom of the view.
 
@@ -119,18 +119,18 @@ Query parameters for `GET` queries are the same as in the `POST` examples above.
 
 Even the queue reset action has a working unsafe variant (if enabled):
 ```
-http://jenkins_url/simpleQueueResetUnsafe/reset
+http://${JENKINS_URL}/simpleQueueResetUnsafe/reset
 ```
 
 
 Regular expressions to match the queue item(s) to move should be encased in tilde-slash markup like `~/.../`, e.g.:
 ```
-curl "http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=~/.*my-job-name.*#1234.*/"
+curl "http://${JENKINS_URL}/simpleMove/move?moveType=DOWN_FAST&itemId=~/.*my-job-name.*#1234.*/"
 ```
 
 Case-insensitive regular expressions match can be used by adding `i` in the end, like `~/.../i`, e.g.:
 ```
-curl "http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=~/.*My-jOb-naMe.*#1234.*/i"
+curl "http://${JENKINS_URL}/simpleMove/move?moveType=DOWN_FAST&itemId=~/.*My-jOb-naMe.*#1234.*/i"
 ```
 
 #### Complex names

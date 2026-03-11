@@ -41,6 +41,7 @@ the [Complex names](#complex-names) section below.
    * [Regular expressions](#regular-expressions)
      * Groovy/PERL style expressions
      * Java style expressions
+ * [Caveats](#caveats)
    * [Complex names](#complex-names)
      * escaping
      * full names
@@ -182,6 +183,8 @@ on the corresponding side(s), e.g.:
 curl -XPOST --user username:apitoken \
     "http://${JENKINS_URL}/simpleMove/move?moveType=DOWN_FAST&itemId=.*(?i)My-jOb-naMe(?-i).*#1234.*"
 ```
+
+### Caveats
 
 #### Complex names
 As investigated at https://github.com/jenkinsci/simple-queue-plugin/pull/3#discussion_r1306649177 PR discussion,

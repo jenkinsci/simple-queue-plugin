@@ -202,5 +202,11 @@ This is annoying, and PR to improve this is welcomed. However, such a cross-plug
 class-name/reflection work, or coordination with maintainers of those plugins.
 
 #### HTTP return value
-Unluckily, currently plugin always returns `302 Found` so you will not know if your call actually succeeded.
-This may change in the future, but is not planned at this time.
+The plugin returns status code `200` if the move was successful. Status code `404` is returned when the queue
+item was not found and `400` when the move type is invalid.
+The error responses contain a json body with more details, e.g.:
+```
+{
+  "message": "Queue item '1234' not found"
+}
+```

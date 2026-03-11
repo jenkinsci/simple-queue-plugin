@@ -6,7 +6,10 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,6 +24,7 @@ import hudson.model.Queue;
 import hudson.model.View;
 import hudson.model.queue.QueueSorter;
 import jenkins.model.Jenkins;
+import net.sf.json.JSONObject;
 
 public class MoveActionWorker {
     protected static final Logger logger = Logger.getLogger(MoveActionWorker.class.getName());
@@ -30,7 +34,7 @@ public class MoveActionWorker {
     public static final String VIEW_NAME_PARAM_NAME = "viewName";
     protected boolean isSorterSet = false;
 
-    protected void moveImpl(StaplerRequest request, Queue queue, Jenkins j) {
+    protected void moveImpl(StaplerRequest request, StaplerResponse response, Queue queue, Jenkins j) throws IOException {
         try {
             String idParam = request.getParameter(ITEM_ID_PARAM_NAME);
             String idParamMode = request.getParameter(ITEM_ID_PARAM_MODE);
@@ -76,20 +80,37 @@ public class MoveActionWorker {
                     }
                 }
             }
-
-            MoveType moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));
-            View view = j.getView(request.getParameter(VIEW_NAME_PARAM_NAME));
-            if (items != null && items.length > 0) {
-                move(queue, items, moveType, view);
-                Queue.getInstance().maintain();
-            } else {
-                logger.info("Wrong item id " + idParam + " (or not found in view " + request.getParameter(VIEW_NAME_PARAM_NAME) + ")");
+            if (items == null || items.length == 0) {
+                logger.info("Queue item with id '" + idParam + "' not found");
+                response.setStatus(StaplerResponse.SC_NOT_FOUND);
+                PrintWriter writer = response.getWriter();
+                JSONObject message = new JSONObject();
+                message.put("error", "Queue item with id '" + idParam + "' not found");
+                writer.println(message.toString(2));
+                return;
             }
-        } catch (IllegalArgumentException iae) {
-            logger.info("Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME));
+
+            MoveType moveType = null;
+            try {
+                moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));
+            } catch (IllegalArgumentException iae) {
+                logger.info("Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME));
+                response.setStatus(StaplerResponse.SC_BAD_REQUEST);
+                PrintWriter writer = response.getWriter();
+                JSONObject message = new JSONObject();
+                message.put("error", "Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME));
+                writer.println(message.toString(2));
+                return;
+            }
+
+            View view = j.getView(request.getParameter(VIEW_NAME_PARAM_NAME));
+            move(queue, items, moveType, view);
+            Queue.getInstance().maintain();
+            response.setStatus(StaplerResponse.SC_OK);
         } catch (Exception ex) {
             logger.info("unable to simple-queue item " + request.getParameterMap().entrySet().stream().map(a -> a.getKey() + ": " + Arrays.stream(a.getValue()).collect(
                     Collectors.joining(","))).collect(Collectors.joining("; ")));
+            throw ex;
         }
     }
 

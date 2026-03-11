@@ -129,4 +129,5 @@ As investigated at https://github.com/jenkinsci/simple-queue-plugin/pull/3#discu
 This is annoying, and PR to improve this is welcomed. However, such cross plugin playing is requiring some class-name/reflection playing.
 
 #### HTTP return value
-Unluckily, currently plugin always returns `302 Found` so you will not know if call succeeded. This may change, but is not planned.
+Unluckily, currently plugin always returns `302 Found` so you will not know if your call actually succeeded.
+This may change in the future, but is not planned at this time.

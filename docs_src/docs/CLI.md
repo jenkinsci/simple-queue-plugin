@@ -1,20 +1,26 @@
 # CLI
-**Since 1.4.7**, breaking *changes* were introduced into *human* usable **api**: https://github.com/jenkinsci/simple-queue-plugin/releases/tag/simple-queue-1.4.7
+**Since 1.4.7**, breaking *changes* were introduced into *human* usable **api**:
+https://github.com/jenkinsci/simple-queue-plugin/releases/tag/simple-queue-1.4.7
 
-When hovering over priority arrows, you can see that it executes special url aka:
+When hovering over priority arrows, you can see that it executes a special URL,
+for example:
 ```
 http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=1074193&viewName=.executors
 ```
-for item to bottom, or
+for moving an item to the bottom of the whole queue, or
 ```
 http://jenkins_url/simpleMove/move?moveType=DOWN&itemId=1074184&viewName=.executors
 ```
-for item one step forward, or
+for moving an item one step forward, or
 ```
 http://jenkins_url/simpleMove/move?moveType=BOTTOM&itemId=1073889&viewName=.executors
 ```
-for move to bottom of view. However, get "id" is impossible for human use, so the `itemID` can accept the job name
-or a regular expression to select several queue items.
+for moving an item to the bottom of a specified view.
+
+However, getting that "id" of a queue item is nearly impossible for human use,
+so the `itemID` parameter can accept the job name (or job part name, if stages
+require different executors), or a regular expression to select several queue
+items at once (such as different parts of the same running job).
 
 ## CLI-human api
  * [overview](#overview)
@@ -30,16 +36,19 @@ or a regular expression to select several queue items.
      * escaping
      * full names
    * [HTTP return value](#http-return-value)
+
 ### overview
 The `viewName` is optional and is obvious. The `moveType` too (its [full enumeration](https://github.com/jenkinsci/simple-queue-plugin/blob/master/src/main/java/cz/mendelu/xotradov/MoveType.java)).
 
-The `itemId` is super sure for jenkins to jenkins communication (numeric ID of the `Queue.Item` involved), but useless for human usage.
-Thus the https://github.com/jenkinsci/simple-queue-plugin/pull/2 added a feature to move by name, so `itemId` can be *also job name*.
+The `itemId` is super certain for Jenkins-to-Jenkins communication (numeric ID of the `Queue.Item` involved),
+but useless for human usage. Thus, the https://github.com/jenkinsci/simple-queue-plugin/pull/2 added a feature
+to move an item by name, so `itemId` can be *also job name*.
 
-Subsequently, a feature was added to select a number of queue items by a regular expression, to move them in bulk
-(e.g. to change priority of many stages of some job that are queued to different worker nodes, or of several
-scheduled builds of the same pull request or branch iterations). This mode is not currently attached to UI buttons,
-but can be called in CLI mode (e.g. in a browser, you can Copy Link of a button and edit the URL).
+Subsequently, a feature was added in https://github.com/jenkinsci/simple-queue-plugin/pull/17 to select a number
+of queue items by a regular expression, to move them in bulk (e.g. to change the priority of many stages of some
+job which are queued to different worker nodes, or of several scheduled builds of the same pull request or branch
+iterations). This mode is not currently attached to UI buttons, but can be called in CLI mode (e.g. in a browser,
+you can Copy Link of a button and edit the URL).
 
 If no job is found, the plugin will simply fall through.
 
@@ -47,39 +56,48 @@ The default supported HTTP method is `POST` (but for [Legacy API](#legacy-api) m
 
 ### examples
 #### global movement
-`viewName` have no effect, it is only for in-view movement (see later). If you use some special custom default view, you may need to add it. If so, enhance below **four** DOWN/UP examples by `viewName=my_weird_default_view`.
+The `viewName` option has no effect, it is only for in-view movement (see later).
+If you use some special custom default view, you may need to add it.
+In this case, enhance below **four** DOWN/UP examples by `&viewName=my_weird_default_view`.
+
 ##### DOWN/DOWN_FAST
+Used to speed up completion of the job called **my-job-name**:
 ```
 curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=my-job-name"
 ```
-for item to move to bottom - to run before all others now
+for moving an item to the bottom of the queue, meaning it would run before all others now.
 ```
 curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveType=DOWN&itemId=my-job-name"
 ```
-for item one step forward - to run before the job, it was supposed to run before this one originally
+for moving an item one step forward: to run before the job, which was supposed to run before this one originally.
 
-To slow down job **my-job-name** (in view my_view) you end up on:
 ##### UP/UP_FAST
+Used to slow down completion of the job called **my-job-name**:
 ```
 curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveType=UP_FAST&itemId=my-job-name"
 ```
-for item to move to top - to run last of all others now
+for moving an item to the top of the queue, meaning it would run last, after all other items known now.
 ```
 curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveType=UP&itemId=my-job-name"
 ```
-for item one step up - to run later than the job, which was supposed to run right after this one originally
+for moving an item one step up: to run later than the job, which was supposed to run right after this one originally.
+
 #### in-view movement
-in which `viewName=my_view` is **mandatory** right after `viewName`. the UP/UP_FAST/DOWN/DOWN_FAST still behave in global space, and as expected. To jump to the top/bottom of view, there are two additional commands
+In this mode a `&viewName=my_view` is **mandatory** right after `viewName`.
+
+The `moveType` UP/UP_FAST/DOWN/DOWN_FAST values still behave in the global space, and as expected there.
+To jump to the top/bottom of the specified view, there are two additional commands (`moveType` values) detailed below.
+
 ##### BOTTOM
 ```
 curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveType=BOTTOM&itemId=my-job-name&viewName=my_view"
 ```
-for move to bottom of view - the item run before all others in this view
+for moving an item to the bottom of view: the item would run before all others in this view
 ##### TOP
 ```
 curl -XPOST --user username:apitoken "http://jenkins_url/simpleMove/move?moveType=TOP&itemId=my-job-name&viewName=my_view"
 ```
-for move to top of view - the item run last of all others in this view
+for moving an item to the top of view: the item would run as the last one of all others in this view
 
 ### Legacy API
 The old, unsecure HTTP `GET` method approach can still be used, but only if enabled in the main settings, e.g.:
@@ -116,17 +134,21 @@ curl "http://jenkins_url/simpleMove/move?moveType=DOWN_FAST&itemId=~/.*My-jOb-na
 ```
 
 #### Complex names
-As investigated at https://github.com/jenkinsci/simple-queue-plugin/pull/3#discussion_r1306649177 ,  there are two corner cases:
+As investigated at https://github.com/jenkinsci/simple-queue-plugin/pull/3#discussion_r1306649177 PR discussion,
+there are two corner cases:
 
- * **escaping**: if your name contains `%` or `/` they have to be URL escaped. So `/` will become `%2F` and `%` will become `%25` and `#` will become `%23`
+ * **escaping**: if your name contains `%` or `/` characters, they have to be URL-escaped.
+   So a `/` will become `%2F` and a `%` will become `%25` and a `#` will become `%23`.
    * generally spoken, your **full name** (see below) should be **fully escaped**
    * it may be a bigger adventure to pass a regular expression through URL escape markup, but it should be possible
- * **full names**: some plugins - e.g.   Pipeline: Nodes and Processes plugin **or** git branches plugin  - uses lets say *fully qualified names*. Such name must contain its full display name. eg
+ * **full names**: some plugins (e.g. the "Pipeline: Nodes and Processes" plugin **or** "git branches" plugin) use,
+   let's say, *fully qualified names*. Such a name must contain its full display name, e.g.:
    * `SAUR/Rex/release%2F1.5` must be passed in a display name like
    * `part of SAUR » Rex » release/1.5 #413` should pe passed in as
    * `itemId=part%20of%20SAUR%20%C2%BB%20Rex%20%C2%BB%20release%2F1.5%20%23413`
 
-This is annoying, and PR to improve this is welcomed. However, such cross plugin playing is requiring some class-name/reflection playing.
+This is annoying, and PR to improve this is welcomed. However, such a cross-plugin play may require some
+class-name/reflection work, or coordination with maintainers of those plugins.
 
 #### HTTP return value
 Unluckily, currently plugin always returns `302 Found` so you will not know if your call actually succeeded.

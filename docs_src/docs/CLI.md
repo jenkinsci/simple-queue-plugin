@@ -22,6 +22,12 @@ so the `itemID` parameter can accept the job name (or job part name, if stages
 require different executors), or a regular expression to select several queue
 items at once (such as different parts of the same running job).
 
+NOTE: Wherever this documentation mentions a "job name", actually the plugin currently
+deals with "Queued Task Display Name" strings (not the internal, possibly stricter,
+"job name" that any Jenkins model item has), which are easier to find in the UI but
+may include complex characters which would need to be URL-escaped, as explained in
+the [Complex names](#complex-names) section below.
+
 ## CLI-human api
  * [overview](#overview)
  * [examples](#examples)

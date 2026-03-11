@@ -22,12 +22,14 @@
                     <f:textbox name="BulkMoveRegex" value="~//"/>
                 </td>
                 <td class="pane" align="center" valign="middle">
-                    <button id="BulkMoveRegex_button_up_fast" class="BulkMoveRegex_button jenkins-button" data-var="UP_FAST">
+                    <button id="BulkMoveRegex_button_up_fast" class="BulkMoveRegex_button jenkins-button" data-var="UP_FAST"
+                            tooltip="${%Move matching items to the top of the global queue: build them last.}">
                         <l:icon src="symbol-arrow-up-fast plugin-simple-queue" class="icon-sm"/>
                     </button>
                 </td>
                 <td class="pane" align="center" valign="middle">
-                    <button id="BulkMoveRegex_button_down_fast" class="BulkMoveRegex_button jenkins-button" data-var="DOWN_FAST">
+                    <button id="BulkMoveRegex_button_down_fast" class="BulkMoveRegex_button jenkins-button" data-var="DOWN_FAST"
+                            tooltip="${%Move matching items to the bottom of the global queue: build them first.}">
                         <l:icon src="symbol-arrow-down-fast plugin-simple-queue" class="icon-sm"/>
                     </button>
                 </td>

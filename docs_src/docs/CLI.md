@@ -37,7 +37,10 @@ the [Complex names](#complex-names) section below.
    * [in-view movement](#in-view-movement)
      * BOTTOM
      * TOP
-   * [Legacy api](#legacy-api)
+   * [Legacy API](#legacy-api)
+   * [Regular expressions](#regular-expressions)
+     * Groovy/PERL style expressions
+     * Java style expressions
    * [Complex names](#complex-names)
      * escaping
      * full names
@@ -56,7 +59,16 @@ job which are queued to different worker nodes, or of several scheduled builds o
 iterations). This mode is not currently attached to UI buttons, but can be called in CLI mode (e.g. in a browser,
 you can Copy Link of a button and edit the URL).
 
-If no job is found, the plugin will simply fall through.
+The `itemId` processing logic is as follows:
+
+* if the `itemId` is a number, it is interpreted as a queue item number, otherwise
+* if the `itemId` is a string, it is interpreted as an exact name of a queue item (possibly needs URL-escaping
+  in the HTTP query), otherwise
+* if the additional `&itemIdMode=regex` query parameter is set, the `itemId` is interpreted as a Groovy/PERL style
+  regular expression (if it follows tilde-slash markup like `~/.../`), or as a Java style regular expression.
+  This mode is discussed in more detail in the [Regular expressions](#regular-expressions) section below.
+
+If no job is found, the plugin will simply fall through without sorting the queue.
 
 The default supported HTTP method is `POST` (but for [Legacy API](#legacy-api) mode you can specifically enable `GET`).
 
@@ -105,7 +117,7 @@ curl -XPOST --user username:apitoken "http://${JENKINS_URL}/simpleMove/move?move
 ```
 for moving an item to the top of view: the item would run as the last one of all others in this view
 
-### Legacy API
+#### Legacy API
 The old, unsecure HTTP `GET` method approach can still be used, but only if enabled in the main settings, e.g.:
 
 ```
@@ -128,15 +140,44 @@ Even the queue reset action has a working unsafe variant (if enabled):
 http://${JENKINS_URL}/simpleQueueResetUnsafe/reset
 ```
 
+#### Regular expressions
+The `itemId` parameter can also accept a regular expression to select several queue items at once (such as different
+parts of the same running job). This mode requires that the additional `&itemIdMode=regex` query parameter is set.
 
-Regular expressions to match the queue item(s) to move should be encased in tilde-slash markup like `~/.../`, e.g.:
+Note that the `itemId` parameter is first checked as a queue item number, then checked for an exact job name
+match, and only then the regular expression is tried against the job names.
+
+Two regular expression markup modes are currently supported, as detailed below. Keep in mind that either way the
+expression is handled by java `Pattern` and `Matcher` classes, so you can use any of the regular expression syntax
+supported by those classes.
+
+NOTE: The examples below are illustrative and may require URL-escaping in an actual HTTP query.
+
+##### Groovy/PERL style expressions
+
+Regular expressions to match the queue item(s) to move should be encased in tilde-slash markup like `~/.../`,
+with encased characters passed to Java relaxed `Matcher::find` method; this mode is deemed simpler for everyday
+use with short queries for queue shuffling, e.g.:
 ```
-curl "http://${JENKINS_URL}/simpleMove/move?moveType=DOWN_FAST&itemId=~/.*my-job-name.*#1234.*/"
+curl -XPOST --user username:apitoken \
+    "http://${JENKINS_URL}/simpleMove/move?moveType=DOWN_FAST&itemId=~/1234/"
 ```
+to move any item with `1234` in its name (which would likely reflect a job/branch re-build number, or a PR number).
 
 Case-insensitive regular expressions match can be used by adding `i` in the end, like `~/.../i`, e.g.:
 ```
-curl "http://${JENKINS_URL}/simpleMove/move?moveType=DOWN_FAST&itemId=~/.*My-jOb-naMe.*#1234.*/i"
+curl -XPOST --user username:apitoken \
+    "http://${JENKINS_URL}/simpleMove/move?moveType=DOWN_FAST&itemId=~/^[^X]*My-jOb-naMe.*#1234.*$/i"
+```
+
+##### Java style expressions
+If the regular expressions mode is enabled, and the `itemId` was not a tilde-slash markup, the whole string
+is interpreted as a complete Java style regular expression (passed to Java strict `Matcher::matches` method);
+so to match sub-strings with possible preceding or following characters, you would need to explicitly add `.*`
+on the corresponding side(s), e.g.:
+```
+curl -XPOST --user username:apitoken \
+    "http://${JENKINS_URL}/simpleMove/move?moveType=DOWN_FAST&itemId=.*(?i)My-jOb-naMe(?-i).*#1234.*"
 ```
 
 #### Complex names

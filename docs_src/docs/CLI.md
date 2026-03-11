@@ -60,7 +60,8 @@ to move an item by name, so `itemId` can be *also job name*.
 Subsequently, a feature was added in https://github.com/jenkinsci/simple-queue-plugin/pull/17 to select a number
 of queue items by a regular expression, to move them in bulk (e.g. to change the priority of many stages of some
 job which are queued to different worker nodes, or of several scheduled builds of the same pull request or branch
-iterations). This mode is not currently attached to UI buttons, but can be called in CLI mode (e.g. in a browser,
+iterations). This mode is also attached to UI buttons since https://github.com/jenkinsci/simple-queue-plugin/pull/18
+(handling the URL-escaping complications as needed), and can also be called in CLI mode (e.g. in a browser,
 you can Copy Link of a button and edit the URL).
 
 The `itemId` processing logic is as follows:
@@ -200,6 +201,10 @@ there are two corner cases:
 
 This is annoying, and PR to improve this is welcomed. However, such a cross-plugin play may require some
 class-name/reflection work, or coordination with maintainers of those plugins.
+
+Also note that since https://github.com/jenkinsci/simple-queue-plugin/pull/18 there is a "Build Queue Bulk Move"
+UI pane available to Jenkins instance administrators, where they can enter the regular expression directly and
+move any matching item(s) to the top or bottom of the queue. This also handles any required URL escaping.
 
 #### HTTP return value
 Unluckily, currently plugin always returns `302 Found` so you will not know if your call actually succeeded.

@@ -35,40 +35,48 @@ public class MoveActionWorker {
             String idParam = request.getParameter(ITEM_ID_PARAM_NAME);
             String idParamMode = request.getParameter(ITEM_ID_PARAM_MODE);
             Queue.Item[] items = null;
-            try {
-                Queue.Item item = queue.getItem(Long.parseLong(idParam));
-                if (item != null) {
-                    items = new Queue.Item[1];
-                    items[0] = item;
-                } // To search by a number of the build etc. use the regex mode!
-            } catch (NumberFormatException nfe) {
-                Queue.Item item = findItemByName(queue, idParam);
-                if (item != null) {
-                    items = new Queue.Item[1];
-                    items[0] = item;
-                } else if (idParamMode.equals("regex")) {
-                    boolean caseInsensitive = idParam.endsWith("/i");
-                    if (idParam.startsWith("~/") && (idParam.endsWith("/") || caseInsensitive)) {
-                        char[] tmp = new char[idParam.length()];
-                        idParam.getChars(2, idParam.length() - (caseInsensitive ? 2 : 1), tmp, 0);
-                        String regexStr = String.valueOf(tmp).trim();
-                        items = findItemsByPattern(queue,
-                                Pattern.compile(regexStr, caseInsensitive ? Pattern.CASE_INSENSITIVE : 0),
-                                true
-                        );
-                    } else {
-                        /* Assume the whole idParam string makes sense as a java-style regex
-                         * (meaning it Matcher::matches() the whole item.task.getDisplayName()
-                         * string), and the value must be surrounded by `.*` to match from
-                         * start and/or to the end of string respectively (like find() above
-                         * does by default) */
-                        items = findItemsByPattern(queue,
-                                Pattern.compile(idParam),
-                                false
-                        );
+
+            if (idParamMode != null && idParamMode.equals("regex")) {
+                boolean caseInsensitive = idParam.endsWith("/i");
+                if (idParam.startsWith("~/") && (idParam.endsWith("/") || caseInsensitive)) {
+                    /* "Groovy/PERL style" */
+                    char[] tmp = new char[idParam.length()];
+                    idParam.getChars(2, idParam.length() - (caseInsensitive ? 2 : 1), tmp, 0);
+                    String regexStr = String.valueOf(tmp).trim();
+                    items = findItemsByPattern(queue,
+                            Pattern.compile(regexStr, caseInsensitive ? Pattern.CASE_INSENSITIVE : 0),
+                            true
+                    );
+                } else {
+                    /* "Java style"
+                     * Assume the whole idParam string makes sense as a java-style regex
+                     * (meaning it Matcher::matches() the whole item.task.getDisplayName()
+                     * string), and the value must be surrounded by `.*` to match from
+                     * start and/or to the end of string respectively (like find() above
+                     * does by default) */
+                    items = findItemsByPattern(queue,
+                            Pattern.compile(idParam),
+                            false
+                    );
+                }
+            } else {
+                // Non-regex mode
+                try {
+                    Queue.Item item = queue.getItem(Long.parseLong(idParam));
+                    if (item != null) {
+                        items = new Queue.Item[1];
+                        items[0] = item;
+                    } // This handles queue item numbers; to search
+                      // by the number of a build etc. use the regex mode!
+                } catch (NumberFormatException nfe) {
+                    Queue.Item item = findItemByName(queue, idParam);
+                    if (item != null) {
+                        items = new Queue.Item[1];
+                        items[0] = item;
                     }
                 }
             }
+
             MoveType moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));
             View view = j.getView(request.getParameter(VIEW_NAME_PARAM_NAME));
             if (items != null && items.length > 0) {

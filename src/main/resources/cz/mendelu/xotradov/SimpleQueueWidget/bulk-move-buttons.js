@@ -7,8 +7,6 @@ document.querySelectorAll('.BulkMoveRegex_button').forEach(button => {
         parameters['moveType']=button.dataset.var;   // (named via "data-var" in original caller)
         // ex-jelly: '${it.getItemIdName()}'
         parameters['itemId']=findPreviousFormItem(this, 'BulkMoveRegex').value;
-        // ex-jelly: '${it.getItemIdMode()}'
-        parameters['itemIdMode']='regex';
 
         // Tried to use jenkins.baseUrl provided by jenkins.js but it is not global or something?
         fetch(document.head.dataset.rooturl + '/simpleMove/move', {

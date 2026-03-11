@@ -30,63 +30,52 @@ public class MoveActionWorker {
     protected static final Logger logger = Logger.getLogger(MoveActionWorker.class.getName());
     public static final String MOVE_TYPE_PARAM_NAME = "moveType";
     public static final String ITEM_ID_PARAM_NAME = "itemId";
-    public static final String ITEM_ID_PARAM_MODE = "itemIdMode";
+    //public static final String ITEM_ID_PARAM_MODE = "itemIdMode"; this switch is currently not used, and will part of new ITEM_ID_PARAM_NAME2 api
     public static final String VIEW_NAME_PARAM_NAME = "viewName";
     protected boolean isSorterSet = false;
 
     protected void moveImpl(StaplerRequest request, StaplerResponse response, Queue queue, Jenkins j) throws IOException {
         try {
-            String idParam = request.getParameter(ITEM_ID_PARAM_NAME);
-            String idParamMode = request.getParameter(ITEM_ID_PARAM_MODE);
+            final String idParam = request.getParameter(ITEM_ID_PARAM_NAME);
             Queue.Item[] items = null;
-
-            if (idParamMode != null && idParamMode.equals("regex")) {
-                boolean caseInsensitive = idParam.endsWith("/i");
-                if (idParam.startsWith("~/") && (idParam.endsWith("/") || caseInsensitive)) {
-                    /* "Groovy/PERL style" */
-                    char[] tmp = new char[idParam.length()];
-                    idParam.getChars(2, idParam.length() - (caseInsensitive ? 2 : 1), tmp, 0);
-                    String regexStr = String.valueOf(tmp).trim();
-                    items = findItemsByPattern(queue,
-                            Pattern.compile(regexStr, caseInsensitive ? Pattern.CASE_INSENSITIVE : 0),
-                            true
-                    );
-                } else {
-                    /* "Java style"
-                     * Assume the whole idParam string makes sense as a java-style regex
-                     * (meaning it Matcher::matches() the whole item.task.getDisplayName()
-                     * string), and the value must be surrounded by `.*` to match from
-                     * start and/or to the end of string respectively (like find() above
-                     * does by default) */
-                    items = findItemsByPattern(queue,
-                            Pattern.compile(idParam),
-                            false
-                    );
+            try {
+                // This handles queue item numbers; to search
+                // by the number of a build etc. use the regex mode!
+                Queue.Item item = queue.getItem(Long.parseLong(idParam));
+                if (item != null) {
+                    items = new Queue.Item[1];
+                    items[0] = item;
                 }
-            } else {
-                // Non-regex mode
-                try {
-                    Queue.Item item = queue.getItem(Long.parseLong(idParam));
-                    if (item != null) {
-                        items = new Queue.Item[1];
-                        items[0] = item;
-                    } // This handles queue item numbers; to search
-                      // by the number of a build etc. use the regex mode!
-                } catch (NumberFormatException nfe) {
-                    Queue.Item item = findItemByName(queue, idParam);
-                    if (item != null) {
-                        items = new Queue.Item[1];
-                        items[0] = item;
+            } catch (NumberFormatException nfe) {
+                //this handles search by name
+                Queue.Item item = findItemByName(queue, idParam);
+                if (item != null) {
+                    items = new Queue.Item[1];
+                    items[0] = item;
+                } else {
+                    // regex mode
+                    RegexWithParams rp;
+                    if (RegexWithParams.isGroovy(idParam)) {
+                        rp = RegexWithParams.groovyLikeRegexWithParams(idParam);
+                        if (rp.regex.equals(".*.*")) {
+                            setResponseToError("Empty grovy-like regex  " + rp.regex + "/" + idParam, response, StaplerResponse.SC_BAD_REQUEST);
+                            return;
+                        }
+                    } else {
+                        rp = RegexWithParams.javaLikeRegexWithParams(idParam);
                     }
+                    Pattern pattern;
+                    try {
+                        pattern = rp.getPattern();
+                    } catch (Exception ex) {
+                        setResponseToError("Can not compile  " + rp.regex + ": " + ex.getMessage(), response, StaplerResponse.SC_BAD_REQUEST);
+                        return;
+                    }
+                    items = findItemsByPattern(queue, pattern);
                 }
             }
             if (items == null || items.length == 0) {
-                logger.info("Queue item with id '" + idParam + "' not found");
-                response.setStatus(StaplerResponse.SC_NOT_FOUND);
-                PrintWriter writer = response.getWriter();
-                JSONObject message = new JSONObject();
-                message.put("error", "Queue item with id '" + idParam + "' not found");
-                writer.println(message.toString(2));
+                setResponseToError("Queue item with id '" + idParam + "' not found", response, StaplerResponse.SC_NOT_FOUND);
                 return;
             }
 
@@ -94,12 +83,7 @@ public class MoveActionWorker {
             try {
                 moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));
             } catch (IllegalArgumentException iae) {
-                logger.info("Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME));
-                response.setStatus(StaplerResponse.SC_BAD_REQUEST);
-                PrintWriter writer = response.getWriter();
-                JSONObject message = new JSONObject();
-                message.put("error", "Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME));
-                writer.println(message.toString(2));
+                setResponseToError("Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME), response, StaplerResponse.SC_BAD_REQUEST);
                 return;
             }
 
@@ -108,10 +92,18 @@ public class MoveActionWorker {
             Queue.getInstance().maintain();
             response.setStatus(StaplerResponse.SC_OK);
         } catch (Exception ex) {
-            logger.info("unable to simple-queue item " + request.getParameterMap().entrySet().stream().map(a -> a.getKey() + ": " + Arrays.stream(a.getValue()).collect(
-                    Collectors.joining(","))).collect(Collectors.joining("; ")));
+            logger.info("unable to simple-queue item " + request.getParameterMap().entrySet().stream().map(a -> a.getKey() + ": " + Arrays.stream(a.getValue()).collect(Collectors.joining(","))).collect(Collectors.joining("; ")));
             throw ex;
         }
+    }
+
+    private static void setResponseToError(String info, StaplerResponse response, int status) throws IOException {
+        logger.info(info);
+        response.setStatus(status);
+        PrintWriter writer = response.getWriter();
+        JSONObject message = new JSONObject();
+        message.put("error", info);
+        writer.println(message.toString(2));
     }
 
     protected Queue.Item findItemByName(Queue queue, String idParam) {
@@ -129,22 +121,15 @@ public class MoveActionWorker {
      * Finds items in the queue that match the given pattern.
      * @param queue The queue to search in.
      * @param idParamPattern The pattern to match against task display names.
-     * @param useMatcherFind Whether to use Matcher.find() instead of Matcher.matches().
      * @return An array of matching Queue.Item objects, or null if no matches are found.
      */
-    protected Queue.Item[] findItemsByPattern(Queue queue, Pattern idParamPattern, boolean useMatcherFind) {
+    protected Queue.Item[] findItemsByPattern(Queue queue, Pattern idParamPattern) {
         List<Queue.Item> items = new ArrayList<>();
         for (Queue.Item item : queue.getItems()) {
             if (item.isBuildable()) {
                 if (item.task != null) {
                     Matcher matcher = idParamPattern.matcher(item.task.getDisplayName());
-                    if (useMatcherFind) {
-                        if (matcher.find())
-                            items.add(item);
-                    } else {
-                        if (matcher.matches())
-                            items.add(item);
-                    }
+                    if (matcher.matches()) items.add(item);
                 }
             }
         }

@@ -66,7 +66,7 @@ you can Copy Link of a button and edit the URL).
 
 The `itemId` processing logic is as follows:
 
-* if the additional `&itemIdMode=regex` query parameter is set, the `itemId` is interpreted as a Groovy/PERL style
+* If no ID, nor exact match is matching, the `itemId` is interpreted as a Groovy/PERL style
   regular expression (if it follows tilde-slash markup like `~/.../`), or as a Java style regular expression.
   This mode is discussed in more detail in the [Regular expressions](#regular-expressions) section below.
 * otherwise if the `itemId` is a number, it is interpreted as a queue item number,
@@ -147,8 +147,7 @@ http://${JENKINS_URL}/simpleQueueResetUnsafe/reset
 
 #### Regular expressions
 The `itemId` parameter can also accept a regular expression to select several queue items at once (such as different
-parts of the same running job). This mode requires that the additional `&itemIdMode=regex` query parameter is set.
-In this case the `itemId` parameter is not checked as a queue item number nor as an exact job name match.
+parts of the same running job).
 
 Two regular expression markup modes are currently supported, as detailed below. Keep in mind that either way the
 expression is handled by java `Pattern` and `Matcher` classes, so you can use any of the regular expression syntax

@@ -47,7 +47,10 @@ public class MoveAction_doMoveByNameTest {
             FreeStyleProject C = helper.createAndSchedule("C", maxTestTime);
             FreeStyleProject D = helper.createAndSchedule("D", maxTestTime);
             Queue queue = jenkinsRule.jenkins.getQueue();
+
+            assertEquals(D.getDisplayName(), queue.getItems()[0].task.getDisplayName());
             assertEquals(C.getDisplayName(), queue.getItems()[1].task.getDisplayName());
+
             List<Action> list = jenkinsRule.jenkins.getActions();
             MoveAction moveAction = helper.getMoveAction();
             StaplerRequest request = Mockito.mock(StaplerRequest.class);
@@ -56,6 +59,9 @@ public class MoveAction_doMoveByNameTest {
             when(request.getParameter(ITEM_ID_PARAM_NAME)).thenReturn(
                     String.valueOf(queue.getItems()[1].task.getDisplayName()));
             moveAction.doMove(request, response);
+
+            // We asked to move C up (lower its priority, closer to [0]), so it
+            // becomes just above whoever was at just one point lower priority (D):
             assertEquals(C.getDisplayName(), queue.getItems()[0].task.getDisplayName());
             assertEquals(D.getDisplayName(), queue.getItems()[1].task.getDisplayName());
         } catch (Exception e) {

@@ -27,7 +27,12 @@ See rendered chapters under https://jenkinsci.github.io/simple-queue-plugin
 Sources of those documents are in the `docs_src` folder of this repository.
 
 #### Screenshot
+* A Simple Queue screenshot with the older Jenkins UI style: \
 ![Screenshot](docs_src/docs/images/queue_screenshot.png "Simple Queue screenshot")
+
+* A Simple Queue screenshot with the newer Jenkins UI style (2.541.x)
+  and Bulk Move pane available to Jenkins administrators: \
+![Screenshot](docs_src/docs/images/queue_bulk_move_screenshot.png "Simple Queue Bulk Move screenshot")
 
 # CLI
 For CLI examples and details, please see the documentation chapter at

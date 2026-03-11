@@ -46,17 +46,19 @@ public class MoveAction extends MoveActionWorker implements RootAction  {
      */
     @RequirePOST
     public void doMove(final StaplerRequest request, final StaplerResponse response) {
-        Jenkins j;
-        if ((j = Jenkins.getInstanceOrNull()) != null) {
-            Queue queue = j.getQueue();
-            if (queue != null & j.hasPermission(PermissionHandler.SIMPLE_QUEUE_MOVE_PERMISSION)) {
-                moveImpl(request, queue, j);
-            }
+        Jenkins j = Jenkins.get();
+        if (!j.hasPermission(PermissionHandler.SIMPLE_QUEUE_MOVE_PERMISSION)) {
+            response.setStatus(StaplerResponse.SC_FORBIDDEN);
+            return;
         }
         try {
-            response.forwardToPreviousPage(request);
+            Queue queue = j.getQueue();
+            if (queue != null & j.hasPermission(PermissionHandler.SIMPLE_QUEUE_MOVE_PERMISSION)) {
+                moveImpl(request, response, queue, j);
+            }
         } catch (Exception e) {
             logger.warning(e.toString());
+            response.setStatus(StaplerResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -39,15 +39,13 @@ public class UnsafeMoveAction extends MoveActionWorker implements RootAction {
         if (!SimpleQueueConfig.getInstance().isEnableUnsafe()) {
             throw new IllegalArgumentException("Unsafe reset api attempted without being enabled");
         }
-        Jenkins j;
-        if ((j = Jenkins.getInstanceOrNull()) != null) {
-            Queue queue = j.getQueue();
-            moveImpl(request, queue, j);
-        }
+        Jenkins j = Jenkins.get();
         try {
-            response.forwardToPreviousPage(request);
+            Queue queue = j.getQueue();
+            if (queue != null & j.hasPermission(PermissionHandler.SIMPLE_QUEUE_MOVE_PERMISSION)) {
+                moveImpl(request, response, queue, j);
+            }
         } catch (Exception e) {
-            logger.warning(e.toString());
-        }
-    }
+            response.setStatus(StaplerResponse.SC_INTERNAL_SERVER_ERROR);
+        }    }
 }

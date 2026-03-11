@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import static cz.mendelu.xotradov.MoveAction.ITEM_ID_PARAM_NAME;
 import static cz.mendelu.xotradov.MoveAction.MOVE_TYPE_PARAM_NAME;
+import static cz.mendelu.xotradov.MoveAction.VIEW_NAME_PARAM_NAME;
 
 import hudson.model.Queue;
 import org.junit.After;
@@ -56,6 +57,7 @@ public class MoveAction_doMoveByNameTest {
             StaplerRequest request = Mockito.mock(StaplerRequest.class);
             StaplerResponse response = Mockito.mock(StaplerResponse.class);
             when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
+            when(request.getParameter(VIEW_NAME_PARAM_NAME)).thenReturn("all");
             when(request.getParameter(ITEM_ID_PARAM_NAME)).thenReturn(
                     String.valueOf(queue.getItems()[1].task.getDisplayName()));
             moveAction.doMove(request, response);

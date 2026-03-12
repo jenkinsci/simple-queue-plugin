@@ -4,8 +4,8 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.Extension;
 import hudson.model.RootAction;
 import jenkins.model.Jenkins;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 import java.util.logging.Logger;
 import org.kohsuke.stapler.interceptor.RequirePOST;
@@ -16,7 +16,7 @@ public class ResetAction implements RootAction {
     private static Logger logger = Logger.getLogger(ResetAction.class.getName());
 
     @RequirePOST
-    public void doReset(final StaplerRequest request, final StaplerResponse response) {
+    public void doReset(final StaplerRequest2 request, final StaplerResponse2 response) {
         if (!Jenkins.get().hasPermission(PermissionHandler.SIMPLE_QUEUE_RESET_PERMISSION)) return;
         UnsafeResetAction.resetImpl(request, response);
     }

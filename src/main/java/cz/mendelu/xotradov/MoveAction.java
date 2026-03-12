@@ -4,9 +4,8 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.Extension;
 import hudson.model.*;
 import jenkins.model.Jenkins;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
 /**
@@ -45,10 +44,10 @@ public class MoveAction extends MoveActionWorker implements RootAction  {
      * @param response Stapler response send back to users browser
      */
     @RequirePOST
-    public void doMove(final StaplerRequest request, final StaplerResponse response) {
+    public void doMove(final StaplerRequest2 request, final StaplerResponse2 response) {
         Jenkins j = Jenkins.get();
         if (!j.hasPermission(PermissionHandler.SIMPLE_QUEUE_MOVE_PERMISSION)) {
-            response.setStatus(StaplerResponse.SC_FORBIDDEN);
+            response.setStatus(StaplerResponse2.SC_FORBIDDEN);
             return;
         }
         try {
@@ -58,7 +57,7 @@ public class MoveAction extends MoveActionWorker implements RootAction  {
             }
         } catch (Exception e) {
             logger.warning(e.toString());
-            response.setStatus(StaplerResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setStatus(StaplerResponse2.SC_INTERNAL_SERVER_ERROR);
         }
     }
 

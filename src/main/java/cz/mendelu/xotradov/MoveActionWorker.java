@@ -35,53 +35,32 @@ public class MoveActionWorker {
     public static final String ITEM_ID_PARAM_NAME = "itemId";
     //strict
     public static final String ITEM_ID_EXT_PARAM_NAME = "itemIdExt";
-    public static final String ITEM_ID_EXT_PARAM_MODE = "itemMode";  //how: id,exact, regex,g regex
-    public static final String ITEM_ID_EXT_PARAM_TARGET = "itemTarget"; //in: d(isplayName),(full)D(isplayName),(job)n(anme)
+    public static final String ITEM_ID_EXT_PARAM_MODE = "itemMode";  //how: id,exact, regex, gregex (regex with .*  pref and suffix
+    public static final String ITEM_ID_EXT_PARAM_TARGET = "itemTarget"; //in: d(isplayName),(full)D(isplayName),(job)n(ame),(case)I(insensitive) - is expeced multiple times
 
     protected boolean isSorterSet = false;
 
     protected void moveImpl(StaplerRequest2 request, StaplerResponse2 response, Queue queue, Jenkins j) throws IOException {
         try {
+            final String idExtParam = request.getParameter(ITEM_ID_EXT_PARAM_NAME);
             final String idParam = request.getParameter(ITEM_ID_PARAM_NAME);
-            Queue.Item[] items = null;
-            try {
-                // This handles queue item numbers; to search
-                // by the number of a build etc. use the regex mode!
-                Queue.Item item = queue.getItem(Long.parseLong(idParam));
-                if (item != null) {
-                    items = new Queue.Item[1];
-                    items[0] = item;
-                }
-            } catch (NumberFormatException nfe) {
-                //this handles search by name
-                Queue.Item item = findItemByName(queue, idParam);
-                if (item != null) {
-                    items = new Queue.Item[1];
-                    items[0] = item;
-                } else {
-                    // regex mode
-                    RegexWithParams rp;
-                    if (RegexWithParams.isGroovy(idParam)) {
-                        rp = RegexWithParams.groovyLikeRegexWithParams(idParam);
-                        if (rp.regex.equals(".*.*")) {
-                            setResponseToError("Empty grovy-like regex  " + rp.regex + "/" + idParam, response, StaplerResponse2.SC_BAD_REQUEST);
-                            return;
-                        }
-                    } else {
-                        rp = RegexWithParams.javaLikeRegexWithParams(idParam);
-                    }
-                    Pattern pattern;
-                    try {
-                        pattern = rp.getPattern();
-                    } catch (Exception ex) {
-                        setResponseToError("Can not compile  " + rp.regex + ": " + ex.getMessage(), response, StaplerResponse2.SC_BAD_REQUEST);
-                        return;
-                    }
-                    items = findItemsByPattern(queue, pattern, rp);
-                }
+            String id = "unknown";
+            if (idExtParam != null && idParam != null) {
+                setResponseToError(ITEM_ID_PARAM_NAME + " and " + ITEM_ID_EXT_PARAM_NAME + " are mutually exclusive", response, StaplerResponse2.SC_BAD_REQUEST);
+                return;
             }
+            Queue.Item[] items = null;
+            if (idParam != null) {
+                id = idParam;
+                items = getItemsByVersatileApi(response, queue, idParam);
+            }
+            if (idExtParam != null) {
+                id = idExtParam;
+                items = getItemsByStrictApi(response, request, queue, idExtParam);
+            }
+
             if (items == null || items.length == 0) {
-                setResponseToError("Queue item with id '" + idParam + "' not found", response, StaplerResponse2.SC_NOT_FOUND);
+                setResponseToError("Queue item with id '" + id + "' not found", response, StaplerResponse2.SC_NOT_FOUND);
                 return;
             }
 
@@ -98,9 +77,82 @@ public class MoveActionWorker {
             Queue.getInstance().maintain();
             response.setStatus(StaplerResponse2.SC_OK);
         } catch (Exception ex) {
-            logger.info("unable to simple-queue item " + request.getParameterMap().entrySet().stream().map(a -> a.getKey() + ": " + Arrays.stream(a.getValue()).collect(Collectors.joining(","))).collect(Collectors.joining("; ")));
-            throw ex;
+            setResponseToError("unable to simple-queue item " +
+                    request.getParameterMap().entrySet().stream().map(a -> a.getKey() + ": " + Arrays.stream(a.getValue()).collect(Collectors.joining(","))).collect(Collectors.joining("; ")) +
+                    " ;" + ex.getMessage(),
+                    response, StaplerResponse2.SC_BAD_REQUEST);
         }
+    }
+
+    private Queue.Item[] getItemsByStrictApi(StaplerResponse2 response, StaplerRequest2 request, Queue queue, String idExtParam) throws IOException {
+        //not yet implemented
+        final String mode = request.getParameter(ITEM_ID_EXT_PARAM_MODE);
+        final String[] target = request.getParameterValues(ITEM_ID_EXT_PARAM_TARGET);
+        if (mode == null || target == null) {
+            setResponseToError("One  " + ITEM_ID_EXT_PARAM_MODE + " and at least one " + ITEM_ID_EXT_PARAM_TARGET + " is mandatory in strict mode ", response, StaplerResponse2.SC_BAD_REQUEST);
+            return null;
+        }
+        ItemMode itemMode;
+        try {
+            itemMode = ItemMode.valueOf(mode);
+        } catch (IllegalArgumentException iae) {
+            setResponseToError("invalid mode  " + mode + " expected: " + Arrays.toString(ItemMode.values()), response, StaplerResponse2.SC_BAD_REQUEST);
+            return null;
+        }
+        List<ItemTarget> itemTargets = new ArrayList<>();
+        for(String targetItem : target) {
+            try{
+            itemTargets.add(ItemTarget.valueOf(targetItem));
+            } catch (IllegalArgumentException iae) {
+                setResponseToError("invalid target  " + targetItem + " expected: " + Arrays.toString(ItemTarget.values()), response, StaplerResponse2.SC_BAD_REQUEST);
+                return null;
+            }
+        }
+        System.out.println(itemMode);
+        System.out.println(Arrays.toString(target));
+        System.out.println(itemTargets.stream().map(String::valueOf).collect(Collectors.joining(",")));
+        return null;
+    }
+
+    private Queue.Item[] getItemsByVersatileApi(StaplerResponse2 response, Queue queue, String idParam) throws IOException {
+        Queue.Item[] items = null;
+        try {
+            // This handles queue item numbers; to search
+            // by the number of a build etc. use the regex mode!
+            Queue.Item item = queue.getItem(Long.parseLong(idParam));
+            if (item != null) {
+                items = new Queue.Item[1];
+                items[0] = item;
+            }
+        } catch (NumberFormatException nfe) {
+            //this handles search by name
+            Queue.Item item = findItemByName(queue, idParam);
+            if (item != null) {
+                items = new Queue.Item[1];
+                items[0] = item;
+            } else {
+                // regex mode
+                RegexWithParams rp;
+                if (RegexWithParams.isGroovy(idParam)) {
+                    rp = RegexWithParams.groovyLikeRegexWithParams(idParam);
+                    if (rp.regex.equals(".*.*")) {
+                        setResponseToError("Empty grovy-like regex  " + rp.regex + "/" + idParam, response, StaplerResponse2.SC_BAD_REQUEST);
+                        return null;
+                    }
+                } else {
+                    rp = RegexWithParams.javaLikeRegexWithParams(idParam);
+                }
+                Pattern pattern;
+                try {
+                    pattern = rp.getPattern();
+                } catch (Exception ex) {
+                    setResponseToError("Can not compile  " + rp.regex + ": " + ex.getMessage(), response, StaplerResponse2.SC_BAD_REQUEST);
+                    return null;
+                }
+                items = findItemsByPattern(queue, pattern, rp);
+            }
+        }
+        return items;
     }
 
     private static void setResponseToError(String info, StaplerResponse2 response, int status) throws IOException {

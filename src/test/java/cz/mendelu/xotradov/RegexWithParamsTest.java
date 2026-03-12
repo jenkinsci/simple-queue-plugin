@@ -63,4 +63,18 @@ class RegexWithParamsTest {
         assertFalse(RegexWithParams.isGroovy("bl/ah"));
         assertFalse(RegexWithParams.isGroovy("b~/l/ah"));
     }
+
+    @Test
+    void isDisplayNameTest() {
+        assertTrue(RegexWithParams.groovyLikeRegexWithParams("~//i").isDisplayName());
+        assertTrue(RegexWithParams.groovyLikeRegexWithParams("~//").isDisplayName());
+        assertTrue(RegexWithParams.javaLikeRegexWithParams("blah/i").isDisplayName());
+        assertTrue(RegexWithParams.javaLikeRegexWithParams("blah/").isDisplayName());
+        assertTrue(RegexWithParams.javaLikeRegexWithParams("blah").isDisplayName());
+        assertFalse(RegexWithParams.javaLikeRegexWithParams("blah/D").isDisplayName());
+        assertTrue(RegexWithParams.javaLikeRegexWithParams("blah/Dd").isDisplayName());
+        assertFalse(RegexWithParams.javaLikeRegexWithParams("blah/n").isDisplayName());
+        assertFalse(RegexWithParams.javaLikeRegexWithParams("blah/DnN").isDisplayName());
+        assertTrue(RegexWithParams.javaLikeRegexWithParams("blah/DnNd").isDisplayName());
+    }
 }

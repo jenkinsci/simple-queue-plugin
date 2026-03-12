@@ -153,6 +153,10 @@ Two regular expression markup modes are currently supported, as detailed below. 
 expression is handled by java `Pattern` and `Matcher` classes, so you can use any of the regular expression syntax
 supported by those classes.
 
+both regular expressions can append `/switches`. Eg `/i` will switch to case insensitive. Next to that, there are also dDn,
+which determines where to search d - display name - default; D - full display name and n - name.
+So `.*job/idnD` will search case-insensitive for any "job" suffixes display name, full display name and in name.
+
 NOTE: The examples below are illustrative and may require URL-escaping in an actual HTTP query.
 
 ##### Groovy/PERL style expressions

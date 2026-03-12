@@ -5,8 +5,8 @@ import com.google.common.annotations.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,13 +28,19 @@ import net.sf.json.JSONObject;
 
 public class MoveActionWorker {
     protected static final Logger logger = Logger.getLogger(MoveActionWorker.class.getName());
+    //shared
     public static final String MOVE_TYPE_PARAM_NAME = "moveType";
-    public static final String ITEM_ID_PARAM_NAME = "itemId";
-    //public static final String ITEM_ID_PARAM_MODE = "itemIdMode"; this switch is currently not used, and will part of new ITEM_ID_PARAM_NAME2 api
     public static final String VIEW_NAME_PARAM_NAME = "viewName";
+    //versatile
+    public static final String ITEM_ID_PARAM_NAME = "itemId";
+    //strict
+    public static final String ITEM_ID_EXT_PARAM_NAME = "itemIdExt";
+    public static final String ITEM_ID_EXT_PARAM_MODE = "itemMode";  //how: id,exact, regex,g regex
+    public static final String ITEM_ID_EXT_PARAM_TARGET = "itemTarget"; //in: d(isplayName),(full)D(isplayName),(job)n(anme)
+
     protected boolean isSorterSet = false;
 
-    protected void moveImpl(StaplerRequest request, StaplerResponse response, Queue queue, Jenkins j) throws IOException {
+    protected void moveImpl(StaplerRequest2 request, StaplerResponse2 response, Queue queue, Jenkins j) throws IOException {
         try {
             final String idParam = request.getParameter(ITEM_ID_PARAM_NAME);
             Queue.Item[] items = null;
@@ -58,7 +64,7 @@ public class MoveActionWorker {
                     if (RegexWithParams.isGroovy(idParam)) {
                         rp = RegexWithParams.groovyLikeRegexWithParams(idParam);
                         if (rp.regex.equals(".*.*")) {
-                            setResponseToError("Empty grovy-like regex  " + rp.regex + "/" + idParam, response, StaplerResponse.SC_BAD_REQUEST);
+                            setResponseToError("Empty grovy-like regex  " + rp.regex + "/" + idParam, response, StaplerResponse2.SC_BAD_REQUEST);
                             return;
                         }
                     } else {
@@ -68,14 +74,14 @@ public class MoveActionWorker {
                     try {
                         pattern = rp.getPattern();
                     } catch (Exception ex) {
-                        setResponseToError("Can not compile  " + rp.regex + ": " + ex.getMessage(), response, StaplerResponse.SC_BAD_REQUEST);
+                        setResponseToError("Can not compile  " + rp.regex + ": " + ex.getMessage(), response, StaplerResponse2.SC_BAD_REQUEST);
                         return;
                     }
                     items = findItemsByPattern(queue, pattern, rp);
                 }
             }
             if (items == null || items.length == 0) {
-                setResponseToError("Queue item with id '" + idParam + "' not found", response, StaplerResponse.SC_NOT_FOUND);
+                setResponseToError("Queue item with id '" + idParam + "' not found", response, StaplerResponse2.SC_NOT_FOUND);
                 return;
             }
 
@@ -83,21 +89,21 @@ public class MoveActionWorker {
             try {
                 moveType = MoveType.valueOf(request.getParameter(MOVE_TYPE_PARAM_NAME));
             } catch (IllegalArgumentException iae) {
-                setResponseToError("Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME), response, StaplerResponse.SC_BAD_REQUEST);
+                setResponseToError("Wrong move type " + request.getParameter(MOVE_TYPE_PARAM_NAME), response, StaplerResponse2.SC_BAD_REQUEST);
                 return;
             }
 
             View view = j.getView(request.getParameter(VIEW_NAME_PARAM_NAME));
             move(queue, items, moveType, view);
             Queue.getInstance().maintain();
-            response.setStatus(StaplerResponse.SC_OK);
+            response.setStatus(StaplerResponse2.SC_OK);
         } catch (Exception ex) {
             logger.info("unable to simple-queue item " + request.getParameterMap().entrySet().stream().map(a -> a.getKey() + ": " + Arrays.stream(a.getValue()).collect(Collectors.joining(","))).collect(Collectors.joining("; ")));
             throw ex;
         }
     }
 
-    private static void setResponseToError(String info, StaplerResponse response, int status) throws IOException {
+    private static void setResponseToError(String info, StaplerResponse2 response, int status) throws IOException {
         logger.info(info);
         response.setStatus(status);
         PrintWriter writer = response.getWriter();

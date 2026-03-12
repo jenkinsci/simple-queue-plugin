@@ -1,8 +1,8 @@
 package cz.mendelu.xotradov;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 import java.util.logging.Logger;
 
@@ -35,7 +35,7 @@ public class UnsafeMoveAction extends MoveActionWorker implements RootAction {
     }
 
 
-    public void doMove(final StaplerRequest request, final StaplerResponse response) {
+    public void doMove(final StaplerRequest2 request, final StaplerResponse2 response) {
         if (!SimpleQueueConfig.getInstance().isEnableUnsafe()) {
             throw new IllegalArgumentException("Unsafe reset api attempted without being enabled");
         }
@@ -46,6 +46,6 @@ public class UnsafeMoveAction extends MoveActionWorker implements RootAction {
                 moveImpl(request, response, queue, j);
             }
         } catch (Exception e) {
-            response.setStatus(StaplerResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setStatus(StaplerResponse2.SC_INTERNAL_SERVER_ERROR);
         }    }
 }

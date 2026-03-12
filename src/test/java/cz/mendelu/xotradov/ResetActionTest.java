@@ -7,8 +7,8 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
@@ -28,8 +28,8 @@ public class ResetActionTest {
     @Test
     public void doReset() throws Exception {
         ResetAction resetAction = helper.getResetAction();
-        StaplerRequest request =  Mockito.mock(StaplerRequest.class);
-        StaplerResponse response = Mockito.mock(StaplerResponse.class);
+        StaplerRequest2 request =  Mockito.mock(StaplerRequest2.class);
+        StaplerResponse2 response = Mockito.mock(StaplerResponse2.class);
         helper.fillQueueFor(20000);
         FreeStyleProject c = helper.createAndSchedule("C", 20000);
         helper.createAndSchedule("D", 20000);

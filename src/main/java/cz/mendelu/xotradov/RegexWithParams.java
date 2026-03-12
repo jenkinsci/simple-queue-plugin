@@ -52,4 +52,20 @@ public class RegexWithParams {
         boolean caseInsensitive = params.contains("i");
         return Pattern.compile(regex, caseInsensitive ? Pattern.CASE_INSENSITIVE : 0);
     }
+
+    public boolean isDisplayName() {
+        if (params.contains("d")) {
+            return true;
+        }
+        return !isFullDisplayName() && !isName();
+    }
+
+    public boolean isFullDisplayName() {
+        return params.contains("D");
+    }
+
+    public boolean isName() {
+        return params.contains("n");
+    }
+
 }

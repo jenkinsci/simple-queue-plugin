@@ -71,7 +71,7 @@ public class MoveActionWorker {
                         setResponseToError("Can not compile  " + rp.regex + ": " + ex.getMessage(), response, StaplerResponse.SC_BAD_REQUEST);
                         return;
                     }
-                    items = findItemsByPattern(queue, pattern);
+                    items = findItemsByPattern(queue, pattern, rp);
                 }
             }
             if (items == null || items.length == 0) {
@@ -123,19 +123,36 @@ public class MoveActionWorker {
      * @param idParamPattern The pattern to match against task display names.
      * @return An array of matching Queue.Item objects, or null if no matches are found.
      */
-    protected Queue.Item[] findItemsByPattern(Queue queue, Pattern idParamPattern) {
+    protected Queue.Item[] findItemsByPattern(Queue queue, Pattern idParamPattern, RegexWithParams rp) {
         List<Queue.Item> items = new ArrayList<>();
         for (Queue.Item item : queue.getItems()) {
             if (item.isBuildable()) {
                 if (item.task != null) {
-                    Matcher matcher = idParamPattern.matcher(item.task.getDisplayName());
-                    if (matcher.matches()) items.add(item);
+                    boolean matched = false;
+                    if (rp.isDisplayName()) {
+                        matched = isMatched(idParamPattern, item.task.getDisplayName(), items, item);
+                    }
+                    if (!matched && rp.isFullDisplayName()) {
+                        matched = isMatched(idParamPattern, item.task.getFullDisplayName(), items, item);
+                    }
+                    if (!matched && rp.isName()) {
+                        isMatched(idParamPattern, item.task.getName(), items, item);
+                    }
                 }
             }
         }
         if (items.isEmpty())
             return null;
         return items.toArray(new Queue.Item[0]);
+    }
+
+    private static boolean isMatched(Pattern pattern, String taskpart, List<Queue.Item> items, Queue.Item item) {
+        Matcher matcher = pattern.matcher(taskpart);
+        if (matcher.matches()) {
+            items.add(item);
+            return true;
+        }
+        return false;
     }
 
     protected void move(@NonNull Queue queue, @NonNull Queue.Item item, @NonNull MoveType moveType, View view) {

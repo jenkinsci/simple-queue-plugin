@@ -12,6 +12,34 @@
             <j:set var="title" value="Build Queue (${items.size()})" />
         </j:otherwise>
     </j:choose>
+
+    <j:if test="${ajax==null and h.hasPermission(app.MANAGE)}">
+        <!-- Keep the textbox out of AJAX pane so it is not erased every couple of seconds -->
+        <l:pane title="Build Queue Bulk Move (by regex)" width="2" id="buildSimpleQueueBulkMove">
+            <tr>
+                <!-- The first TD is where stage/job/part names appear normally -->
+                <td class="pane" width="100%" style="white-space: normal;">
+                    <f:textbox name="BulkMoveRegex" value="~//"/>
+                </td>
+                <td class="pane" align="center" valign="middle">
+                    <button id="BulkMoveRegex_button_up_fast" class="BulkMoveRegex_button jenkins-button" data-var="UP_FAST"
+                            tooltip="${%Move matching items to the top of the global queue: build them last.}">
+                        <l:icon src="symbol-arrow-up-fast plugin-simple-queue" class="icon-sm"/>
+                    </button>
+                </td>
+                <td class="pane" align="center" valign="middle">
+                    <button id="BulkMoveRegex_button_down_fast" class="BulkMoveRegex_button jenkins-button" data-var="DOWN_FAST"
+                            tooltip="${%Move matching items to the bottom of the global queue: build them first.}">
+                        <l:icon src="symbol-arrow-down-fast plugin-simple-queue" class="icon-sm"/>
+                    </button>
+                </td>
+                <!-- TOTHINK: Position to cancel all builds, maybe? -->
+            </tr>
+        </l:pane>
+        <!-- Add onclick javascript after the button IDs are defined -->
+        <st:adjunct includes="cz.mendelu.xotradov.SimpleQueueWidget.bulk-move-buttons"/>
+    </j:if>
+
     <l:pane title="${title}" width="2" id="buildSimpleQueue">
         <j:if test="${app.quietingDown}">
             <tr>

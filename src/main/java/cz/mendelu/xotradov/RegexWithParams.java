@@ -1,5 +1,6 @@
 package cz.mendelu.xotradov;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class RegexWithParams {
@@ -48,9 +49,33 @@ public class RegexWithParams {
         return (idParam.matches("~/.*/.*"));
     }
 
+    public static RegexWithParams exact(String regex, List<ItemTarget> itemTargets) {
+        StringBuilder sb = new StringBuilder();
+        for (ItemTarget itemTarget : itemTargets) {
+            switch (itemTarget) {
+                case DISPLAY -> {
+                    sb.append("d");
+                }
+                case FULLDISPLAY -> {
+                    sb.append("D");
+                }
+                case NAME -> {
+                    sb.append("n");
+                }
+                case I -> {
+                    sb.append("i");
+                }
+            }
+        }
+        return new RegexWithParams(regex, sb.toString());
+    }
+
     public Pattern getPattern() {
-        boolean caseInsensitive = params.contains("i");
-        return Pattern.compile(regex, caseInsensitive ? Pattern.CASE_INSENSITIVE : 0);
+        return Pattern.compile(regex, isCaseInsensitive() ? Pattern.CASE_INSENSITIVE : 0);
+    }
+
+    public boolean isCaseInsensitive() {
+        return params.contains("i");
     }
 
     public boolean isDisplayName() {

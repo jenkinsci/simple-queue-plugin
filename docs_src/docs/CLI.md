@@ -46,6 +46,7 @@ the [Complex names](#complex-names) section below.
      * escaping
      * full names
    * [HTTP return value](#http-return-value)
+ * [strict api](#strict-api)
 
 ### overview
 The `viewName` is optional and is obvious.
@@ -66,12 +67,10 @@ you can Copy Link of a button and edit the URL).
 
 The `itemId` processing logic is as follows:
 
-* If no ID, nor exact match is matching, the `itemId` is interpreted as a Groovy/PERL style
-  regular expression (if it follows tilde-slash markup like `~/.../`), or as a Java style regular expression.
-  This mode is discussed in more detail in the [Regular expressions](#regular-expressions) section below.
-* otherwise if the `itemId` is a number, it is interpreted as a queue item number,
+* if the `itemId` is a number, it is interpreted as a queue item number,
 * otherwise the `itemId` string is interpreted as an exact name of a queue item (possibly needs URL-escaping in
   the HTTP query).
+* If no ID is found (or the input is not an number), an exact match is attempted. If again nothing is found, the `itemId` is interpreted as a Java style regular expression. A Groovy/PERL style regular expression is also possible, if it follows tilde-slash markup like `~/.../`. Which literally just preffix+suffix the expression by `.*`. This mode is discussed in more detail in the [Regular expressions](#regular-expressions) section below.
 
 If no job is found, the plugin will simply fall through without sorting the queue.
 
@@ -153,7 +152,7 @@ Two regular expression markup modes are currently supported, as detailed below. 
 expression is handled by java `Pattern` and `Matcher` classes, so you can use any of the regular expression syntax
 supported by those classes.
 
-both regular expressions can append `/switches`. Eg `/i` will switch to case insensitive. Next to that, there are also dDn,
+Both types of regular expressions can append `/switches`. Eg `/i` will switch to case insensitive. Next to that, there are also dDn,
 which determines where to search d - display name - default; D - full display name and n - name.
 So `.*job/idnD` will search case-insensitive for any "job" suffixes display name, full display name and in name.
 
@@ -218,3 +217,24 @@ The error responses contain a json body with more details, e.g.:
   "message": "Queue item '1234' not found"
 }
 ```
+Many responses contains also reason of finding nothing.
+
+## strict api
+Because of the waterfall: number->match->regex(es), in addition with switches, and concerns about `display` to match against, an new strict api was introduced:
+
+* `moveType` remains mandatory parameter to determine movement
+* `viewName` remains optional parameter to specify view
+* use `itemIdExt` instead of `itemId`. Those two are mutually exclusive. `itemId` value is resolved as old versatile api, but `itemIdExt` is resolving via new apu
+* `itemMode` is mandatory argument for new api. Must be set exactly onece, by one of following (case insensitive) values:
+  * `QID` - item id exact item selection for internal jenkins operations
+  * `EXACT` - to match by exact match
+  * `REGEX` - as java-like regex, withou `/args`
+  * `GREGEX` - as groovy like regex withou `~//args` (so basically regex with prepend/append of `.*`.)
+* `itemTarget` to specify where/how match against. Can be set multipletimes, but at least once. Each value can be one of the (case insensitive) following:
+  * `DISPLAY` - search in display name
+  * `FULLDISPLAY` - search in full display name
+  * `NAME` - search in item name
+  * `I` - search is case insensitive
+  * Unlike original old `itemId` mode, item target is used also in `exact` match mode, and not only in regex mode.
+
+Strict api is currently not used, is considered as experimental, but  shoudl resolve any issue the versatile api may failedue to its number->match->regex(es) waterfall nature.

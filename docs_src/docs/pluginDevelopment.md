@@ -25,6 +25,8 @@ git add docs
 ```
 Once pushed, they will appear in https://jenkinsci.github.io automagically
 
+Feel free to run `mvn spotless:apply` from time to time to align codestyle and formatting
+
 ## Documentation
 The documentation framework used is mkdocs.
 To see the documentation before publishing use 'pip install mkdocs-material' followed by 'mkdocs serve'

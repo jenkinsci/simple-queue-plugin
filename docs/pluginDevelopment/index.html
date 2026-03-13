@@ -449,11 +449,24 @@
 <h1 id="for-plugin-developers">For plugin developers</h1>
 <p>This section is intended for people who want to further extend this plugin.</p>
 <h2 id="testing-build">Testing build</h2>
-<p>mvn hpi:run</p>
+<pre><code>mvn hpi:run
+</code></pre>
 <h2 id="performing-release">Performing release</h2>
 <p>Always test connection before release.
 Testing connection: ssh -T git@github.com</p>
-<p>Release: mvn release:prepare release:perform</p>
+<p>Release: </p>
+<pre><code>mvn release:prepare
+mvn release:perform
+</code></pre>
+<p>Do not forget to update docs if needed</p>
+<pre><code>cd docs_src/
+mkdocs build
+cd  ..
+git rm -rf docs
+mv  docs_src/site docs
+git add docs
+</code></pre>
+<p>Once pushed, they will appear in https://jenkinsci.github.io automagically</p>
 <h2 id="documentation">Documentation</h2>
 <p>The documentation framework used is mkdocs.
 To see the documentation before publishing use 'pip install mkdocs-material' followed by 'mkdocs serve'</p>

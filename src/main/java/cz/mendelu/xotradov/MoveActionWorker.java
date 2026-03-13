@@ -5,6 +5,8 @@ import com.google.common.annotations.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import org.jspecify.annotations.Nullable;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 
@@ -85,16 +87,19 @@ public class MoveActionWorker {
     }
 
     private Queue.Item[] getItemsByStrictApi(StaplerResponse2 response, StaplerRequest2 request, Queue queue, String idExtParam) throws IOException {
-        //not yet implemented
         final String mode = request.getParameter(ITEM_ID_EXT_PARAM_MODE);
         final String[] target = request.getParameterValues(ITEM_ID_EXT_PARAM_TARGET);
         if (mode == null || target == null) {
             setResponseToError("One  " + ITEM_ID_EXT_PARAM_MODE + " and at least one " + ITEM_ID_EXT_PARAM_TARGET + " is mandatory in strict mode ", response, StaplerResponse2.SC_BAD_REQUEST);
             return null;
         }
+        if (idExtParam == null || idExtParam.isBlank()) {
+            setResponseToError(ITEM_ID_EXT_PARAM_NAME + " can not be empty", response, StaplerResponse2.SC_BAD_REQUEST);
+            return null;
+        }
         ItemMode itemMode;
         try {
-            itemMode = ItemMode.valueOf(mode);
+            itemMode = ItemMode.valueOf(mode.toUpperCase());
         } catch (IllegalArgumentException iae) {
             setResponseToError("invalid mode  " + mode + " expected: " + Arrays.toString(ItemMode.values()), response, StaplerResponse2.SC_BAD_REQUEST);
             return null;
@@ -102,16 +107,53 @@ public class MoveActionWorker {
         List<ItemTarget> itemTargets = new ArrayList<>();
         for(String targetItem : target) {
             try{
-            itemTargets.add(ItemTarget.valueOf(targetItem));
+                itemTargets.add(ItemTarget.valueOf(targetItem.toUpperCase()));
             } catch (IllegalArgumentException iae) {
                 setResponseToError("invalid target  " + targetItem + " expected: " + Arrays.toString(ItemTarget.values()), response, StaplerResponse2.SC_BAD_REQUEST);
                 return null;
             }
         }
-        System.out.println(itemMode);
-        System.out.println(Arrays.toString(target));
-        System.out.println(itemTargets.stream().map(String::valueOf).collect(Collectors.joining(",")));
+        switch (itemMode) {
+            case QID ->  {
+                Queue.Item item = queue.getItem(Long.parseLong(idExtParam));
+                return toSingleItemArray(item);
+            }
+            case EXACT ->   {
+                Queue.Item item = findItemByName(queue, idExtParam, RegexWithParams.exact("", itemTargets));
+                return toSingleItemArray(item);
+            }
+            case REGEX ->   {
+                Pattern pattern;
+                RegexWithParams rp = RegexWithParams.exact(idExtParam.trim(), itemTargets);
+                try {
+                    pattern = rp.getPattern();
+                } catch (Exception ex) {
+                    setResponseToError("Can not compile  " + rp.regex + ": " + ex.getMessage(), response, StaplerResponse2.SC_BAD_REQUEST);
+                    return null;
+                }
+                return findItemsByPattern(queue, pattern, rp);
+            }
+            case GREGEX ->  {
+                Pattern pattern;
+                RegexWithParams rp = RegexWithParams.exact(".*"+idExtParam.trim()+".*", itemTargets);
+                try {
+                    pattern = rp.getPattern();
+                } catch (Exception ex) {
+                    setResponseToError("Can not compile  " + rp.regex + ": " + ex.getMessage(), response, StaplerResponse2.SC_BAD_REQUEST);
+                    return null;
+                }
+                return findItemsByPattern(queue, pattern, rp);
+            }
+        }
         return null;
+    }
+
+    private static Queue.Item @Nullable [] toSingleItemArray(Queue.Item item) {
+        if (item != null) {
+            return new Queue.Item[]{item};
+        } else {
+            return null;
+        }
     }
 
     private Queue.Item[] getItemsByVersatileApi(StaplerResponse2 response, Queue queue, String idParam) throws IOException {
@@ -126,7 +168,7 @@ public class MoveActionWorker {
             }
         } catch (NumberFormatException nfe) {
             //this handles search by name
-            Queue.Item item = findItemByName(queue, idParam);
+            Queue.Item item = findItemByName(queue, idParam, null);
             if (item != null) {
                 items = new Queue.Item[1];
                 items[0] = item;
@@ -161,14 +203,56 @@ public class MoveActionWorker {
         PrintWriter writer = response.getWriter();
         JSONObject message = new JSONObject();
         message.put("error", info);
-        writer.println(message.toString(2));
+        if (writer != null) { //mocked writer was returning null, killing tests
+            writer.println(message.toString(2));
+        }
     }
 
-    protected Queue.Item findItemByName(Queue queue, String idParam) {
-        for (Queue.Item item : queue.getItems()) {
-            if (item.isBuildable()) {
-                if (item.task != null && item.task.getDisplayName().equals(idParam)) {
-                    return item;
+    protected Queue.Item findItemByName(Queue queue, String idParam, RegexWithParams params) {
+        if (params == null) {
+            for (Queue.Item item : queue.getItems()) {
+                if (item.isBuildable()) {
+                    if (item.task != null && item.task.getDisplayName().equals(idParam)) {
+                        return item;
+                    }
+                }
+            }
+        } else {
+            for (Queue.Item item : queue.getItems()) {
+                if (item.isBuildable() && item.task != null) {
+                    if (params.isDisplayName()) {
+                        if (params.isCaseInsensitive()) {
+                            if (item.task.getDisplayName().equalsIgnoreCase(idParam)) {
+                                return item;
+                            }
+                        } else {
+                            if (item.task.getDisplayName().equals(idParam)) {
+                                return item;
+                            }
+                        }
+                    }
+                    if (params.isFullDisplayName()) {
+                        if (params.isCaseInsensitive()) {
+                            if (item.task.getFullDisplayName().equalsIgnoreCase(idParam)) {
+                                return item;
+                            }
+                        } else {
+                            if (item.task.getFullDisplayName().equals(idParam)) {
+                                return item;
+                            }
+                        }
+                    }
+                    if (params.isName()) {
+                        if (params.isCaseInsensitive()) {
+                            if (item.task.getName().equalsIgnoreCase(idParam)) {
+                                return item;
+                            }
+                        } else {
+                            if (item.task.getName().equals(idParam)) {
+                                return item;
+                            }
+                        }
+                    }
                 }
             }
         }

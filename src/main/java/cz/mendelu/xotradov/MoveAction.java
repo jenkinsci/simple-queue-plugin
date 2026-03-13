@@ -14,12 +14,12 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
  */
 @SuppressWarnings("unused")
 @Extension
-public class MoveAction extends MoveActionWorker implements RootAction  {
+public class MoveAction extends MoveActionWorker implements RootAction {
 
     @CheckForNull
     @Override
     public String getIconFileName() {
-            return null;
+        return null;
     }
 
     @CheckForNull
@@ -60,5 +60,4 @@ public class MoveAction extends MoveActionWorker implements RootAction  {
             response.setStatus(StaplerResponse2.SC_INTERNAL_SERVER_ERROR);
         }
     }
-
 }

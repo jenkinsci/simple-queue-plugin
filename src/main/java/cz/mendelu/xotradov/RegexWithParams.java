@@ -92,5 +92,4 @@ public class RegexWithParams {
     public boolean isName() {
         return params.contains("n");
     }
-
 }

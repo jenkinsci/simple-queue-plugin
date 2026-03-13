@@ -1,25 +1,23 @@
 package cz.mendelu.xotradov.test.moves;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
 
 import cz.mendelu.xotradov.MoveAction;
 import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.FreeStyleProject;
 import hudson.model.Queue;
-
 import java.util.ArrayList;
+import org.junit.After;
+import org.junit.Rule;
+import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
 
 public class MoveAction_moveToTopTest {
 
     @Rule
     public final JenkinsRule jenkinsRule = new JenkinsRule();
+
     public final TestHelper helper = new TestHelper(jenkinsRule);
 
     @After
@@ -62,8 +60,7 @@ public class MoveAction_moveToTopTest {
 
             // Debugging aid:
             ArrayList<String> namesBefore = new ArrayList<>();
-            for (Queue.Item item: queue.getItems())
-                namesBefore.add(item.getDisplayName());
+            for (Queue.Item item : queue.getItems()) namesBefore.add(item.getDisplayName());
 
             // Inverse of job addition order - first added (C) has highest number,
             // so will be built first, and last added (E) has lowest number so will
@@ -82,8 +79,7 @@ public class MoveAction_moveToTopTest {
 
             // Debugging aid:
             ArrayList<String> namesAfter = new ArrayList<>();
-            for (Queue.Item item: queue.getItems())
-                namesAfter.add(item.getDisplayName());
+            for (Queue.Item item : queue.getItems()) namesAfter.add(item.getDisplayName());
 
             assertEquals(B.getDisplayName(), queue.getItems()[0].task.getDisplayName());
             assertEquals(A.getDisplayName(), queue.getItems()[1].task.getDisplayName());

@@ -1,23 +1,22 @@
 package cz.mendelu.xotradov.test.moves;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
 
 import cz.mendelu.xotradov.MoveAction;
 import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.FreeStyleProject;
 import hudson.model.Queue;
+import org.junit.After;
+import org.junit.Rule;
+import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
 
 public class MoveAction_putAOnTopOfBTest {
 
     @Rule
     public final JenkinsRule jenkinsRule = new JenkinsRule();
+
     public final TestHelper helper = new TestHelper(jenkinsRule);
 
     @After
@@ -74,7 +73,7 @@ public class MoveAction_putAOnTopOfBTest {
             // Tests with array moves:
 
             // EFDC => move E+F over D => EFDC (same)
-            moveAction.putAOnTopOfB(new Queue.Item[]{E.getQueueItem(), F.getQueueItem()}, D.getQueueItem(), queue);
+            moveAction.putAOnTopOfB(new Queue.Item[] {E.getQueueItem(), F.getQueueItem()}, D.getQueueItem(), queue);
             queue.maintain();
             assertEquals(E.getDisplayName(), queue.getItems()[0].task.getDisplayName());
             assertEquals(F.getDisplayName(), queue.getItems()[1].task.getDisplayName());
@@ -82,7 +81,7 @@ public class MoveAction_putAOnTopOfBTest {
             assertEquals(C.getDisplayName(), queue.getItems()[3].task.getDisplayName());
 
             // EFDC => move F+D over E => FDEC
-            moveAction.putAOnTopOfB(new Queue.Item[]{F.getQueueItem(), D.getQueueItem()}, E.getQueueItem(), queue);
+            moveAction.putAOnTopOfB(new Queue.Item[] {F.getQueueItem(), D.getQueueItem()}, E.getQueueItem(), queue);
             queue.maintain();
             assertEquals(F.getDisplayName(), queue.getItems()[0].task.getDisplayName());
             assertEquals(D.getDisplayName(), queue.getItems()[1].task.getDisplayName());
@@ -91,7 +90,7 @@ public class MoveAction_putAOnTopOfBTest {
 
             // FDEC => move D+C (with hole) over F => DCFE
             // messed-up order in array argument (C+D) does not impact original-queue item order (D+C)
-            moveAction.putAOnTopOfB(new Queue.Item[]{C.getQueueItem(), D.getQueueItem()}, F.getQueueItem(), queue);
+            moveAction.putAOnTopOfB(new Queue.Item[] {C.getQueueItem(), D.getQueueItem()}, F.getQueueItem(), queue);
             queue.maintain();
             assertEquals(D.getDisplayName(), queue.getItems()[0].task.getDisplayName());
             assertEquals(C.getDisplayName(), queue.getItems()[1].task.getDisplayName());
@@ -99,7 +98,7 @@ public class MoveAction_putAOnTopOfBTest {
             assertEquals(E.getDisplayName(), queue.getItems()[3].task.getDisplayName());
 
             // DCFE => move D+E (with hole) over F (between them) => DECF
-            moveAction.putAOnTopOfB(new Queue.Item[]{E.getQueueItem(), D.getQueueItem()}, F.getQueueItem(), queue);
+            moveAction.putAOnTopOfB(new Queue.Item[] {E.getQueueItem(), D.getQueueItem()}, F.getQueueItem(), queue);
             queue.maintain();
             assertEquals(D.getDisplayName(), queue.getItems()[0].task.getDisplayName());
             assertEquals(E.getDisplayName(), queue.getItems()[1].task.getDisplayName());
@@ -109,5 +108,4 @@ public class MoveAction_putAOnTopOfBTest {
             fail();
         }
     }
-
 }

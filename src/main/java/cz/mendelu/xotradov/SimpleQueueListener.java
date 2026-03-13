@@ -4,7 +4,7 @@ import hudson.Extension;
 import hudson.model.Queue;
 import hudson.model.queue.QueueListener;
 
-@SuppressWarnings("unused") //justification: is used because of the @Extension below
+@SuppressWarnings("unused") // justification: is used because of the @Extension below
 @Extension
 public class SimpleQueueListener extends QueueListener {
     @Override

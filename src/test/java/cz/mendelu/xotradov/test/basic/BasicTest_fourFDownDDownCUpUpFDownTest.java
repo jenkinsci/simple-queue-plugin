@@ -2,22 +2,22 @@ package cz.mendelu.xotradov.test.basic;
 
 import static org.junit.Assert.assertEquals;
 
+import cz.mendelu.xotradov.MoveAction;
+import cz.mendelu.xotradov.test.TestHelper;
+import hudson.model.FreeStyleProject;
+import hudson.model.Queue;
+import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
-import java.util.logging.Logger;
-
-import cz.mendelu.xotradov.MoveAction;
-import cz.mendelu.xotradov.test.TestHelper;
-import hudson.model.FreeStyleProject;
-import hudson.model.Queue;
-
 public class BasicTest_fourFDownDDownCUpUpFDownTest {
     public static Logger logger = Logger.getLogger(BasicTest_fourFDownDDownCUpUpFDownTest.class.getName());
+
     @Rule
     public JenkinsRule jenkinsRule = new JenkinsRule();
+
     private TestHelper helper = new TestHelper(jenkinsRule);
 
     @After
@@ -36,19 +36,19 @@ public class BasicTest_fourFDownDDownCUpUpFDownTest {
         Queue queue = Queue.getInstance();
         MoveAction moveAction = helper.getMoveAction();
         assertEquals(projectF.getDisplayName(), queue.getItems()[0].task.getDisplayName());
-        moveAction.moveDown(queue.getItems()[0], queue);//F
+        moveAction.moveDown(queue.getItems()[0], queue); // F
         queue.maintain();
         assertEquals(projectD.getDisplayName(), queue.getItems()[2].task.getDisplayName());
-        moveAction.moveDown(queue.getItems()[2], queue);//D
+        moveAction.moveDown(queue.getItems()[2], queue); // D
         queue.maintain();
         assertEquals(projectC.getDisplayName(), queue.getItems()[2].task.getDisplayName());
-        moveAction.moveUp(queue.getItems()[2], queue);//C
+        moveAction.moveUp(queue.getItems()[2], queue); // C
         queue.maintain();
         assertEquals(projectC.getDisplayName(), queue.getItems()[1].task.getDisplayName());
-        moveAction.moveUp(queue.getItems()[1], queue);//C
+        moveAction.moveUp(queue.getItems()[1], queue); // C
         queue.maintain();
         assertEquals(projectF.getDisplayName(), queue.getItems()[2].task.getDisplayName());
-        moveAction.moveDown(queue.getItems()[2], queue);//F
+        moveAction.moveDown(queue.getItems()[2], queue); // F
         queue.maintain();
         assertEquals(projectC.getDisplayName(), queue.getItems()[0].task.getDisplayName());
         assertEquals(projectE.getDisplayName(), queue.getItems()[1].task.getDisplayName());

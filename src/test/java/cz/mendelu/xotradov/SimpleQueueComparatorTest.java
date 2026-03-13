@@ -1,11 +1,11 @@
 package cz.mendelu.xotradov;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
 import hudson.model.Queue;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 
 public class SimpleQueueComparatorTest {
 
@@ -22,11 +22,11 @@ public class SimpleQueueComparatorTest {
         when(a.getId()).thenReturn(1L);
         Queue.BuildableItem b = Mockito.mock(Queue.BuildableItem.class);
         when(b.getId()).thenReturn(2L);
-        assertEquals(0, comparator.compare(a, b));   //no desires
+        assertEquals(0, comparator.compare(a, b)); // no desires
         comparator.addDesire(2, 1);
-        assertEquals(1, comparator.compare(a, b));   //second is more important
+        assertEquals(1, comparator.compare(a, b)); // second is more important
         comparator.addDesire(1, 2);
-        assertEquals(-1, comparator.compare(a, b)); //first is more important
+        assertEquals(-1, comparator.compare(a, b)); // first is more important
     }
 
     @Test

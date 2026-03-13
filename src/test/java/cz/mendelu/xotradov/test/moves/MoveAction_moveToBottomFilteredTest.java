@@ -1,29 +1,27 @@
 package cz.mendelu.xotradov.test.moves;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
-
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
-import org.mockito.Mockito;
-
-import java.util.Arrays;
-import java.util.List;
 
 import cz.mendelu.xotradov.MoveAction;
 import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.FreeStyleProject;
 import hudson.model.Queue;
 import hudson.model.View;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.After;
+import org.junit.Rule;
+import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.mockito.Mockito;
 
 public class MoveAction_moveToBottomFilteredTest {
 
     @Rule
     public final JenkinsRule jenkinsRule = new JenkinsRule();
+
     public final TestHelper helper = new TestHelper(jenkinsRule);
 
     @After
@@ -56,5 +54,4 @@ public class MoveAction_moveToBottomFilteredTest {
             fail();
         }
     }
-
 }

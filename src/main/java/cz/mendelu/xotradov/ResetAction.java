@@ -3,11 +3,10 @@ package cz.mendelu.xotradov;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.Extension;
 import hudson.model.RootAction;
+import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
-
-import java.util.logging.Logger;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
 @SuppressWarnings("unused")
@@ -50,5 +49,4 @@ public class ResetAction implements RootAction {
             return null;
         }
     }
-
 }

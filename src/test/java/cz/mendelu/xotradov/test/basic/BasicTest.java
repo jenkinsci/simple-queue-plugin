@@ -10,8 +10,10 @@ import org.jvnet.hudson.test.JenkinsRule;
 public class BasicTest {
     @Rule
     public JenkinsRule jenkinsRule = new JenkinsRule();
+
     @Test
     public void widgetPresenceTest() {
-        assertTrue(jenkinsRule.jenkins.getPrimaryView().getWidgets().stream().anyMatch(SimpleQueueWidget.class::isInstance));
+        assertTrue(jenkinsRule.jenkins.getPrimaryView().getWidgets().stream()
+                .anyMatch(SimpleQueueWidget.class::isInstance));
     }
 }

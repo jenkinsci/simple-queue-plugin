@@ -1,28 +1,15 @@
 package cz.mendelu.xotradov.test.moves;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
-
 import static cz.mendelu.xotradov.MoveAction.MOVE_TYPE_PARAM_NAME;
 import static cz.mendelu.xotradov.MoveActionWorker.ITEM_ID_EXT_PARAM_MODE;
 import static cz.mendelu.xotradov.MoveActionWorker.ITEM_ID_EXT_PARAM_NAME;
 import static cz.mendelu.xotradov.MoveActionWorker.ITEM_ID_EXT_PARAM_TARGET;
 import static cz.mendelu.xotradov.MoveActionWorker.ITEM_ID_PARAM_NAME;
-
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
-import org.kohsuke.stapler.StaplerRequest2;
-import org.kohsuke.stapler.StaplerResponse2;
-import org.mockito.Mockito;
-
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 
 import cz.mendelu.xotradov.ItemMode;
 import cz.mendelu.xotradov.ItemTarget;
@@ -32,11 +19,21 @@ import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.Action;
 import hudson.model.FreeStyleProject;
 import hudson.model.Queue;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.After;
+import org.junit.Rule;
+import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
+import org.mockito.Mockito;
 
 public class MoveAction_doMoveNewApi {
 
     @Rule
     public final JenkinsRule jenkinsRule = new JenkinsRule();
+
     public final TestHelper helper = new TestHelper(jenkinsRule);
 
     @After
@@ -61,14 +58,18 @@ public class MoveAction_doMoveNewApi {
         MoveAction moveAction = helper.getMoveAction();
         StaplerResponse2 response = Mockito.mock(StaplerResponse2.class);
         doAnswer(invocation -> {
-            int code = invocation.getArgument(0, Integer.class);
-            results.add(code);
-            return null;
-        }).when(response).setStatus(anyInt());
+                    int code = invocation.getArgument(0, Integer.class);
+                    results.add(code);
+                    return null;
+                })
+                .when(response)
+                .setStatus(anyInt());
         StaplerRequest2 request = Mockito.mock(StaplerRequest2.class);
         when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
-        when(request.getParameter(ITEM_ID_EXT_PARAM_NAME)).thenReturn(String.valueOf(queue.getItems()[1].task.getDisplayName()));
-        when(request.getParameter(ITEM_ID_PARAM_NAME)).thenReturn(String.valueOf(queue.getItems()[1].task.getDisplayName()));
+        when(request.getParameter(ITEM_ID_EXT_PARAM_NAME))
+                .thenReturn(String.valueOf(queue.getItems()[1].task.getDisplayName()));
+        when(request.getParameter(ITEM_ID_PARAM_NAME))
+                .thenReturn(String.valueOf(queue.getItems()[1].task.getDisplayName()));
 
         moveAction.doMove(request, response);
         assertTrue(results.get(0) > 0);
@@ -91,15 +92,18 @@ public class MoveAction_doMoveNewApi {
         MoveAction moveAction = helper.getMoveAction();
         StaplerResponse2 response = Mockito.mock(StaplerResponse2.class);
         doAnswer(invocation -> {
-            int code = invocation.getArgument(0, Integer.class);
-            results.add(code);
-            return null;
-        }).when(response).setStatus(anyInt());
+                    int code = invocation.getArgument(0, Integer.class);
+                    results.add(code);
+                    return null;
+                })
+                .when(response)
+                .setStatus(anyInt());
         StaplerRequest2 request = Mockito.mock(StaplerRequest2.class);
         when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
-        when(request.getParameter(ITEM_ID_EXT_PARAM_NAME)).thenReturn(String.valueOf(queue.getItems()[1].task.getDisplayName()));
+        when(request.getParameter(ITEM_ID_EXT_PARAM_NAME))
+                .thenReturn(String.valueOf(queue.getItems()[1].task.getDisplayName()));
         moveAction.doMove(request, response);
-        assertTrue(results.get(0) > 0); //the exits and messages are chaining. initial issue, final resolution
+        assertTrue(results.get(0) > 0); // the exits and messages are chaining. initial issue, final resolution
         assertTrue(results.get(1) > 0);
 
         when(request.getParameter(ITEM_ID_EXT_PARAM_MODE)).thenReturn(ItemMode.EXACT.toString());
@@ -124,18 +128,22 @@ public class MoveAction_doMoveNewApi {
         MoveAction moveAction = helper.getMoveAction();
         StaplerResponse2 response = Mockito.mock(StaplerResponse2.class);
         doAnswer(invocation -> {
-            int code = invocation.getArgument(0, Integer.class);
-            results.add(code);
-            return null;
-        }).when(response).setStatus(anyInt());
+                    int code = invocation.getArgument(0, Integer.class);
+                    results.add(code);
+                    return null;
+                })
+                .when(response)
+                .setStatus(anyInt());
         StaplerRequest2 request = Mockito.mock(StaplerRequest2.class);
         when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
-        when(request.getParameter(ITEM_ID_EXT_PARAM_NAME)).thenReturn(String.valueOf(queue.getItems()[1].task.getDisplayName()));
+        when(request.getParameter(ITEM_ID_EXT_PARAM_NAME))
+                .thenReturn(String.valueOf(queue.getItems()[1].task.getDisplayName()));
         moveAction.doMove(request, response);
-        assertTrue(results.get(0) > 0); //the exits and messages are chaining. initial issue, final resolution
+        assertTrue(results.get(0) > 0); // the exits and messages are chaining. initial issue, final resolution
         assertTrue(results.get(1) > 0);
 
-        when(request.getParameterValues(ITEM_ID_EXT_PARAM_TARGET)).thenReturn(new String[]{ItemTarget.DISPLAY.toString()});
+        when(request.getParameterValues(ITEM_ID_EXT_PARAM_TARGET))
+                .thenReturn(new String[] {ItemTarget.DISPLAY.toString()});
         moveAction.doMove(request, response);
         assertTrue(results.get(2) > 0);
         assertTrue(results.get(3) > 0);
@@ -157,17 +165,21 @@ public class MoveAction_doMoveNewApi {
         MoveAction moveAction = helper.getMoveAction();
         StaplerResponse2 response = Mockito.mock(StaplerResponse2.class);
         doAnswer(invocation -> {
-            int code = invocation.getArgument(0, Integer.class);
-            results.add(code);
-            return null;
-        }).when(response).setStatus(anyInt());
+                    int code = invocation.getArgument(0, Integer.class);
+                    results.add(code);
+                    return null;
+                })
+                .when(response)
+                .setStatus(anyInt());
         StaplerRequest2 request = Mockito.mock(StaplerRequest2.class);
         when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
-        when(request.getParameter(ITEM_ID_EXT_PARAM_NAME)).thenReturn(String.valueOf(queue.getItems()[1].task.getDisplayName()));
+        when(request.getParameter(ITEM_ID_EXT_PARAM_NAME))
+                .thenReturn(String.valueOf(queue.getItems()[1].task.getDisplayName()));
         when(request.getParameter(ITEM_ID_EXT_PARAM_MODE)).thenReturn(ItemMode.EXACT.toString());
-        when(request.getParameterValues(ITEM_ID_EXT_PARAM_TARGET)).thenReturn(new String[]{ItemTarget.DISPLAY.toString()});
+        when(request.getParameterValues(ITEM_ID_EXT_PARAM_TARGET))
+                .thenReturn(new String[] {ItemTarget.DISPLAY.toString()});
         moveAction.doMove(request, response);
-        assertEquals(200, (int)(results.get(0)));
+        assertEquals(200, (int) (results.get(0)));
 
         // We asked to move C up (lower its priority, closer to [0]), so it
         // becomes just above whoever was at just one point lower priority (D):
@@ -201,17 +213,20 @@ public class MoveAction_doMoveNewApi {
         StaplerRequest2 request = Mockito.mock(StaplerRequest2.class);
         StaplerResponse2 response = Mockito.mock(StaplerResponse2.class);
         doAnswer(invocation -> {
-            int code = invocation.getArgument(0, Integer.class);
-            results.add(code);
-            return null;
-        }).when(response).setStatus(anyInt());
+                    int code = invocation.getArgument(0, Integer.class);
+                    results.add(code);
+                    return null;
+                })
+                .when(response)
+                .setStatus(anyInt());
         when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
         when(request.getParameter(ITEM_ID_EXT_PARAM_MODE)).thenReturn(ItemMode.REGEX.toString());
-        when(request.getParameterValues(ITEM_ID_EXT_PARAM_TARGET)).thenReturn(new String[]{ItemTarget.NAME.toString()});
+        when(request.getParameterValues(ITEM_ID_EXT_PARAM_TARGET))
+                .thenReturn(new String[] {ItemTarget.NAME.toString()});
         when(request.getParameter(ITEM_ID_EXT_PARAM_NAME)).thenReturn(".*(?i)[Fd](?-i).*");
 
         moveAction.doMove(request, response);
-        assertEquals(200, (int)(results.get(0)));
+        assertEquals(200, (int) (results.get(0)));
 
         assertEquals(H.getDisplayName(), queue.getItems()[0].task.getDisplayName());
         assertEquals(F.getDisplayName(), queue.getItems()[1].task.getDisplayName());
@@ -247,17 +262,20 @@ public class MoveAction_doMoveNewApi {
         StaplerRequest2 request = Mockito.mock(StaplerRequest2.class);
         StaplerResponse2 response = Mockito.mock(StaplerResponse2.class);
         doAnswer(invocation -> {
-            int code = invocation.getArgument(0, Integer.class);
-            results.add(code);
-            return null;
-        }).when(response).setStatus(anyInt());
+                    int code = invocation.getArgument(0, Integer.class);
+                    results.add(code);
+                    return null;
+                })
+                .when(response)
+                .setStatus(anyInt());
         when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
         when(request.getParameter(ITEM_ID_EXT_PARAM_MODE)).thenReturn(ItemMode.GREGEX.toString());
-        when(request.getParameterValues(ITEM_ID_EXT_PARAM_TARGET)).thenReturn(new String[]{ItemTarget.FULLDISPLAY.toString(), ItemTarget.I.toString()});
+        when(request.getParameterValues(ITEM_ID_EXT_PARAM_TARGET))
+                .thenReturn(new String[] {ItemTarget.FULLDISPLAY.toString(), ItemTarget.I.toString()});
         when(request.getParameter(ITEM_ID_EXT_PARAM_NAME)).thenReturn("[Fd]");
 
         moveAction.doMove(request, response);
-        assertEquals(200, (int)(results.get(0)));
+        assertEquals(200, (int) (results.get(0)));
 
         assertEquals(H.getDisplayName(), queue.getItems()[0].task.getDisplayName());
         assertEquals(F.getDisplayName(), queue.getItems()[1].task.getDisplayName());

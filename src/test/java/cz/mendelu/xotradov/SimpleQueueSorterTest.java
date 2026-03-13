@@ -1,18 +1,18 @@
 package cz.mendelu.xotradov;
 
-import hudson.model.Queue;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
+
+import hudson.model.Queue;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class SimpleQueueSorterTest {
 
     SimpleQueueSorter sorter = new SimpleQueueSorter(new DefaultSorter());
+
     @Test
     public void sortBuildableItems() {
         List<Queue.BuildableItem> list = new ArrayList<>();

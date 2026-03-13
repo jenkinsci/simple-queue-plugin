@@ -1,24 +1,19 @@
 package cz.mendelu.xotradov;
 
-import org.htmlunit.html.DomNode;
-import org.htmlunit.html.HtmlElement;
-import org.htmlunit.html.HtmlPage;
-import cz.mendelu.xotradov.test.TestHelper;
-import hudson.model.FreeStyleProject;
-import hudson.model.Queue;
+import static org.junit.Assert.*;
 
+import cz.mendelu.xotradov.test.TestHelper;
+import org.htmlunit.html.DomNode;
+import org.htmlunit.html.HtmlPage;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-import org.w3c.dom.Node;
-
-import static org.junit.Assert.*;
 
 public class UITest {
     @Rule
     public JenkinsRule jenkinsRule = new JenkinsRule();
+
     TestHelper helper = new TestHelper(jenkinsRule);
 
     @After
@@ -36,7 +31,11 @@ public class UITest {
         HtmlPage page = jenkinsRule.createWebClient().goTo("");
         DomNode queueElement = page.getElementById("buildSimpleQueue");
         DomNode div = queueElement.getChildren().iterator().next().getNextSibling();
-        DomNode a = div.getFirstChild().getFirstChild().getFirstChild().getFirstChild().getFirstChild();
+        DomNode a = div.getFirstChild()
+                .getFirstChild()
+                .getFirstChild()
+                .getFirstChild()
+                .getFirstChild();
         assertFalse(a.asXml().contains("WaitingFor"));
         assertTrue(a.asXml().contains("sec"));
     }

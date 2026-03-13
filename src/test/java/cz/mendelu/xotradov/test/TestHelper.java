@@ -5,11 +5,10 @@ import cz.mendelu.xotradov.ResetAction;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.*;
 import hudson.model.queue.QueueTaskFuture;
+import java.io.IOException;
 import jenkins.model.Jenkins;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.SleepBuilder;
-
-import java.io.IOException;
 
 public class TestHelper {
     private final JenkinsRule r;
@@ -30,15 +29,20 @@ public class TestHelper {
         boolean enteredTheQueueA = false;
         while (!enteredTheQueueA) {
             for (Queue.BuildableItem item : Queue.getInstance().getBuildableItems()) {
-                if (item.task.getDisplayName() != null && item.task.getDisplayName().equals(projectA.getDisplayName())) {
+                if (item.task.getDisplayName() != null
+                        && item.task.getDisplayName().equals(projectA.getDisplayName())) {
                     enteredTheQueueA = true;
                 }
             }
-            for (Computer computer: Jenkins.get().getComputers()) {
+            for (Computer computer : Jenkins.get().getComputers()) {
                 if (computer != null) {
-                    for (Executor executor: computer.getExecutors()) {
-                        if (executor.getCurrentWorkUnit() != null && executor.getCurrentWorkUnit().context.task.getDisplayName().equals(projectA.getDisplayName()))
-                            return futureA;
+                    for (Executor executor : computer.getExecutors()) {
+                        if (executor.getCurrentWorkUnit() != null
+                                && executor.getCurrentWorkUnit()
+                                        .context
+                                        .task
+                                        .getDisplayName()
+                                        .equals(projectA.getDisplayName())) return futureA;
                     }
                 }
             }
@@ -53,14 +57,16 @@ public class TestHelper {
         projectA.setDisplayName(projectName);
         return projectA;
     }
-    public FreeStyleProject createAndSchedule(@NonNull String projectName, long millisOfBuild)  throws Exception {
+
+    public FreeStyleProject createAndSchedule(@NonNull String projectName, long millisOfBuild) throws Exception {
         FreeStyleProject projectA = createProject(projectName, millisOfBuild);
         schedule(projectA);
         return projectA;
     }
+
     public void fillQueueFor(long millis) throws Exception {
         FreeStyleProject projectA = createProject("projectA", millis);
-        schedule(projectA); //projectA.doBuild(req, rsp, 7000);
+        schedule(projectA); // projectA.doBuild(req, rsp, 7000);
         FreeStyleProject projectB = createProject("projectB", millis);
         schedule(projectB);
         Queue queue = Queue.getInstance();
@@ -70,7 +76,7 @@ public class TestHelper {
     }
 
     public ResetAction getResetAction() {
-        for (Action action: r.jenkins.getActions()) {
+        for (Action action : r.jenkins.getActions()) {
             if (action instanceof ResetAction) {
                 return (ResetAction) action;
             }
@@ -79,7 +85,7 @@ public class TestHelper {
     }
 
     public MoveAction getMoveAction() {
-        for (Action action: r.jenkins.getActions()) {
+        for (Action action : r.jenkins.getActions()) {
             if (action instanceof MoveAction) {
                 return (MoveAction) action;
             }

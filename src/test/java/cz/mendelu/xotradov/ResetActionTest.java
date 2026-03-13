@@ -1,8 +1,9 @@
 package cz.mendelu.xotradov;
 
+import static org.junit.Assert.*;
+
 import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.FreeStyleProject;
-
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,12 +12,11 @@ import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
-
 public class ResetActionTest {
 
     @Rule
     public JenkinsRule jenkinsRule = new JenkinsRule();
+
     private TestHelper helper = new TestHelper(jenkinsRule);
 
     @After
@@ -28,16 +28,22 @@ public class ResetActionTest {
     @Test
     public void doReset() throws Exception {
         ResetAction resetAction = helper.getResetAction();
-        StaplerRequest2 request =  Mockito.mock(StaplerRequest2.class);
+        StaplerRequest2 request = Mockito.mock(StaplerRequest2.class);
         StaplerResponse2 response = Mockito.mock(StaplerResponse2.class);
         helper.fillQueueFor(20000);
         FreeStyleProject c = helper.createAndSchedule("C", 20000);
         helper.createAndSchedule("D", 20000);
-        assertEquals(c.getDisplayName(), jenkinsRule.jenkins.getQueue().getItems()[1].task.getDisplayName());
+        assertEquals(
+                c.getDisplayName(),
+                jenkinsRule.jenkins.getQueue().getItems()[1].task.getDisplayName());
         helper.getMoveAction().moveUp(c.getQueueItem(), jenkinsRule.jenkins.getQueue());
         jenkinsRule.jenkins.getQueue().maintain();
-        assertEquals(c.getDisplayName(), jenkinsRule.jenkins.getQueue().getItems()[0].task.getDisplayName());
+        assertEquals(
+                c.getDisplayName(),
+                jenkinsRule.jenkins.getQueue().getItems()[0].task.getDisplayName());
         resetAction.doReset(request, response);
-        assertEquals(c.getDisplayName(), jenkinsRule.jenkins.getQueue().getItems()[1].task.getDisplayName());
+        assertEquals(
+                c.getDisplayName(),
+                jenkinsRule.jenkins.getQueue().getItems()[1].task.getDisplayName());
     }
 }

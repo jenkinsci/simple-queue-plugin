@@ -4,22 +4,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import cz.mendelu.xotradov.MoveAction;
+import cz.mendelu.xotradov.test.TestHelper;
+import hudson.model.FreeStyleProject;
+import hudson.model.Queue;
+import java.util.ArrayList;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
-import cz.mendelu.xotradov.MoveAction;
-import cz.mendelu.xotradov.test.TestHelper;
-import hudson.model.FreeStyleProject;
-import hudson.model.Queue;
-
-import java.util.ArrayList;
-
 public class MoveAction_moveDownTest {
 
     @Rule
     public final JenkinsRule jenkinsRule = new JenkinsRule();
+
     public final TestHelper helper = new TestHelper(jenkinsRule);
 
     @After
@@ -27,7 +26,6 @@ public class MoveAction_moveDownTest {
         jenkinsRule.jenkins.getQueue().clear();
         jenkinsRule.waitUntilNoActivity();
     }
-
 
     @Test
     public void moveDown() throws Exception {
@@ -68,8 +66,7 @@ public class MoveAction_moveDownTest {
 
             // Debugging aid:
             ArrayList<String> namesBefore = new ArrayList<>();
-            for (Queue.Item item: queue.getItems())
-                namesBefore.add(item.getDisplayName());
+            for (Queue.Item item : queue.getItems()) namesBefore.add(item.getDisplayName());
 
             // least important [0](B newest queued) => most important [6](C oldest queued)
             assertEquals(B.getDisplayName(), queue.getItems()[0].task.getDisplayName());
@@ -80,13 +77,12 @@ public class MoveAction_moveDownTest {
             assertEquals(G.getDisplayName(), queue.getItems()[5].task.getDisplayName());
             assertEquals(C.getDisplayName(), queue.getItems()[6].task.getDisplayName());
 
-            moveAction.moveDown(new Queue.Item[] { D.getQueueItem(), E.getQueueItem() }, queue);
+            moveAction.moveDown(new Queue.Item[] {D.getQueueItem(), E.getQueueItem()}, queue);
             queue.maintain();
 
             // Debugging aid:
             ArrayList<String> namesAfter = new ArrayList<>();
-            for (Queue.Item item: queue.getItems())
-                namesAfter.add(item.getDisplayName());
+            for (Queue.Item item : queue.getItems()) namesAfter.add(item.getDisplayName());
 
             // Moved D+E to be under (higher prio) whoever was just above them (G)
             assertEquals(B.getDisplayName(), queue.getItems()[0].task.getDisplayName());
@@ -100,5 +96,4 @@ public class MoveAction_moveDownTest {
             fail();
         }
     }
-
 }

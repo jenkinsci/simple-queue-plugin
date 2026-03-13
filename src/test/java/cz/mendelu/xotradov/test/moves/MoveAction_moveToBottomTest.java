@@ -1,23 +1,22 @@
 package cz.mendelu.xotradov.test.moves;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
 
 import cz.mendelu.xotradov.MoveAction;
 import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.FreeStyleProject;
 import hudson.model.Queue;
+import org.junit.After;
+import org.junit.Rule;
+import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
 
 public class MoveAction_moveToBottomTest {
 
     @Rule
     public final JenkinsRule jenkinsRule = new JenkinsRule();
+
     public final TestHelper helper = new TestHelper(jenkinsRule);
 
     @After
@@ -89,7 +88,7 @@ public class MoveAction_moveToBottomTest {
             // H is top (lowest priority)
 
             // Assign new bottom dwellers
-            moveAction.moveToBottom(new Queue.Item[]{G.getQueueItem(), E.getQueueItem()}, queue);
+            moveAction.moveToBottom(new Queue.Item[] {G.getQueueItem(), E.getQueueItem()}, queue);
             queue.maintain();
             assertEquals(E.getDisplayName(), queue.getItems()[5].task.getDisplayName());
             assertEquals(G.getDisplayName(), queue.getItems()[4].task.getDisplayName());
@@ -99,7 +98,7 @@ public class MoveAction_moveToBottomTest {
             assertEquals(H.getDisplayName(), queue.getItems()[0].task.getDisplayName());
 
             // Resend another set, where E is already at the bottom
-            moveAction.moveToBottom(new Queue.Item[]{D.getQueueItem(), E.getQueueItem()}, queue);
+            moveAction.moveToBottom(new Queue.Item[] {D.getQueueItem(), E.getQueueItem()}, queue);
             queue.maintain();
             assertEquals(E.getDisplayName(), queue.getItems()[5].task.getDisplayName());
             assertEquals(D.getDisplayName(), queue.getItems()[4].task.getDisplayName());
@@ -109,7 +108,7 @@ public class MoveAction_moveToBottomTest {
             assertEquals(H.getDisplayName(), queue.getItems()[0].task.getDisplayName());
 
             // Move current top+bottom to the bottom
-            moveAction.moveToBottom(new Queue.Item[]{H.getQueueItem(), E.getQueueItem()}, queue);
+            moveAction.moveToBottom(new Queue.Item[] {H.getQueueItem(), E.getQueueItem()}, queue);
             queue.maintain();
             assertEquals(E.getDisplayName(), queue.getItems()[5].task.getDisplayName());
             assertEquals(H.getDisplayName(), queue.getItems()[4].task.getDisplayName());
@@ -121,5 +120,4 @@ public class MoveAction_moveToBottomTest {
             fail();
         }
     }
-
 }

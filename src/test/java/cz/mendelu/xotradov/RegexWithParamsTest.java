@@ -1,11 +1,10 @@
 package cz.mendelu.xotradov;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-class RegexWithParamsTest {
+import org.junit.jupiter.api.Test;
 
+class RegexWithParamsTest {
 
     @Test
     void crateBasicJavaRegex() {
@@ -27,7 +26,6 @@ class RegexWithParamsTest {
         assertEquals("sla/sh", r.regex);
         assertEquals("", r.params);
     }
-
 
     @Test
     void crateBasicGroovyRegex() {

@@ -13,7 +13,6 @@ import jenkins.model.queue.QueueItem;
 import jenkins.widgets.BuildQueueWidget;
 import jenkins.widgets.WidgetFactory;
 
-
 /**
  * SimpleQueueWidget replaces the default BuildQueueWidget and adds arrows to each buildable item.
  */
@@ -30,7 +29,8 @@ public class SimpleQueueWidget extends Widget {
     @NonNull
     private String viewName;
 
-    public SimpleQueueWidget(@NonNull String ownerUrl, @NonNull List<QueueItem> queueItems, boolean filtered, String viewName) {
+    public SimpleQueueWidget(
+            @NonNull String ownerUrl, @NonNull List<QueueItem> queueItems, boolean filtered, String viewName) {
         this.ownerUrl = ownerUrl;
         this.queueItems = new ArrayList<>(queueItems);
         this.filtered = filtered;
@@ -58,17 +58,34 @@ public class SimpleQueueWidget extends Widget {
     }
 
     @SuppressWarnings("unused") // jelly
-    public static String getMoveTypeName() { return MoveAction.MOVE_TYPE_PARAM_NAME;}
+    public static String getMoveTypeName() {
+        return MoveAction.MOVE_TYPE_PARAM_NAME;
+    }
+
     @SuppressWarnings("unused") // jelly
-    public static String getItemIdName() { return MoveAction.ITEM_ID_PARAM_NAME;}
+    public static String getItemIdName() {
+        return MoveAction.ITEM_ID_PARAM_NAME;
+    }
+
     @SuppressWarnings("unused") // jelly
-    public static String getViewNameParamName() { return MoveAction.VIEW_NAME_PARAM_NAME;}
+    public static String getViewNameParamName() {
+        return MoveAction.VIEW_NAME_PARAM_NAME;
+    }
+
     @SuppressWarnings("unused") // jelly
-    public static String getItemIdExtName() { return MoveAction.ITEM_ID_EXT_PARAM_NAME;}
+    public static String getItemIdExtName() {
+        return MoveAction.ITEM_ID_EXT_PARAM_NAME;
+    }
+
     @SuppressWarnings("unused") // jelly
-    public static String getItemIdExtParamMode() { return MoveAction.ITEM_ID_EXT_PARAM_MODE;}
+    public static String getItemIdExtParamMode() {
+        return MoveAction.ITEM_ID_EXT_PARAM_MODE;
+    }
+
     @SuppressWarnings("unused") // jelly
-    public static String getItemIdExtParamTarget() { return MoveAction.ITEM_ID_EXT_PARAM_TARGET;}
+    public static String getItemIdExtParamTarget() {
+        return MoveAction.ITEM_ID_EXT_PARAM_TARGET;
+    }
 
     @Extension(ordinal = 100)
     public static final class ViewFactoryImpl extends WidgetFactory<View, SimpleQueueWidget> {
@@ -85,7 +102,11 @@ public class SimpleQueueWidget extends Widget {
         @NonNull
         @Override
         public Collection<SimpleQueueWidget> createFor(@NonNull View target) {
-            return List.of(new SimpleQueueWidget(target.getUrl(), new ArrayList<>(target.getQueueItems()), target.isFilterQueue(), target.getViewName()));
+            return List.of(new SimpleQueueWidget(
+                    target.getUrl(),
+                    new ArrayList<>(target.getQueueItems()),
+                    target.isFilterQueue(),
+                    target.getViewName()));
         }
     }
 
@@ -93,7 +114,8 @@ public class SimpleQueueWidget extends Widget {
     public static final class RemoveDefaultQueueWidget extends ExtensionFilter {
         @Override
         public <T> boolean allows(Class<T> type, ExtensionComponent<T> component) {
-            return WidgetFactory.class != type || !BuildQueueWidget.ViewFactoryImpl.class.isInstance(component.getInstance());
+            return WidgetFactory.class != type
+                    || !BuildQueueWidget.ViewFactoryImpl.class.isInstance(component.getInstance());
         }
     }
 }

@@ -1,12 +1,17 @@
 package cz.mendelu.xotradov.test.moves;
 
+import static cz.mendelu.xotradov.MoveAction.ITEM_ID_PARAM_NAME;
+import static cz.mendelu.xotradov.MoveAction.MOVE_TYPE_PARAM_NAME;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
 import cz.mendelu.xotradov.MoveAction;
 import cz.mendelu.xotradov.MoveType;
 import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.Action;
 import hudson.model.FreeStyleProject;
-
 import hudson.model.Queue;
+import java.util.List;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,19 +20,12 @@ import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.mockito.Mockito;
 
-import java.util.List;
-
-import static cz.mendelu.xotradov.MoveAction.ITEM_ID_PARAM_NAME;
-import static cz.mendelu.xotradov.MoveAction.MOVE_TYPE_PARAM_NAME;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
-
 public class MoveAction_doMoveTest {
 
     @Rule
     public final JenkinsRule jenkinsRule = new JenkinsRule();
-    public final TestHelper helper = new TestHelper(jenkinsRule);
 
+    public final TestHelper helper = new TestHelper(jenkinsRule);
 
     @After
     public void waitForClean() throws Exception {
@@ -52,8 +50,7 @@ public class MoveAction_doMoveTest {
             StaplerRequest2 request = Mockito.mock(StaplerRequest2.class);
             StaplerResponse2 response = Mockito.mock(StaplerResponse2.class);
             when(request.getParameter(MOVE_TYPE_PARAM_NAME)).thenReturn(MoveType.UP.toString());
-            when(request.getParameter(ITEM_ID_PARAM_NAME)).thenReturn(
-                    String.valueOf(queue.getItems()[1].getId()));
+            when(request.getParameter(ITEM_ID_PARAM_NAME)).thenReturn(String.valueOf(queue.getItems()[1].getId()));
             moveAction.doMove(request, response);
 
             // We asked to move C up (lower its priority, closer to [0]), so it
@@ -64,5 +61,4 @@ public class MoveAction_doMoveTest {
             fail();
         }
     }
-
 }

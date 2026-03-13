@@ -1,23 +1,21 @@
 package cz.mendelu.xotradov;
 
-import org.kohsuke.stapler.StaplerRequest2;
-import org.kohsuke.stapler.StaplerResponse2;
-
-import java.io.IOException;
-import java.util.logging.Logger;
-
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.Extension;
 import hudson.model.RootAction;
 import hudson.model.queue.QueueSorter;
+import java.io.IOException;
+import java.util.logging.Logger;
 import jenkins.model.Jenkins;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 @SuppressWarnings("unused")
 @Extension
 public class UnsafeResetAction implements RootAction {
     private static Logger logger = Logger.getLogger(UnsafeResetAction.class.getName());
 
-    //curl http://my.url:8080/simpleQueueResetUnsafe/reset
+    // curl http://my.url:8080/simpleQueueResetUnsafe/reset
     public void doReset(final StaplerRequest2 request, final StaplerResponse2 response) {
         if (!SimpleQueueConfig.getInstance().isEnableUnsafe()) {
             throw new IllegalArgumentException("Unsafe reset api attempted without being enabled");
@@ -37,7 +35,6 @@ public class UnsafeResetAction implements RootAction {
         }
     }
 
-
     @Override
     public String getIconFileName() {
         return null;
@@ -53,5 +50,4 @@ public class UnsafeResetAction implements RootAction {
     public String getUrlName() {
         return "simpleQueueResetUnsafe";
     }
-
 }

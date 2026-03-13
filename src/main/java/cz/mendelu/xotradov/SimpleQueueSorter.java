@@ -2,11 +2,10 @@ package cz.mendelu.xotradov;
 
 import hudson.model.Queue;
 import hudson.model.queue.QueueSorter;
-import jenkins.model.Jenkins;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
+import jenkins.model.Jenkins;
 
 /**
  * The new sorter of Simple Queue plugin. Preserves the order of default jenkins sorter, when no desires have been made.
@@ -55,6 +54,7 @@ public class SimpleQueueSorter extends QueueSorter {
         //     and the move*() methods for arrays got more complex that initially.
         Collections.sort(list, simpleQueueComparator);
     }
+
     public SimpleQueueComparator getSimpleQueueComparator() {
         return simpleQueueComparator;
     }

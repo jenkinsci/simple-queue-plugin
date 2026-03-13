@@ -3,23 +3,23 @@ package cz.mendelu.xotradov.test.basic;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import cz.mendelu.xotradov.MoveAction;
+import cz.mendelu.xotradov.test.TestHelper;
+import hudson.model.FreeStyleProject;
+import hudson.model.Queue;
+import java.util.logging.Logger;
+import jenkins.model.Jenkins;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
-import java.util.logging.Logger;
-
-import cz.mendelu.xotradov.MoveAction;
-import cz.mendelu.xotradov.test.TestHelper;
-import hudson.model.FreeStyleProject;
-import hudson.model.Queue;
-import jenkins.model.Jenkins;
-
 public class BasicTest_twoItemsLowerUpTest {
     public static Logger logger = Logger.getLogger(BasicTest_twoItemsLowerUpTest.class.getName());
+
     @Rule
     public JenkinsRule jenkinsRule = new JenkinsRule();
+
     private TestHelper helper = new TestHelper(jenkinsRule);
 
     @After
@@ -32,7 +32,7 @@ public class BasicTest_twoItemsLowerUpTest {
     public void twoItemsLowerUpTest() throws Exception {
         helper.fillQueueFor(20000);
         Queue queue = Queue.getInstance();
-        //now can be queue filled predictably
+        // now can be queue filled predictably
         FreeStyleProject projectC = helper.createAndSchedule("projectC", 20000);
         FreeStyleProject projectD = helper.createAndSchedule("projectD", 20000);
         while (queue.getBuildableItems().size() != 2) {
@@ -49,5 +49,4 @@ public class BasicTest_twoItemsLowerUpTest {
         assertEquals(projectC.getDisplayName(), queue.getItems()[0].task.getDisplayName());
         assertEquals(projectD.getDisplayName(), queue.getItems()[1].task.getDisplayName());
     }
-
 }

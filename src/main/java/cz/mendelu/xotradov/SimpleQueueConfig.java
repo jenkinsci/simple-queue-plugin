@@ -1,14 +1,10 @@
 package cz.mendelu.xotradov;
 
-
+import hudson.Extension;
+import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
-
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest2;
-
-import hudson.Extension;
-
-import jenkins.model.GlobalConfiguration;
 
 @Extension
 public class SimpleQueueConfig extends GlobalConfiguration {
@@ -35,7 +31,6 @@ public class SimpleQueueConfig extends GlobalConfiguration {
     public SimpleQueueConfig() {
         load();
     }
-
 
     @Override
     public boolean configure(StaplerRequest2 req, JSONObject json) throws FormException {

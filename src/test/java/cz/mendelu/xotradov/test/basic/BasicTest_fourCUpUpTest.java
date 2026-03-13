@@ -1,24 +1,23 @@
 package cz.mendelu.xotradov.test.basic;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
-
-import java.util.logging.Logger;
 
 import cz.mendelu.xotradov.MoveAction;
 import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.FreeStyleProject;
 import hudson.model.Queue;
+import java.util.logging.Logger;
+import org.junit.After;
+import org.junit.Rule;
+import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
 
 public class BasicTest_fourCUpUpTest {
     public static Logger logger = Logger.getLogger(BasicTest_fourCUpUpTest.class.getName());
+
     @Rule
     public JenkinsRule jenkinsRule = new JenkinsRule();
+
     private TestHelper helper = new TestHelper(jenkinsRule);
 
     @After

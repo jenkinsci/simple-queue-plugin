@@ -1,33 +1,31 @@
 package cz.mendelu.xotradov.test.moves;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import cz.mendelu.xotradov.MoveAction;
 import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.FreeStyleProject;
 import hudson.model.Queue;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
+@WithJenkins
 public class MoveAction_moveUpTest {
 
-    @Rule
-    public final JenkinsRule jenkinsRule = new JenkinsRule();
+    private TestHelper helper;
 
-    public final TestHelper helper = new TestHelper(jenkinsRule);
-
-    @After
+    @AfterEach
     public void waitForClean() throws Exception {
-        jenkinsRule.jenkins.getQueue().clear();
-        jenkinsRule.waitUntilNoActivity();
+        helper.cleanup();
     }
 
     @Test
-    public void moveUp() throws Exception {
+    public void moveUp(JenkinsRule jenkinsRule) throws Exception {
+        helper = new TestHelper(jenkinsRule);
         try {
             long maxTestTime = 10000;
             helper.fillQueueFor(maxTestTime);
@@ -46,7 +44,8 @@ public class MoveAction_moveUpTest {
     }
 
     @Test
-    public void moveUpMany() throws Exception {
+    public void moveUpMany(JenkinsRule jenkinsRule) throws Exception {
+        helper = new TestHelper(jenkinsRule);
         try {
             long maxTestTime = 10000;
             helper.fillQueueFor(maxTestTime);

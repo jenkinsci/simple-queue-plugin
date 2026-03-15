@@ -1,10 +1,10 @@
 package cz.mendelu.xotradov;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import hudson.model.Queue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class SimpleQueueComparatorTest {

@@ -1,32 +1,30 @@
 package cz.mendelu.xotradov;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.FreeStyleProject;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.mockito.Mockito;
 
+@WithJenkins
 public class ResetActionTest {
 
-    @Rule
-    public JenkinsRule jenkinsRule = new JenkinsRule();
+    private TestHelper helper;
 
-    private TestHelper helper = new TestHelper(jenkinsRule);
-
-    @After
+    @AfterEach
     public void waitForClean() throws Exception {
-        jenkinsRule.jenkins.getQueue().clear();
-        jenkinsRule.waitUntilNoActivity();
+        helper.cleanup();
     }
 
     @Test
-    public void doReset() throws Exception {
+    public void doReset(JenkinsRule jenkinsRule) throws Exception {
+        helper = new TestHelper(jenkinsRule);
         ResetAction resetAction = helper.getResetAction();
         StaplerRequest2 request = Mockito.mock(StaplerRequest2.class);
         StaplerResponse2 response = Mockito.mock(StaplerResponse2.class);

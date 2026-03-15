@@ -16,6 +16,11 @@ public class TestHelper {
     public TestHelper(JenkinsRule r) {
         this.r = r;
     }
+    
+    public void cleanup() throws Exception {
+        r.jenkins.getQueue().clear();
+        r.waitUntilNoActivity();
+    }
 
     public JenkinsRule getRule() {
         return r;

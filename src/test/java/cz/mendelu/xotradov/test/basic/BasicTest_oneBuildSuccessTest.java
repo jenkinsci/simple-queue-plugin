@@ -6,27 +6,25 @@ import hudson.model.FreeStyleProject;
 import hudson.model.Queue;
 import hudson.model.queue.QueueTaskFuture;
 import java.util.logging.Logger;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
+@WithJenkins
 public class BasicTest_oneBuildSuccessTest {
     public static Logger logger = Logger.getLogger(BasicTest_oneBuildSuccessTest.class.getName());
 
-    @Rule
-    public JenkinsRule jenkinsRule = new JenkinsRule();
+    private TestHelper helper;
 
-    private TestHelper helper = new TestHelper(jenkinsRule);
-
-    @After
+    @AfterEach
     public void waitForClean() throws Exception {
-        jenkinsRule.jenkins.getQueue().clear();
-        jenkinsRule.waitUntilNoActivity();
+        helper.cleanup();
     }
 
     @Test
-    public void oneBuildSuccessTest() throws Exception {
+    public void oneBuildSuccessTest(JenkinsRule jenkinsRule) throws Exception {
+        helper = new TestHelper(jenkinsRule);
         FreeStyleProject projectA = helper.createProject("projectA", 1000);
         QueueTaskFuture<FreeStyleBuild> futureA = helper.schedule(projectA);
         while (!Queue.getInstance().getBuildableItems().isEmpty()) {

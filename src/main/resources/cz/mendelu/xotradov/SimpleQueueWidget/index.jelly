@@ -74,11 +74,10 @@
                                         <l:breakable value="${item.displayName}"/>
                                     </a>
                                     <j:if test="${stuck}">
-                                      <td class="pane" width="16" align="center" valign="middle">
+                                        &#160;
                                         <a href="https://jenkins.io/redirect/troubleshooting/executor-starvation" target="_blank">
                                             <l:icon class="icon-hourglass icon-sm"/>
                                         </a>
-                                      </td>
                                     </j:if>
                                 </j:when>
                                 <j:otherwise>

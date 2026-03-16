@@ -1,29 +1,28 @@
 package cz.mendelu.xotradov;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import cz.mendelu.xotradov.test.TestHelper;
 import org.htmlunit.html.DomNode;
 import org.htmlunit.html.HtmlPage;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
+@WithJenkins
 public class UITest {
-    @Rule
-    public JenkinsRule jenkinsRule = new JenkinsRule();
 
-    TestHelper helper = new TestHelper(jenkinsRule);
+    private TestHelper helper;
 
-    @After
+    @AfterEach
     public void waitForClean() throws Exception {
-        jenkinsRule.jenkins.getQueue().clear();
-        jenkinsRule.waitUntilNoActivity();
+        helper.cleanup();
     }
 
     @Test
-    public void HoverText() throws Exception {
+    public void HoverText(JenkinsRule jenkinsRule) throws Exception {
+        helper = new TestHelper(jenkinsRule);
         long maxTestTime = 30000;
         helper.fillQueueFor(maxTestTime);
         helper.createAndSchedule("C", maxTestTime);
@@ -41,7 +40,8 @@ public class UITest {
     }
 
     @Test
-    public void initWidgetTest() throws Exception {
+    public void initWidgetTest(JenkinsRule jenkinsRule) throws Exception {
+        helper = new TestHelper(jenkinsRule);
         long maxTestTime = 30000;
         helper.fillQueueFor(maxTestTime);
         helper.createAndSchedule("C", maxTestTime);

@@ -1,8 +1,8 @@
 package cz.mendelu.xotradov.test.moves;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 import cz.mendelu.xotradov.MoveAction;
@@ -12,27 +12,25 @@ import hudson.model.Queue;
 import hudson.model.View;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.mockito.Mockito;
 
+@WithJenkins
 public class MoveAction_moveUpFilteredTest {
 
-    @Rule
-    public final JenkinsRule jenkinsRule = new JenkinsRule();
+    private TestHelper helper;
 
-    public final TestHelper helper = new TestHelper(jenkinsRule);
-
-    @After
+    @AfterEach
     public void waitForClean() throws Exception {
-        jenkinsRule.jenkins.getQueue().clear();
-        jenkinsRule.waitUntilNoActivity();
+        helper.cleanup();
     }
 
     @Test
-    public void moveUpFiltered() {
+    public void moveUpFiltered(JenkinsRule jenkinsRule) {
+        helper = new TestHelper(jenkinsRule);
         try {
             long maxTestTime = 20000;
             helper.fillQueueFor(maxTestTime);

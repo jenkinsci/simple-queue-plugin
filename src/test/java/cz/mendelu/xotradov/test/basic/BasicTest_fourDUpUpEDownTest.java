@@ -1,33 +1,31 @@
 package cz.mendelu.xotradov.test.basic;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import cz.mendelu.xotradov.MoveAction;
 import cz.mendelu.xotradov.test.TestHelper;
 import hudson.model.FreeStyleProject;
 import hudson.model.Queue;
 import java.util.logging.Logger;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
+@WithJenkins
 public class BasicTest_fourDUpUpEDownTest {
     public static Logger logger = Logger.getLogger(BasicTest_fourDUpUpEDownTest.class.getName());
 
-    @Rule
-    public JenkinsRule jenkinsRule = new JenkinsRule();
+    private TestHelper helper;
 
-    private TestHelper helper = new TestHelper(jenkinsRule);
-
-    @After
+    @AfterEach
     public void waitForClean() throws Exception {
-        jenkinsRule.jenkins.getQueue().clear();
-        jenkinsRule.waitUntilNoActivity();
+        helper.cleanup();
     }
 
     @Test
-    public void fourDUpUpEDown() throws Exception {
+    public void fourDUpUpEDown(JenkinsRule jenkinsRule) throws Exception {
+        helper = new TestHelper(jenkinsRule);
         helper.fillQueueFor(30000);
         FreeStyleProject projectC = helper.createAndSchedule("projectC", 25000);
         FreeStyleProject projectD = helper.createAndSchedule("projectD", 25000);

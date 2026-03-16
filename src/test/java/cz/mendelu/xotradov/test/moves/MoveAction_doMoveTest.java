@@ -2,7 +2,7 @@ package cz.mendelu.xotradov.test.moves;
 
 import static cz.mendelu.xotradov.MoveAction.ITEM_ID_PARAM_NAME;
 import static cz.mendelu.xotradov.MoveAction.MOVE_TYPE_PARAM_NAME;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import cz.mendelu.xotradov.MoveAction;
@@ -12,29 +12,27 @@ import hudson.model.Action;
 import hudson.model.FreeStyleProject;
 import hudson.model.Queue;
 import java.util.List;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
 import org.mockito.Mockito;
 
+@WithJenkins
 public class MoveAction_doMoveTest {
 
-    @Rule
-    public final JenkinsRule jenkinsRule = new JenkinsRule();
+    private TestHelper helper;
 
-    public final TestHelper helper = new TestHelper(jenkinsRule);
-
-    @After
+    @AfterEach
     public void waitForClean() throws Exception {
-        jenkinsRule.jenkins.getQueue().clear();
-        jenkinsRule.waitUntilNoActivity();
+        helper.cleanup();
     }
 
     @Test
-    public void doMoveByQueueItemId() throws Exception {
+    public void doMoveByQueueItemId(JenkinsRule jenkinsRule) throws Exception {
+        helper = new TestHelper(jenkinsRule);
         try {
             long maxTestTime = 10000;
             helper.fillQueueFor(maxTestTime);

@@ -87,8 +87,8 @@
                         </td>
                         <!-- start of normal button section-->
                         <j:set var="buildable" value="${item.isBuildable()}"/>
-                        <j:if test="${buildable and h.hasPermission(app.MANAGE)}">
-                            <td class="pane" align="center" valign="middle">
+                        <td class="pane" align="center" valign="middle">
+                            <j:if test="${buildable and h.hasPermission(app.MANAGE)}">
                               <div class="simple-queue-buttons">
                                   <j:if test="${filtered}">
                                       <a href="#" class="simple-move-link" data-move-type="TOP" data-item-id="${item.id}"
@@ -125,8 +125,8 @@
                                       </a>
                                   </j:if>
                               </div>
-                            </td>
-                        </j:if>
+                            </j:if>
+                        </td>
                         <td class="pane" align="center" valign="middle">
                             <j:if test="${item.hasCancelPermission()}">
                                 <div class="simple-queue-buttons">

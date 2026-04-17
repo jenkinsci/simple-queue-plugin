@@ -60,7 +60,7 @@ public class UnsafeMoveAction extends MoveActionWorker implements RootAction {
         try {
             Queue queue = j.getQueue();
             if (queue != null) {
-                printQueueImpl(request, response, queue);
+                printQueueImpl(request, response, queue, j);
             }
         } catch (Exception e) {
             logger.warning(e.toString());

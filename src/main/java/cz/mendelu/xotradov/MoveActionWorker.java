@@ -1191,9 +1191,10 @@ public class MoveActionWorker {
      * @param request Stapler request from user
      * @param response Stapler response to write the queue information
      * @param queue The Jenkins queue
+     * @param jenkins Jenkins instance
      * @throws IOException if writing to response fails
      */
-    protected void printQueueImpl(StaplerRequest2 request, StaplerResponse2 response, Queue queue) throws IOException {
+    protected void printQueueImpl(StaplerRequest2 request, StaplerResponse2 response, Queue queue, Jenkins jenkins) throws IOException {
         response.setContentType("text/plain; charset=UTF-8");
         response.setStatus(StaplerResponse2.SC_OK);
         PrintWriter writer = response.getWriter();
@@ -1202,7 +1203,18 @@ public class MoveActionWorker {
             String buildableParam = request.getParameter("buildable");
             boolean onlyBuildable = buildableParam == null || !buildableParam.equalsIgnoreCase("false");
             
-            Queue.Item[] queueItems = queue.getItems();
+            // Get view if specified
+            String viewName = request.getParameter(VIEW_NAME_PARAM_NAME);
+            View view = viewName != null ? jenkins.getView(viewName) : null;
+            
+            // Get queue items - either from view or from full queue
+            Collection<Queue.Item> queueItems;
+            if (view != null && view.isFilterQueue()) {
+                queueItems = view.getQueueItems();
+            } else {
+                queueItems = Arrays.asList(queue.getItems());
+            }
+            
             for (Queue.Item item : queueItems) {
                 if (item.task != null) {
                     if (onlyBuildable) {

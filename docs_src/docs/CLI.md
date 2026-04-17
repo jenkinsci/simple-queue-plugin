@@ -269,6 +269,9 @@ GET/POST http://${JENKINS_URL}/simpleMoveUnsafe/printQueue
 - **`buildable`** (optional): Controls which items to include in the output
   - `true` or omitted (default): Shows only buildable items
   - `false`: Shows all items in the queue (including blocked/waiting items)
+- **`viewName`** (optional): Filter queue items by view
+  - If specified, only shows items visible in that view
+  - If omitted, shows all queue items
 
 ### Output Format
 
@@ -310,6 +313,18 @@ curl -X POST --user username:apitoken \
 # Unsafe API
 curl --user username:apitoken \
   "http://${JENKINS_URL}/simpleMoveUnsafe/printQueue?buildable=false"
+```
+
+#### Get queue for a specific view
+```bash
+# Safe API
+curl -X POST --user username:apitoken \
+  -H "Jenkins-Crumb: YOUR_CRUMB_HERE" \
+  "http://${JENKINS_URL}/simpleMove/printQueue?viewName=my_view"
+
+# Unsafe API
+curl --user username:apitoken \
+  "http://${JENKINS_URL}/simpleMoveUnsafe/printQueue?viewName=my_view"
 ```
 
 #### Using in scripts

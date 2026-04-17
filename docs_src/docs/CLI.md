@@ -295,36 +295,30 @@ The API returns the **sorted queue** order, which reflects:
 ```bash
 # Safe API (requires CSRF token)
 curl -X POST --user username:apitoken \
-  -H "Jenkins-Crumb: YOUR_CRUMB_HERE" \
   "http://${JENKINS_URL}/simpleMove/printQueue"
 
 # Unsafe API (no CSRF token needed, must be enabled)
-curl --user username:apitoken \
-  "http://${JENKINS_URL}/simpleMoveUnsafe/printQueue"
+curl "http://${JENKINS_URL}/simpleMoveUnsafe/printQueue"
 ```
 
 #### Get all items (including non-buildable)
 ```bash
 # Safe API
 curl -X POST --user username:apitoken \
-  -H "Jenkins-Crumb: YOUR_CRUMB_HERE" \
   "http://${JENKINS_URL}/simpleMove/printQueue?buildable=false"
 
 # Unsafe API
-curl --user username:apitoken \
-  "http://${JENKINS_URL}/simpleMoveUnsafe/printQueue?buildable=false"
+curl "http://${JENKINS_URL}/simpleMoveUnsafe/printQueue"
 ```
 
 #### Get queue for a specific view
 ```bash
 # Safe API
 curl -X POST --user username:apitoken \
-  -H "Jenkins-Crumb: YOUR_CRUMB_HERE" \
   "http://${JENKINS_URL}/simpleMove/printQueue?viewName=my_view"
 
 # Unsafe API
-curl --user username:apitoken \
-  "http://${JENKINS_URL}/simpleMoveUnsafe/printQueue?viewName=my_view"
+curl "http://${JENKINS_URL}/simpleMoveUnsafe/printQueue?viewName=my_view"
 ```
 
 #### Using in scripts
@@ -332,11 +326,16 @@ curl --user username:apitoken \
 #!/bin/bash
 # Get the queue and process each job
 curl -s --user username:apitoken \
-  "http://${JENKINS_URL}/simpleMoveUnsafe/printQueue" | \
+  "http://${JENKINS_URL}/simpleMove/printQueue" | \
 while IFS= read -r job_name; do
   echo "Processing: $job_name"
   # Your processing logic here
 done
+```
+
+```bash
+curl "http://${JENKINS_URL}/simpleMoveUnsafe/printQueue" |  wc -l
+
 ```
 
 ### Security Considerations

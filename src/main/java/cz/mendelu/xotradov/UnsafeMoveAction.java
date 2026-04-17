@@ -46,4 +46,25 @@ public class UnsafeMoveAction extends MoveActionWorker implements RootAction {
             response.setStatus(StaplerResponse2.SC_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * Print the current queue as plaintext list (unsafe - no CSRF protection)
+     * @param request Stapler request from user
+     * @param response Stapler response send back to users browser
+     */
+    public void doPrintQueue(final StaplerRequest2 request, final StaplerResponse2 response) {
+        if (!SimpleQueueConfig.getInstance().isEnableUnsafe()) {
+            throw new IllegalArgumentException("Unsafe print queue api attempted without being enabled");
+        }
+        Jenkins j = Jenkins.get();
+        try {
+            Queue queue = j.getQueue();
+            if (queue != null) {
+                printQueueImpl(request, response, queue);
+            }
+        } catch (Exception e) {
+            logger.warning(e.toString());
+            response.setStatus(StaplerResponse2.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

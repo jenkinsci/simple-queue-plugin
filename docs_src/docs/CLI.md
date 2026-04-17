@@ -238,3 +238,94 @@ Because of the waterfall: number->match->regex(es), in addition with switches, a
   * Unlike original old `itemId` mode, item target is used also in `exact` match mode, and not only in regex mode.
 
 Strict api is currently not used, is considered as experimental, but  shoudl resolve any issue the versatile api may failedue to its number->match->regex(es) waterfall nature.
+
+## Print Queue API
+
+**Since 1.4.13**, a new API endpoint has been added to retrieve the current queue state as a plaintext list.
+
+### Overview
+
+The Print Queue API allows you to retrieve the current build queue as a simple plaintext list, with one job display name per line. This is useful for monitoring, scripting, or integration with external tools.
+
+### Endpoints
+
+#### Safe API (with CSRF protection)
+```
+POST http://${JENKINS_URL}/simpleMove/printQueue
+```
+- Requires POST method with CSRF token (crumb)
+- Requires `SIMPLE_QUEUE_MOVE_PERMISSION`
+
+#### Unsafe API (without CSRF protection)
+```
+GET/POST http://${JENKINS_URL}/simpleMoveUnsafe/printQueue
+```
+- Works with both GET and POST methods
+- No CSRF token required
+- Must be explicitly enabled in plugin configuration (`enableUnsafe`)
+
+### Parameters
+
+- **`buildable`** (optional): Controls which items to include in the output
+  - `true` or omitted (default): Shows only buildable items
+  - `false`: Shows all items in the queue (including blocked/waiting items)
+
+### Output Format
+
+The API returns a plaintext response with one job display name per line:
+```
+Project A
+Project B
+Project C
+```
+
+### Queue Order
+
+The API returns the **sorted queue** order, which reflects:
+- The current state after any manual reordering done through the Simple Queue plugin
+- The actual execution order that Jenkins will follow
+- All move operations (UP, DOWN, TOP, BOTTOM) that have been applied
+
+### Examples
+
+#### Get buildable items (default)
+```bash
+# Safe API (requires CSRF token)
+curl -X POST --user username:apitoken \
+  -H "Jenkins-Crumb: YOUR_CRUMB_HERE" \
+  "http://${JENKINS_URL}/simpleMove/printQueue"
+
+# Unsafe API (no CSRF token needed, must be enabled)
+curl --user username:apitoken \
+  "http://${JENKINS_URL}/simpleMoveUnsafe/printQueue"
+```
+
+#### Get all items (including non-buildable)
+```bash
+# Safe API
+curl -X POST --user username:apitoken \
+  -H "Jenkins-Crumb: YOUR_CRUMB_HERE" \
+  "http://${JENKINS_URL}/simpleMove/printQueue?buildable=false"
+
+# Unsafe API
+curl --user username:apitoken \
+  "http://${JENKINS_URL}/simpleMoveUnsafe/printQueue?buildable=false"
+```
+
+#### Using in scripts
+```bash
+#!/bin/bash
+# Get the queue and process each job
+curl -s --user username:apitoken \
+  "http://${JENKINS_URL}/simpleMoveUnsafe/printQueue" | \
+while IFS= read -r job_name; do
+  echo "Processing: $job_name"
+  # Your processing logic here
+done
+```
+
+### Security Considerations
+
+- The **safe API** (`/simpleMove/printQueue`) requires proper authentication and CSRF protection, making it suitable for web-based integrations
+- The **unsafe API** (`/simpleMoveUnsafe/printQueue`) bypasses CSRF protection for easier CLI/automation use, but must be explicitly enabled in the plugin configuration
+- Both APIs require appropriate Jenkins permissions

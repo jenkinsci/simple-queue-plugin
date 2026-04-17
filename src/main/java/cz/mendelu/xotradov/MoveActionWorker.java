@@ -1185,4 +1185,35 @@ public class MoveActionWorker {
     private void resort(Queue queue) {
         queue.getSorter().sortBuildableItems(queue.getBuildableItems());
     }
+
+    /**
+     * Print the current queue state as plaintext list
+     * @param request Stapler request from user
+     * @param response Stapler response to write the queue information
+     * @param queue The Jenkins queue
+     * @throws IOException if writing to response fails
+     */
+    protected void printQueueImpl(StaplerRequest2 request, StaplerResponse2 response, Queue queue) throws IOException {
+        response.setContentType("text/plain; charset=UTF-8");
+        response.setStatus(StaplerResponse2.SC_OK);
+        PrintWriter writer = response.getWriter();
+        
+        if (writer != null) {
+            String buildableParam = request.getParameter("buildable");
+            boolean onlyBuildable = buildableParam == null || !buildableParam.equalsIgnoreCase("false");
+            
+            Queue.Item[] queueItems = queue.getItems();
+            for (Queue.Item item : queueItems) {
+                if (item.task != null) {
+                    if (onlyBuildable) {
+                        if (item.isBuildable()) {
+                            writer.println(item.task.getDisplayName());
+                        }
+                    } else {
+                        writer.println(item.task.getDisplayName());
+                    }
+                }
+            }
+        }
+    }
 }

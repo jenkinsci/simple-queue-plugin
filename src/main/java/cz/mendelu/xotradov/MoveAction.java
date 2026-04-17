@@ -60,4 +60,27 @@ public class MoveAction extends MoveActionWorker implements RootAction {
             response.setStatus(StaplerResponse2.SC_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * Print the current queue as plaintext list
+     * @param request Stapler request from user
+     * @param response Stapler response send back to users browser
+     */
+    @RequirePOST
+    public void doPrintQueue(final StaplerRequest2 request, final StaplerResponse2 response) {
+        Jenkins j = Jenkins.get();
+        if (!j.hasPermission(PermissionHandler.SIMPLE_QUEUE_MOVE_PERMISSION)) {
+            response.setStatus(StaplerResponse2.SC_FORBIDDEN);
+            return;
+        }
+        try {
+            Queue queue = j.getQueue();
+            if (queue != null) {
+                printQueueImpl(request, response, queue);
+            }
+        } catch (Exception e) {
+            logger.warning(e.toString());
+            response.setStatus(StaplerResponse2.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

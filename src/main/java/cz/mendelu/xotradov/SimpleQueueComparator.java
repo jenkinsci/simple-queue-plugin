@@ -14,6 +14,10 @@ public class SimpleQueueComparator implements Comparator<Queue.BuildableItem> {
     private static Logger logger = Logger.getLogger(SimpleQueueComparator.class.getName());
     private Hashtable<Long, List<Long>> moveDesires = new Hashtable<>();
 
+    /** This flag indicates if any changes were made to the desires,
+     *  so whether SimpleQueueSorter should re-run or may skip work. */
+    private boolean changedDesires = true;
+
     private static class SimpleQueueComparatorHolder {
         static final SimpleQueueComparator INSTANCE = new SimpleQueueComparator();
     }
@@ -25,6 +29,7 @@ public class SimpleQueueComparator implements Comparator<Queue.BuildableItem> {
     public boolean hasDesiresFor(long key) {
         return moveDesires.containsKey(key);
     }
+
     /**
      * @return -1 when first is more important, 1 when second is more important, default 0
      */
@@ -48,44 +53,73 @@ public class SimpleQueueComparator implements Comparator<Queue.BuildableItem> {
     }
 
     /**
-     * Add desire of order relationship between two items. If is present vice versa relation, it is deleted.
+     * Add desire of order relationship between two items.
+     * If is present vice versa relation, it is deleted.
      * @param longA Id of desired more important item
      * @param longB Id of less important Queue.Item
      */
     public void addDesire(long longA, long longB) {
-        List<Long> bList;
-        if (!moveDesires.containsKey(longA)) {
-            bList = new ArrayList<>();
-            moveDesires.put(longA, bList);
-        } else {
-            bList = moveDesires.get(longA);
-        }
-        if (bList != null) {
-            if (bList.isEmpty()) {
-                bList.add(longB);
+        synchronized (this) {
+            List<Long> bList;
+            if (!moveDesires.containsKey(longA)) {
+                bList = new ArrayList<>();
+                moveDesires.put(longA, bList);
             } else {
-                if (!bList.contains(longB)) {
+                bList = moveDesires.get(longA);
+            }
+            if (bList != null) {
+                if (bList.isEmpty()) {
                     bList.add(longB);
+                } else {
+                    if (!bList.contains(longB)) {
+                        bList.add(longB);
+                    }
+                }
+                // Cleaning of previous order
+                List<Long> aList = moveDesires.get(longB);
+                if (aList != null && aList.contains(longA)) {
+                    aList.remove(longA);
+                    if (aList.isEmpty()) {
+                        moveDesires.remove(longB);
+                    }
                 }
             }
-            // Cleaning of previous order
-            List<Long> aList = moveDesires.get(longB);
-            if (aList != null && aList.contains(longA)) {
-                aList.remove(longA);
-                if (aList.isEmpty()) {
-                    moveDesires.remove(longB);
-                }
-            }
+            changedDesires = true;
         }
     }
 
     @VisibleForTesting
     public void removeDesireOfKey(long id) {
-        moveDesires.remove(id);
+        synchronized (this) {
+            moveDesires.remove(id);
+            changedDesires = true;
+        }
     }
 
     @VisibleForTesting
     public void resetDesires() {
-        moveDesires.clear();
+        synchronized (this) {
+            moveDesires.clear();
+            changedDesires = true;
+        }
+    }
+
+    /** Signal to {@link SimpleQueueSorter} that some changes
+     *  were made to the desires since the flag was last reset.
+     *  @return true if changes were made, false otherwise
+     * @see SimpleQueueSorter
+     * @see #resetChangedDesires()
+     */
+    public boolean hasChangedDesires() {
+        return changedDesires;
+    }
+
+    /** Reset the flag that indicates that changes were made
+     *  to the desires. Intended to be called by
+     *  {@link SimpleQueueSorter} after it re-processes the
+     *  actual queue.
+     */
+    public void resetChangedDesires() {
+        changedDesires = false;
     }
 }

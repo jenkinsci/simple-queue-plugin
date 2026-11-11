@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import hudson.model.Queue;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
@@ -23,9 +24,20 @@ public class SimpleQueueSorterTest {
     }
 
     private Queue.BuildableItem item(long id) {
+        return item(id, id * 10);
+    }
+
+    private Queue.BuildableItem item(long id, long buildableStart) {
         Queue.BuildableItem item = Mockito.mock(Queue.BuildableItem.class);
         when(item.getId()).thenReturn(id);
-        when(item.getInQueueSince()).thenReturn(100L - id);
+        try {
+            // Jenkins reads this final field directly, so a method stub has no effect.
+            Field started = Queue.NotWaitingItem.class.getField("buildableStartMilliseconds");
+            started.setAccessible(true);
+            started.setLong(item, buildableStart);
+        } catch (ReflectiveOperationException e) {
+            throw new AssertionError(e);
+        }
         return item;
     }
 
@@ -89,6 +101,49 @@ public class SimpleQueueSorterTest {
     }
 
     @Test
+    void keepsDownstreamItemsBehindTheirCyclicPredecessor() {
+        Queue.BuildableItem a = item(1);
+        Queue.BuildableItem b = item(2);
+        Queue.BuildableItem c = item(3);
+        Queue.BuildableItem d = item(4, 0);
+        List<Queue.BuildableItem> list = new ArrayList<>(List.of(d, a, b, c));
+        sorter.getSimpleQueueComparator().addDesire(a.getId(), b.getId());
+        sorter.getSimpleQueueComparator().addDesire(b.getId(), c.getId());
+        sorter.getSimpleQueueComparator().addDesire(c.getId(), a.getId());
+        sorter.getSimpleQueueComparator().addDesire(c.getId(), d.getId());
+
+        sorter.sortBuildableItems(list);
+
+        assertEquals(List.of(a, b, c, d), list);
+    }
+
+    @Test
+    void choosesEarliestUnblockedItemInAutomaticOrder() {
+        Queue.BuildableItem a = item(1);
+        Queue.BuildableItem b = item(2);
+        Queue.BuildableItem c = item(3);
+        List<Queue.BuildableItem> list = new ArrayList<>(List.of(c, b, a));
+        sorter.getSimpleQueueComparator().addDesire(c.getId(), a.getId());
+
+        sorter.sortBuildableItems(list);
+
+        // The unconstrained item b keeps its automatic priority over c.
+        assertEquals(List.of(b, c, a), list);
+    }
+
+    @Test
+    void restoresAutomaticOrderWhenThereAreNoDesires() {
+        Queue.BuildableItem a = item(1);
+        Queue.BuildableItem b = item(2);
+        Queue.BuildableItem c = item(3);
+        List<Queue.BuildableItem> list = new ArrayList<>(List.of(c, a, b));
+
+        sorter.sortBuildableItems(list);
+
+        assertEquals(List.of(a, b, c), list);
+    }
+
+    @Test
     void leavesInputIntactIfOriginalSorterFails() {
         List<Queue.BuildableItem> list = new ArrayList<>(List.of(item(1), item(2)));
         List<Queue.BuildableItem> original = new ArrayList<>(list);
@@ -106,18 +161,10 @@ public class SimpleQueueSorterTest {
     @Test
     public void sortBuildableItems() {
         List<Queue.BuildableItem> list = new ArrayList<>();
-        Queue.BuildableItem a = Mockito.mock(Queue.BuildableItem.class);
-        Queue.BuildableItem b = Mockito.mock(Queue.BuildableItem.class);
-        Queue.BuildableItem c = Mockito.mock(Queue.BuildableItem.class);
-        Queue.BuildableItem d = Mockito.mock(Queue.BuildableItem.class);
-        when(a.getId()).thenReturn(1L);
-        when(b.getId()).thenReturn(2L);
-        when(c.getId()).thenReturn(3L);
-        when(d.getId()).thenReturn(4L);
-        when(a.getInQueueSince()).thenReturn(100L);
-        when(b.getInQueueSince()).thenReturn(90L);
-        when(c.getInQueueSince()).thenReturn(80L);
-        when(d.getInQueueSince()).thenReturn(70L);
+        Queue.BuildableItem a = item(1);
+        Queue.BuildableItem b = item(2);
+        Queue.BuildableItem c = item(3);
+        Queue.BuildableItem d = item(4);
         list.add(a);
         list.add(b);
         list.add(c);

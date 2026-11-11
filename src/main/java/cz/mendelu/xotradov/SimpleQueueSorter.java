@@ -3,6 +3,7 @@ package cz.mendelu.xotradov;
 import hudson.model.Queue;
 import hudson.model.queue.QueueSorter;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.PriorityQueue;
@@ -82,13 +83,8 @@ public class SimpleQueueSorter extends QueueSorter {
         boolean[] emitted = new boolean[size];
         while (ordered.size() < size) {
             if (ready.isEmpty()) {
-                logger.warning("Cyclic Simple Queue desires; breaking at automatic-first item");
-                for (int i = 0; i < size; i++) {
-                    if (!emitted[i]) {
-                        ready.add(i);
-                        break;
-                    }
-                }
+                logger.warning("Cyclic Simple Queue desires; breaking at automatic-first cycle member");
+                ready.add(earliestCycleMember(successors, emitted));
             }
             int next = ready.remove();
             emitted[next] = true;
@@ -137,6 +133,35 @@ public class SimpleQueueSorter extends QueueSorter {
 
         // Follow up by applying our relative desire ordering:
         Collections.sort(list, simpleQueueComparator);
+    }
+
+    private int earliestCycleMember(List<List<Integer>> successors, boolean[] emitted) {
+        // This fallback is only used for cyclic desires. A downstream item may
+        // have higher automatic priority, but forcing it would break another edge.
+        for (int candidate = 0; candidate < emitted.length; candidate++) {
+            if (emitted[candidate]) {
+                continue;
+            }
+            boolean[] visited = new boolean[emitted.length];
+            ArrayDeque<Integer> pending = new ArrayDeque<>();
+            visited[candidate] = true;
+            pending.add(candidate);
+            while (!pending.isEmpty()) {
+                for (int after : successors.get(pending.remove())) {
+                    if (emitted[after]) {
+                        continue;
+                    }
+                    if (after == candidate) {
+                        return candidate;
+                    }
+                    if (!visited[after]) {
+                        visited[after] = true;
+                        pending.add(after);
+                    }
+                }
+            }
+        }
+        throw new IllegalStateException("No cycle in blocked Simple Queue desires");
     }
 
     public SimpleQueueComparator getSimpleQueueComparator() {

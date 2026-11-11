@@ -22,6 +22,12 @@ public class SimpleQueueComparator implements Comparator<Queue.BuildableItem> {
         return SimpleQueueComparatorHolder.INSTANCE;
     }
 
+    Map<Long, Set<Long>> snapshotDesires() {
+        Map<Long, Set<Long>> snapshot = new HashMap<>();
+        moveDesires.forEach((id, after) -> snapshot.put(id, new HashSet<>(after)));
+        return snapshot;
+    }
+
     public boolean hasDesiresFor(long key) {
         return moveDesires.containsKey(key);
     }

@@ -24,6 +24,8 @@ public class SimpleQueueComparator implements Comparator<Queue.BuildableItem> {
 
     Map<Long, Set<Long>> snapshotDesires() {
         Map<Long, Set<Long>> snapshot = new HashMap<>();
+        // ArrayList snapshots via toArray(), avoiding a live fail-fast iterator
+        // when a concurrent manual move changes the desire list.
         moveDesires.forEach((id, after) -> snapshot.put(id, new HashSet<>(new ArrayList<>(after))));
         return snapshot;
     }

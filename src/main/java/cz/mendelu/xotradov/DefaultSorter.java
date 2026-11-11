@@ -6,8 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * This imitates default jenkins sorter.
- * Has comparing from QueueSorter extension point which compares Items based on getInQueueSince().
+ * Uses Jenkins' default buildable-item priority, based on buildableStartMilliseconds.
  */
 public class DefaultSorter extends AbstractQueueSorterImpl implements Serializable {
     @Override

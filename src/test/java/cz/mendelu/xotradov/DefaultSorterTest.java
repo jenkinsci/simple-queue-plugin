@@ -22,6 +22,9 @@ public class DefaultSorterTest {
         when(a.getId()).thenReturn(1L);
         when(b.getId()).thenReturn(2L);
         when(c.getId()).thenReturn(3L);
+        // The sorter reads Jenkins' public final instance field directly, so
+        // stubbing getInQueueSince() cannot give these mocks distinct timestamps.
+        // Reflection is confined to test fixtures; production sorting is unchanged.
         Field started = Queue.NotWaitingItem.class.getField("buildableStartMilliseconds");
         started.setAccessible(true);
         started.setLong(a, 100L);

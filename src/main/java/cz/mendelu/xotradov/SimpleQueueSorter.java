@@ -32,8 +32,15 @@ public class SimpleQueueSorter extends QueueSorter {
         if (this.originalQueueSorter != null) {
             this.originalQueueSorter.sortBuildableItems(automatic);
         }
-        // Desires form a partial order, not a transitive Comparator. Snapshot
-        // the desires before choosing the earliest unblocked automatic item.
+        // Desires are precedence constraints, so use a topological order instead
+        // of SimpleQueueComparator.compare(), which returns 0 for unrelated items
+        // and cannot express their transitive order. The comparator now stores desires;
+        // its compare() method is not used to order this list.
+        // For example, automatic C A D B E with E before B and A becomes C D E A B;
+        // the old comparison sort could leave A ahead of E as C A D E B.
+        // The move actions add desires for intervening items so a manual move
+        // survives later automatic re-sorts. Choose the earliest unblocked item
+        // in automatic order to preserve priority among unconstrained items.
         int size = automatic.size();
         Map<Long, Integer> positions = new HashMap<>();
         List<List<Integer>> successors = new ArrayList<>(size);

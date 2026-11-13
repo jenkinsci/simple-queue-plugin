@@ -248,7 +248,7 @@ public class MoveActionWorker {
     protected Queue.Item findItemByName(Queue queue, String idParam, RegexWithParams params) {
         if (params == null) {
             for (Queue.Item item : queue.getItems()) {
-                if (item.isBuildable()) {
+                if (item.isBuildable() || item.isBlocked()) {
                     if (item.task != null && item.task.getDisplayName().equals(idParam)) {
                         return item;
                     }
@@ -256,7 +256,7 @@ public class MoveActionWorker {
             }
         } else {
             for (Queue.Item item : queue.getItems()) {
-                if (item.isBuildable() && item.task != null) {
+                if ((item.isBuildable() || item.isBlocked()) && item.task != null) {
                     if (params.isDisplayName()) {
                         if (params.isCaseInsensitive()) {
                             if (item.task.getDisplayName().equalsIgnoreCase(idParam)) {
@@ -305,7 +305,7 @@ public class MoveActionWorker {
     protected Queue.Item[] findItemsByPattern(Queue queue, Pattern idParamPattern, RegexWithParams rp) {
         List<Queue.Item> items = new ArrayList<>();
         for (Queue.Item item : queue.getItems()) {
-            if (item.isBuildable()) {
+            if (item.isBuildable() || item.isBlocked()) {
                 if (item.task != null) {
                     boolean matched = false;
                     if (rp.isDisplayName()) {

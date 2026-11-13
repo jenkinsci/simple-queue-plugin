@@ -10,7 +10,7 @@ import java.util.logging.Logger;
  * It stores all current desires - acts of will concerning order of build items.
  * @author Jaroslav Otradovec
  */
-public class SimpleQueueComparator implements Comparator<Queue.BuildableItem> {
+public class SimpleQueueComparator implements Comparator<Queue.Item> {
     private static Logger logger = Logger.getLogger(SimpleQueueComparator.class.getName());
     private Hashtable<Long, List<Long>> moveDesires = new Hashtable<>();
 
@@ -29,10 +29,10 @@ public class SimpleQueueComparator implements Comparator<Queue.BuildableItem> {
      * @return -1 when first is more important, 1 when second is more important, default 0
      */
     @Override
-    public int compare(Queue.BuildableItem buildableItem1, Queue.BuildableItem buildableItem2) {
-        if (isFirstItemOverSecond(buildableItem1.getId(), buildableItem2.getId())) {
+    public int compare(Queue.Item item1, Queue.Item item2) {
+        if (isFirstItemOverSecond(item1.getId(), item2.getId())) {
             return -1;
-        } else if (isFirstItemOverSecond(buildableItem2.getId(), buildableItem1.getId())) {
+        } else if (isFirstItemOverSecond(item2.getId(), item1.getId())) {
             return 1;
         } else {
             return 0;

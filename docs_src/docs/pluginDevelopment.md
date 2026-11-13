@@ -35,3 +35,103 @@ To see the documentation before publishing use 'pip install mkdocs-material' fol
 ![Sequence diagram](images/basicUsageSequence.png "Simple Queue screenshot")
 ![Sequence diagram](images/moveUpSequence.png "Simple Queue screenshot")
 ![Sequence diagram](images/resetSequence.png "Simple Queue screenshot")
+
+## Jenkins Queue overview
+
+> This plugin supports management of "Buildable Queue Items".
+
+What does this statement technically mean?
+
+### Jenkins queue architecture
+
+In Jenkins, `QueueItem` and `Queue.BuildableItem` represent
+different levels of specificity in the build queue:
+- The `QueueItem` is a general-purpose Java interface representing
+  an item in any stage of the Jenkins queue.
+- The `Queue.BuildableItem` is a concrete class (implementation)
+  representing an item that has passed the initial waiting period
+  and is eligible for execution, but is still waiting for an
+  available executor.
+- There are other implementations of this interface, see the
+  diagram below for standard ones.
+
+Jenkins queue items move through several stages:
+
+```
+              schedule()
+                  |
+                  v
+             WaitingItem
+            (quiet period)
+                  |
+                  v
+             BlockedItem
+           (cannot run yet)
+                  |
+                  v
+            BuildableItem
+       (ready, needs executor)
+                  |
+                  v
+               Pending
+        (assigned to executor)
+                  |
+                  v
+               Running
+(a Run may appear, QueueItem is removed)
+```
+
+Note one subtlety: Jenkins queue objects are snapshots of a
+particular stage in an item's lifecycle. An item may transition
+between stages while your code is inspecting it. The queue ID is
+designed to remain stable across those transitions, and even into
+the resulting `Run` (see `Run.getQueueId()`). That makes the
+`QueueItem.getId()` particularly useful for tracking a build
+across its lifecycle.
+
+Also note that if a job requires multiple stages with a `node`
+(or `agent` in Declarative), additional QueueItems appear named
+like "part of BUILD_NAME". In case of simultaneous independent
+runs, or `parallel` step used to run pipeline stages on different
+nodes at the same time, you can end up with multiple such queue
+items -- each with a separate priority that can be managed with
+this plugin, and with its own conditions evaluated to go from
+"buildable" to "running" (e.g. as executors on those nodes pick
+up a new piece of work).
+
+### Queue investigation and troubleshooting
+
+You can inspect the active queue using your Jenkins scripting console:
+```groovy
+import hudson.model.Queue
+import jenkins.model.Jenkins
+
+def now = System.currentTimeMillis()
+
+Jenkins.instance.queue.items.each { item ->
+    def age = (now - item.inQueueSince) / 1000
+
+    println """
+${item.task.fullDisplayName}
+  ID:        ${item.id}
+  Type:      ${item.class.name}
+  Age:       ${age}s
+  Blocked:   ${item.blocked}
+  Buildable: ${item.buildable}
+  Stuck:     ${item.stuck}
+  Why:       ${item.why}
+"""
+}
+```
+
+To monitor the time spent by objects in the queue, you could
+use existing metrics in the Metrics plugin, including
+`jenkins.task.blocked.duration`, `jenkins.task.buildable.duration`,
+`jenkins.task.waiting.duration` and `jenkins.task.queuing.duration`.
+
+Alternatively, you can dig through `QueueListener` callbacks
+exposed by Jenkins (e.g. if you suspect a systemic problem),
+including `onEnterWaiting`, `onLeaveWaiting`, `onEnterBlocked`,
+`onLeaveBlocked`, `onEnterBuildable` and `onLeaveBuildable` -- but
+this would probably require that you write a small plugin dedicated
+to this investigation.

@@ -154,6 +154,7 @@ For general authoritative reference, see:
 * https://javadoc.jenkins-ci.org/hudson/model/Queue.Item.html
 * https://javadoc.jenkins-ci.org/hudson/model/Queue.BlockedItem.html
 * https://javadoc.jenkins-ci.org/hudson/model/Queue.BuildableItem.html
+* https://javadoc.jenkins-ci.org/hudson/model/Queue.html
 * https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Comparator.html
 
 Given the different `QueueItem` family life cycles, Jenkins has dedicated
@@ -163,8 +164,15 @@ methods for stages they spend most time in.
 Jenkins has a special default queue item comparator,
 `QueueSorter.DEFAULT_BLOCKED_ITEM_COMPARATOR`, which sorts by time
 spent in the queue -- it compares Items based on `getInQueueSince()`
-and in turn according to `buildableStartMilliseconds` for items derived
-from https://javadoc.jenkins-ci.org/hudson/model/Queue.NotWaitingItem.html.
+and in turn according to `buildableStartMilliseconds` for items derived from
+[Queue.NotWaitingItem](https://javadoc.jenkins-ci.org/hudson/model/Queue.NotWaitingItem.html)
+class.
+
+This applies to collections of such classes as `BlockedItem` and `BuildableItem`
+stored in a `List`(-derived) class, but may not apply to different `QueueItem`
+family types, such as the `waitingList` which is actually backed by a `Set` in the
+[Queue](https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/model/Queue.java)
+class implementation.
 
 Jenkins allows to define extension points, including implementations
 of `QueueSorter`, which can be effectively stacked when multiple queue

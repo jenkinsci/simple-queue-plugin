@@ -30,17 +30,30 @@ public class SimpleQueueSorter extends QueueSorter {
     public void sortBuildableItems(List<Queue.BuildableItem> list) {
         List<Queue.BuildableItem> automatic = new ArrayList<>(list);
         if (this.originalQueueSorter != null) {
+            // Note: if DefaultSorter (usually is), we pre-sort by timestamps
+            // and then follow up below with desires for relative priorities
+            // of specific items.
             this.originalQueueSorter.sortBuildableItems(automatic);
         }
-        // Desires are precedence constraints, so use a topological order instead
-        // of SimpleQueueComparator.compare(), which returns 0 for unrelated items
-        // and cannot express their transitive order. The comparator now stores desires;
-        // its compare() method is not used to order this list.
-        // For example, automatic C A D B E with E before B and A becomes C D E A B;
-        // the old comparison sort could leave A ahead of E as C A D E B.
-        // The move actions add desires for intervening items so a manual move
-        // survives later automatic re-sorts. Choose the earliest unblocked item
-        // in automatic order to preserve priority among unconstrained items.
+        // Desires form a partial order, so the list is sorted topologically.
+        // SimpleQueueComparator stores the desires; its compare() method is not
+        // used for ordering because unrelated pairs compare as equal.
+        // The move*() actions add desires for intervening items so a manual move
+        // survives later automatic re-sorts and new queue arrivals. Example:
+        //   * list start: [C]3 [A]4 [D]5 [B]6 [E]7
+        //     (letters label items; numbers are their queue-item IDs)
+        //   * comparator desires, one: 7 (more important) => [6, 4]
+        //     so E must precede B and A.
+        //   * ready items have no unfulfilled predecessor; choose the first
+        //     ready item in the automatic order at each step:
+        //     * Ready: [C]3 [D]5 [E]7; choose [C]3.
+        //     * Ready: [D]5 [E]7; choose [D]5.
+        //     * Ready: [E]7; choose [E]7, fulfilling the desires for B and A.
+        //     * Ready: [A]4 [B]6; choose [A]4.
+        //     * Ready: [B]6; choose [B]6.
+        //   * result: [C]3 [D]5 [E]7 [A]4 [B]6
+        //     Both desires hold, including E before nonadjacent A. Items that
+        //     are ready together retain their relative automatic priority.
         int size = automatic.size();
         Map<Long, Integer> positions = new HashMap<>();
         List<List<Integer>> successors = new ArrayList<>(size);

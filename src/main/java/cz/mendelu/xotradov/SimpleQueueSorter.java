@@ -2,8 +2,13 @@ package cz.mendelu.xotradov;
 
 import hudson.model.Queue;
 import hudson.model.queue.QueueSorter;
-import java.util.Collections;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.PriorityQueue;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 
@@ -23,36 +28,109 @@ public class SimpleQueueSorter extends QueueSorter {
 
     @Override
     public void sortBuildableItems(List<Queue.BuildableItem> list) {
+        List<Queue.BuildableItem> automatic = new ArrayList<>(list);
         if (this.originalQueueSorter != null) {
             // Note: if DefaultSorter (usually is), we pre-sort by timestamps
             // and then follow up below with desires for relative priorities
             // of specific items.
-            this.originalQueueSorter.sortBuildableItems(list);
+            this.originalQueueSorter.sortBuildableItems(automatic);
         }
-        // Note: the sort() method does not compare everyone to everyone,
-        // it passes the list comparing nearby couples and only steps back
-        // a bit if some two (neighboring!) entries were swapped. Example:
+        // Desires form a partial order, so the list is sorted topologically.
+        // SimpleQueueComparator stores the desires; its compare() method is not
+        // used for ordering because unrelated pairs compare as equal.
+        // The move*() actions add desires for intervening items so a manual move
+        // survives later automatic re-sorts and new queue arrivals. Example:
         //   * list start: [C]3 [A]4 [D]5 [B]6 [E]7
+        //     (letters label items; numbers are their queue-item IDs)
         //   * comparator desires, one: 7 (more important) => [6, 4]
-        //     so E should move to the middle of the list, A and B to the right?..
-        //   * comparisons as traced in debugger (steps into the compare()
-        //     method and its two args):
-        //     * Round 1, starting with C A D B E:
-        //       * A, C => 0
-        //       * D, A => 0
-        //       * B, D => 0
-        //       * E, B => -1 (E more important)
-        //     * List swapped (E vs B)
-        //     * Round 2, proceeding with C A D E B
-        //       * E, D => 0
-        //       * E, B => -1
-        //     * No more swapping (correct order of E vs B already),
-        //     * List remains C A D E B
-        //   * Note that [E]7 was never compared to A[4], they were too far away
-        //     so the expected desire for C D E A B (nor C D E B A technically)
-        //     was not fulfilled UNTIL desires for A  vs. D and A vs. E got defined,
-        //     and the move*() methods for arrays got more complex that initially.
-        Collections.sort(list, simpleQueueComparator);
+        //     so E must precede B and A.
+        //   * ready items have no unfulfilled predecessor; choose the first
+        //     ready item in the automatic order at each step:
+        //     * Ready: [C]3 [D]5 [E]7; choose [C]3.
+        //     * Ready: [D]5 [E]7; choose [D]5.
+        //     * Ready: [E]7; choose [E]7, fulfilling the desires for B and A.
+        //     * Ready: [A]4 [B]6; choose [A]4.
+        //     * Ready: [B]6; choose [B]6.
+        //   * result: [C]3 [D]5 [E]7 [A]4 [B]6
+        //     Both desires hold, including E before nonadjacent A. Items that
+        //     are ready together retain their relative automatic priority.
+        int size = automatic.size();
+        Map<Long, Integer> positions = new HashMap<>();
+        List<List<Integer>> successors = new ArrayList<>(size);
+        int[] predecessors = new int[size];
+        for (int i = 0; i < size; i++) {
+            positions.put(automatic.get(i).getId(), i);
+            successors.add(new ArrayList<>());
+        }
+        Map<Long, Set<Long>> desires = simpleQueueComparator.snapshotDesires();
+        for (Map.Entry<Long, Set<Long>> desire : desires.entrySet()) {
+            Integer before = positions.get(desire.getKey());
+            if (before == null) {
+                continue;
+            }
+            for (Long id : desire.getValue()) {
+                Integer after = positions.get(id);
+                if (after != null && !after.equals(before)) {
+                    successors.get(before).add(after);
+                    predecessors[after]++;
+                }
+            }
+        }
+        PriorityQueue<Integer> ready = new PriorityQueue<>();
+        for (int i = 0; i < size; i++) {
+            if (predecessors[i] == 0) {
+                ready.add(i);
+            }
+        }
+        List<Queue.BuildableItem> ordered = new ArrayList<>(size);
+        boolean[] emitted = new boolean[size];
+        while (ordered.size() < size) {
+            if (ready.isEmpty()) {
+                logger.warning("Cyclic Simple Queue desires; breaking at automatic-first cycle member");
+                ready.add(earliestCycleMember(successors, emitted));
+            }
+            int next = ready.remove();
+            emitted[next] = true;
+            ordered.add(automatic.get(next));
+            for (int after : successors.get(next)) {
+                if (--predecessors[after] == 0 && !emitted[after]) {
+                    ready.add(after);
+                }
+            }
+        }
+        // Do not mutate Jenkins' live list until the full order is constructed.
+        for (int i = 0; i < size; i++) {
+            list.set(i, ordered.get(i));
+        }
+    }
+
+    private int earliestCycleMember(List<List<Integer>> successors, boolean[] emitted) {
+        // This fallback is only used for cyclic desires. A downstream item may
+        // have higher automatic priority, but forcing it would break another edge.
+        for (int candidate = 0; candidate < emitted.length; candidate++) {
+            if (emitted[candidate]) {
+                continue;
+            }
+            boolean[] visited = new boolean[emitted.length];
+            ArrayDeque<Integer> pending = new ArrayDeque<>();
+            visited[candidate] = true;
+            pending.add(candidate);
+            while (!pending.isEmpty()) {
+                for (int after : successors.get(pending.remove())) {
+                    if (emitted[after]) {
+                        continue;
+                    }
+                    if (after == candidate) {
+                        return candidate;
+                    }
+                    if (!visited[after]) {
+                        visited[after] = true;
+                        pending.add(after);
+                    }
+                }
+            }
+        }
+        throw new IllegalStateException("No cycle in blocked Simple Queue desires");
     }
 
     public SimpleQueueComparator getSimpleQueueComparator() {

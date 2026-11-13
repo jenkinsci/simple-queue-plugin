@@ -22,6 +22,16 @@ public class SimpleQueueComparator implements Comparator<Queue.BuildableItem> {
         return SimpleQueueComparatorHolder.INSTANCE;
     }
 
+    Map<Long, Set<Long>> snapshotDesires() {
+        Map<Long, Set<Long>> snapshot = new HashMap<>();
+        // ArrayList snapshots via toArray(), avoiding a live fail-fast iterator
+        // when a concurrent manual move changes the desire list. This is a
+        // best-effort copy, not an atomic snapshot across a compound move;
+        // atomicity requires writers and the snapshot to share one lock.
+        moveDesires.forEach((id, after) -> snapshot.put(id, new HashSet<>(new ArrayList<>(after))));
+        return snapshot;
+    }
+
     public boolean hasDesiresFor(long key) {
         return moveDesires.containsKey(key);
     }

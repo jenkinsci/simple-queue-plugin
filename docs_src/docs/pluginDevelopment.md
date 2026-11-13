@@ -166,6 +166,7 @@ spent in the queue -- it compares Items based on `getInQueueSince()`
 and in turn according to `buildableStartMilliseconds` for items derived
 from https://javadoc.jenkins-ci.org/hudson/model/Queue.NotWaitingItem.html.
 
-Jenkins allows to define extension points, including implementations of
-`QueueSorter`, which can be effectively stacked -- see `originalQueueSorter`
-in this plugin's implementation.
+Jenkins allows to define extension points, including implementations
+of `QueueSorter`, which can be effectively stacked when multiple queue
+sorting plugins are installed, as well as default behavior -- see the
+`originalQueueSorter` in this plugin's implementation.

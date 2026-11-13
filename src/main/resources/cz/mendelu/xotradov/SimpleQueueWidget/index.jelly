@@ -64,9 +64,11 @@
             <j:otherwise>
                 <j:forEach var="item" items="${items}">
                     <tr>
+                        <j:set var="buildable" value="${item.isBuildable()}"/>
+                        <j:set var="blocked" value="${item.isBlocked()}"/>
+                        <j:set var="stuck" value="${item.isStuck()}"/>
+                        <j:set var="stuckContent" value=""/>
                         <td class="pane" width="100%" style="white-space: normal;">
-                            <j:set var="stuck" value="${item.isStuck()}"/>
-                            <j:set var="stuckContent" value=""/>
                             <j:choose>
                                 <j:when test="${h.hasPermission(item.task,item.task.READ)}">
                                     <a href="${rootURL}/${item.task.url}" class="model-link inside tl-tr"
@@ -89,11 +91,14 @@
                         </td>
                         <td class="pane" align="center" valign="middle">
                           <j:out value="${stuckContent}"/>
+                          <j:if test="${blocked}">
+                              <l:icon src="symbol-pause plugin-ionicons-api" class="icon-sm" tooltip="${%This item is blocked and waiting for its conditions to clear: ${item.why}}"/>
+                          </j:if>
                         </td>
-                        <!-- start of normal button section-->
-                        <j:set var="buildable" value="${item.isBuildable()}"/>
+                        <!-- start of normal button section
+                             for items that we can manage -->
                         <td class="pane" align="center" valign="middle">
-                            <j:if test="${buildable and h.hasPermission(app.MANAGE)}">
+                            <j:if test="${(buildable or (blocked and !stuck)) and h.hasPermission(app.MANAGE)}">
                               <div class="simple-queue-buttons">
                                   <j:if test="${filtered}">
                                       <a href="#" class="simple-move-link" data-move-type="TOP" data-item-id="${item.id}"

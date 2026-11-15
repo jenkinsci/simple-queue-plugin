@@ -178,3 +178,55 @@ Jenkins allows to define extension points, including implementations
 of `QueueSorter`, which can be effectively stacked when multiple queue
 sorting plugins are installed, as well as default behavior -- see the
 `originalQueueSorter` in this plugin's implementation.
+
+## Manual queue ordering
+
+The previously registered sorter establishes the automatic order, usually by queue
+entry timestamps. Manual moves record desires for the items they move past. These
+desires form a partial order: an item may need to precede another without having a
+preference relative to every other item.
+
+`SimpleQueueSorter.sortBuildableItems()` applies those desires with a topological sort. At each step it
+chooses the earliest item in automatic order whose predecessors have already been
+emitted. `SimpleQueueComparator` stores the desires; its `compare()` method is not
+used to order the buildable queue. The blocked-item and mixed-list sorting paths
+added in #41 continue to use the comparator.
+
+For automatic order `[C]3 [A]4 [D]5 [B]6 [E]7` and desire `7 => [6, 4]`, E must
+precede B and A. The ready items initially are C, D and E. Selecting C, then D,
+then E makes A and B ready, giving `[C]3 [D]5 [E]7 [A]4 [B]6`. Items that are
+ready together retain their relative automatic priority. Contradictory desires
+are best-effort: if no item is ready, the earliest automatic-order item actually
+on a cycle is emitted to break that cycle.
+
+### Original comparator trace
+
+The following explanation is preserved verbatim from the former comparator-based
+sorter. It documents the nonadjacent-desire bug fixed by the topological sort
+above; it is not a trace of the current algorithm.
+
+```text
+Note: the sort() method does not compare everyone to everyone,
+it passes the list comparing nearby couples and only steps back
+a bit if some two (neighboring!) entries were swapped. Example:
+  * list start: [C]3 [A]4 [D]5 [B]6 [E]7
+  * comparator desires, one: 7 (more important) => [6, 4]
+    so E should move to the middle of the list, A and B to the right?..
+  * comparisons as traced in debugger (steps into the compare()
+    method and its two args):
+    * Round 1, starting with C A D B E:
+      * A, C => 0
+      * D, A => 0
+      * B, D => 0
+      * E, B => -1 (E more important)
+    * List swapped (E vs B)
+    * Round 2, proceeding with C A D E B
+      * E, D => 0
+      * E, B => -1
+    * No more swapping (correct order of E vs B already),
+    * List remains C A D E B
+  * Note that [E]7 was never compared to A[4], they were too far away
+    so the expected desire for C D E A B (nor C D E B A technically)
+    was not fulfilled UNTIL desires for A  vs. D and A vs. E got defined,
+    and the move*() methods for arrays got more complex that initially.
+```

@@ -53,6 +53,7 @@ public class SimpleQueueSorter extends QueueSorter {
             this.originalQueueSorter.sortBuildableItems(automatic);
         }
         // Desires form a partial order, so the list is sorted topologically.
+        // The original comparator trace is preserved in docs_src/docs/pluginDevelopment.md.
         // SimpleQueueComparator stores the desires; its compare() method is not
         // used for ordering because unrelated pairs compare as equal.
         // The move*() actions add desires for intervening items so a manual move

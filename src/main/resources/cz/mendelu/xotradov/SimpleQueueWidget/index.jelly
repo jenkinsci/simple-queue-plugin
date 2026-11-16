@@ -92,7 +92,7 @@
                         <td class="pane" align="center" valign="middle">
                           <j:out value="${stuckContent}"/>
                           <j:if test="${blocked}">
-                              <l:icon src="symbol-pause plugin-ionicons-api" class="icon-sm" tooltip="${%This item is blocked and waiting for its conditions to clear: ${item.why}}"/>
+                              <l:icon src="symbol-pause plugin-ionicons-api" class="icon-sm" tooltip="${%This item is blocked and waiting for its conditions to clear}: ${item.why}"/>
                           </j:if>
                         </td>
                         <!-- start of normal button section

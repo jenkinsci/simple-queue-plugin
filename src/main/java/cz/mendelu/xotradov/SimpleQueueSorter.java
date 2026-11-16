@@ -2,10 +2,13 @@ package cz.mendelu.xotradov;
 
 import hudson.model.Queue;
 import hudson.model.queue.QueueSorter;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
+import jenkins.model.queue.QueueItem;
 
 /**
  * The new sorter of Simple Queue plugin, based on sysadmin desires
@@ -74,6 +77,32 @@ public class SimpleQueueSorter extends QueueSorter {
         if (this.originalQueueSorter != null) {
             this.originalQueueSorter.sortBlockedItems(list);
         }
+        Collections.sort(list, simpleQueueComparator);
+    }
+
+    /** Extension of this class over {@link QueueSorter}: a way to sort any
+     *  {@link Queue.NotWaitingItem} (e.g. covering both {@link Queue.BlockedItem}
+     *  and {@link Queue.BuildableItem}) in the same space of priority desires.
+     */
+    public void sortNotWaitingItems(List<Queue.NotWaitingItem> list) {
+        if (this.originalQueueSorter != null) {
+            List<Queue.BlockedItem> listBlocked = new ArrayList<>();
+            List<Queue.BuildableItem> listBuildable = new ArrayList<>();
+            for (QueueItem i : list) {
+                if (i == null)
+                    continue;
+                if (i instanceof Queue.BlockedItem)
+                    listBlocked.add((Queue.BlockedItem)i);
+                if (i instanceof Queue.BuildableItem) {
+                    listBuildable.add((Queue.BuildableItem)i);
+                }
+            }
+
+            this.originalQueueSorter.sortBlockedItems(listBlocked);
+            this.originalQueueSorter.sortBuildableItems(listBuildable);
+        }
+
+        // Follow up by applying our relative desire ordering:
         Collections.sort(list, simpleQueueComparator);
     }
 

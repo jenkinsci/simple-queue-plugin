@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import jenkins.model.Jenkins;
+import jenkins.model.queue.QueueItem;
 import net.sf.json.JSONObject;
 import org.jspecify.annotations.Nullable;
 import org.kohsuke.stapler.StaplerRequest2;
@@ -1183,7 +1184,30 @@ public class MoveActionWorker {
     }
 
     private void resort(Queue queue) {
-        queue.getSorter().sortBuildableItems(queue.getBuildableItems());
+        QueueSorter currentQueueSorter = queue.getSorter();
+        if (currentQueueSorter == null)
+            return;
+
+        // Queue.getBlockedItems() is "protected" :\
+        if (currentQueueSorter instanceof SimpleQueueSorter) {
+            // Our class can cover both in the same priority space
+            List<Queue.NotWaitingItem> snapshotBlockedAndBuildableItems = new ArrayList<>();
+            for (QueueItem i : queue.getItems()) {
+                if (i != null && (i instanceof Queue.BlockedItem || i instanceof Queue.BuildableItem)) {
+                    snapshotBlockedAndBuildableItems.add((Queue.NotWaitingItem)i);
+                }
+            }
+            ((SimpleQueueSorter)currentQueueSorter).sortNotWaitingItems(snapshotBlockedAndBuildableItems);
+        } else {
+            List<Queue.BlockedItem> snapshotBlockedItems = new ArrayList<>();
+            for (QueueItem i : queue.getItems()) {
+                if (i != null && i instanceof Queue.BlockedItem) {
+                    snapshotBlockedItems.add((Queue.BlockedItem)i);
+                }
+            }
+            queue.getSorter().sortBlockedItems(snapshotBlockedItems);
+            queue.getSorter().sortBuildableItems(queue.getBuildableItems());
+        }
     }
 
     /**

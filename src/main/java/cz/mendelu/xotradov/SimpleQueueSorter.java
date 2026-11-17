@@ -32,6 +32,7 @@ public class SimpleQueueSorter extends QueueSorter {
     private static Logger logger = Logger.getLogger(SimpleQueueSorter.class.getName());
     private final QueueSorter originalQueueSorter;
     private final SimpleQueueComparator simpleQueueComparator;
+    private final transient List<Queue.BuildableItem> listPrevious = new ArrayList<>();
 
     public SimpleQueueSorter(QueueSorter originalQueueSorter) {
         this.originalQueueSorter = originalQueueSorter;
@@ -40,12 +41,17 @@ public class SimpleQueueSorter extends QueueSorter {
 
     @Override
     public void sortBuildableItems(List<Queue.BuildableItem> list) {
+        // Avoid unnecessary sorting if nothing changed since last round:
+        // same items in same order
+        if (!(simpleQueueComparator.hasChangedDesires()) && list.equals(listPrevious)) return;
+
         if (this.originalQueueSorter != null) {
             // Note: if DefaultSorter (usually is), we pre-sort by timestamps
             // and then follow up below with desires for relative priorities
             // of specific items.
             this.originalQueueSorter.sortBuildableItems(list);
         }
+
         // Note: the sort() method does not compare everyone to everyone,
         // it passes the list comparing nearby couples and only steps back
         // a bit if some two (neighboring!) entries were swapped. Example:
@@ -70,6 +76,10 @@ public class SimpleQueueSorter extends QueueSorter {
         //     was not fulfilled UNTIL desires for A  vs. D and A vs. E got defined,
         //     and the move*() methods for arrays got more complex that initially.
         Collections.sort(list, simpleQueueComparator);
+        simpleQueueComparator.resetChangedDesires();
+
+        listPrevious.clear();
+        listPrevious.addAll(list);
     }
 
     @Override
@@ -111,6 +121,9 @@ public class SimpleQueueSorter extends QueueSorter {
     }
 
     void reset() {
+        // NOTE: This logic is not "synchronized(simpleQueueComparator)"
+        // to avoid deadlocks with methods it calls which sync on that.
+        listPrevious.clear();
         simpleQueueComparator.resetDesires();
         sortBuildableItems(Jenkins.get().getQueue().getBuildableItems());
         Queue.getInstance().maintain();

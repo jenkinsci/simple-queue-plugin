@@ -88,6 +88,32 @@ public class SimpleQueueWidget extends Widget {
         return MoveAction.ITEM_ID_EXT_PARAM_TARGET;
     }
 
+    /**
+     * Helper for Jelly templates: checks whether the given queue item is a WaitingItem
+     * (waiting for its quiet period to pass). Jelly does not support {@code instanceof},
+     * so this method performs the type check in Java.
+     *
+     * @param item the queue item to check
+     * @return true if the item is a {@link Queue.WaitingItem}
+     */
+    @SuppressWarnings("unused") // jelly
+    public static boolean isWaiting(QueueItem item) {
+        return item instanceof Queue.WaitingItem;
+    }
+
+    /**
+     * Helper for Jelly templates: checks whether the given queue item is pending
+     * (assigned to an executor, about to start). Only BuildableItem subclasses can
+     * be pending, so this safely returns false for non-BuildableItem types.
+     *
+     * @param item the queue item to check
+     * @return true if the item is a pending BuildableItem
+     */
+    @SuppressWarnings("unused") // jelly
+    public static boolean isPending(QueueItem item) {
+        return item instanceof Queue.BuildableItem && ((Queue.BuildableItem) item).isPending();
+    }
+
     @Extension(ordinal = 100)
     public static final class ViewFactoryImpl extends WidgetFactory<View, SimpleQueueWidget> {
         @Override

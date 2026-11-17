@@ -67,6 +67,8 @@
                         <j:set var="buildable" value="${item.isBuildable()}"/>
                         <j:set var="blocked" value="${item.isBlocked()}"/>
                         <j:set var="stuck" value="${item.isStuck()}"/>
+                        <j:set var="pending" value="${it.isPending(item)}"/>
+                        <j:set var="waiting" value="${it.isWaiting(item)}"/>
                         <j:set var="stuckContent" value=""/>
                         <td class="pane" width="100%" style="white-space: normal;">
                             <j:choose>
@@ -91,8 +93,14 @@
                         </td>
                         <td class="pane" align="center" valign="middle">
                           <j:out value="${stuckContent}"/>
+                          <j:if test="${waiting}">
+                              <l:icon src="symbol-time-outline plugin-ionicons-api" class="icon-sm" tooltip="${%This item is waiting for its quiet period to pass}: \n ${item.why}"/>
+                          </j:if>
                           <j:if test="${blocked}">
-                              <l:icon src="symbol-pause plugin-ionicons-api" class="icon-sm" tooltip="${%This item is blocked and waiting for its conditions to clear}: ${item.why}"/>
+                              <l:icon src="symbol-pause-outline plugin-ionicons-api" class="icon-sm" tooltip="${%This item is blocked and waiting for its conditions to clear before it becomes buildable}: \n ${item.why}"/>
+                          </j:if>
+                          <j:if test="${pending}">
+                              <l:icon src="symbol-play-outline plugin-ionicons-api" class="icon-sm" tooltip="${%This item is pending - a buildable about to start on an assigned executor}: \n ${item.why}"/>
                           </j:if>
                         </td>
                         <!-- start of normal button section

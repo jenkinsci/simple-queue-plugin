@@ -28,10 +28,19 @@ public class SimpleQueueSorterTest {
     }
 
     private Queue.BuildableItem item(long id, long buildableStart) {
-        Queue.BuildableItem item = Mockito.mock(Queue.BuildableItem.class);
+        return item(Queue.BuildableItem.class, id, buildableStart);
+    }
+
+    private Queue.BlockedItem blocked(long id) {
+        return item(Queue.BlockedItem.class, id, id * 10);
+    }
+
+    private <T extends Queue.NotWaitingItem> T item(Class<T> kind, long id, long buildableStart) {
+        T item = Mockito.mock(kind);
         when(item.getId()).thenReturn(id);
+        when(item.getInQueueSince()).thenReturn(buildableStart);
         try {
-            // Jenkins reads this final field directly, so a method stub has no effect.
+            // Jenkins' buildable sorter reads this final field directly.
             Field started = Queue.NotWaitingItem.class.getField("buildableStartMilliseconds");
             started.setAccessible(true);
             started.setLong(item, buildableStart);
@@ -180,6 +189,172 @@ public class SimpleQueueSorterTest {
             }
         });
         assertThrows(IllegalStateException.class, () -> failing.sortBuildableItems(list));
+        assertEquals(original, list);
+    }
+
+    @Test
+    void preservesBlockedPrecedenceThroughSortsAndArrivals() {
+        Queue.BlockedItem a = blocked(1);
+        Queue.BlockedItem b = blocked(2);
+        Queue.BlockedItem c = blocked(3);
+        Queue.BlockedItem d = blocked(4);
+        Queue.BlockedItem e = blocked(5);
+        List<Queue.BlockedItem> list = new ArrayList<>(List.of(a, b, c, d, e));
+        sorter.getSimpleQueueComparator().addDesire(e.getId(), b.getId());
+        sorter.getSimpleQueueComparator().addDesire(e.getId(), d.getId());
+
+        sorter.sortBlockedItems(list);
+        assertEquals(List.of(a, c, e, b, d), list);
+        sorter.sortBlockedItems(list);
+        assertEquals(List.of(a, c, e, b, d), list);
+
+        Queue.BlockedItem arrival = blocked(6);
+        list.add(arrival);
+        sorter.sortBlockedItems(list);
+        assertEquals(List.of(a, c, e, b, d, arrival), list);
+    }
+
+    @Test
+    void keepsBlockedItemsBehindTheirCyclicPredecessor() {
+        Queue.BlockedItem a = blocked(1);
+        Queue.BlockedItem b = blocked(2);
+        Queue.BlockedItem c = blocked(3);
+        Queue.BlockedItem d = item(Queue.BlockedItem.class, 4, 0);
+        List<Queue.BlockedItem> list = new ArrayList<>(List.of(d, a, b, c));
+        sorter.getSimpleQueueComparator().addDesire(a.getId(), b.getId());
+        sorter.getSimpleQueueComparator().addDesire(b.getId(), c.getId());
+        sorter.getSimpleQueueComparator().addDesire(c.getId(), a.getId());
+        sorter.getSimpleQueueComparator().addDesire(c.getId(), d.getId());
+
+        sorter.sortBlockedItems(list);
+
+        assertEquals(List.of(a, b, c, d), list);
+    }
+
+    @Test
+    void preservesMixedPrecedenceThroughSortsAndArrivals() {
+        Queue.NotWaitingItem a = blocked(1);
+        Queue.NotWaitingItem b = item(2);
+        Queue.NotWaitingItem c = blocked(3);
+        Queue.NotWaitingItem d = item(4);
+        Queue.NotWaitingItem e = blocked(5);
+        List<Queue.NotWaitingItem> list = new ArrayList<>(List.of(a, b, c, d, e));
+        sorter.getSimpleQueueComparator().addDesire(e.getId(), b.getId());
+        sorter.getSimpleQueueComparator().addDesire(e.getId(), d.getId());
+
+        sorter.sortNotWaitingItems(list);
+        assertEquals(List.of(a, c, e, b, d), list);
+        sorter.sortNotWaitingItems(list);
+        assertEquals(List.of(a, c, e, b, d), list);
+
+        Queue.NotWaitingItem arrival = item(6);
+        list.add(arrival);
+        sorter.sortNotWaitingItems(list);
+        assertEquals(List.of(a, c, e, b, d, arrival), list);
+    }
+
+    @Test
+    void followsMixedTransitiveDesiresAndIgnoresStaleAndSelfEdges() {
+        Queue.NotWaitingItem a = blocked(1);
+        Queue.NotWaitingItem b = item(2);
+        Queue.NotWaitingItem c = blocked(3);
+        List<Queue.NotWaitingItem> list = new ArrayList<>(List.of(a, b, c));
+        sorter.getSimpleQueueComparator().addDesire(c.getId(), a.getId());
+        sorter.getSimpleQueueComparator().addDesire(b.getId(), c.getId());
+        sorter.getSimpleQueueComparator().addDesire(99, b.getId());
+        sorter.getSimpleQueueComparator().addDesire(a.getId(), 99);
+        sorter.getSimpleQueueComparator().addDesire(c.getId(), c.getId());
+
+        sorter.sortNotWaitingItems(list);
+
+        assertEquals(List.of(b, c, a), list);
+    }
+
+    @Test
+    void keepsMixedItemsBehindTheirCyclicPredecessor() {
+        Queue.NotWaitingItem a = blocked(1);
+        Queue.NotWaitingItem b = item(2);
+        Queue.NotWaitingItem c = blocked(3);
+        Queue.NotWaitingItem d = item(4, 0);
+        List<Queue.NotWaitingItem> list = new ArrayList<>(List.of(d, a, b, c));
+        SimpleQueueSorter mixed = new SimpleQueueSorter(null);
+        mixed.getSimpleQueueComparator().addDesire(a.getId(), b.getId());
+        mixed.getSimpleQueueComparator().addDesire(b.getId(), c.getId());
+        mixed.getSimpleQueueComparator().addDesire(c.getId(), a.getId());
+        mixed.getSimpleQueueComparator().addDesire(c.getId(), d.getId());
+
+        mixed.sortNotWaitingItems(list);
+
+        assertEquals(List.of(a, b, c, d), list);
+    }
+
+    @Test
+    void composesMixedSortersWithinOriginalKindSlotsBeforeApplyingDesires() {
+        Queue.NotWaitingItem a = item(1);
+        Queue.NotWaitingItem b = blocked(2);
+        Queue.NotWaitingItem c = item(3);
+        Queue.NotWaitingItem d = blocked(4);
+        Queue.NotWaitingItem e = item(5);
+        List<Queue.NotWaitingItem> list = new ArrayList<>(List.of(a, b, c, d, e));
+        SimpleQueueSorter mixed = new SimpleQueueSorter(new hudson.model.queue.QueueSorter() {
+            @Override
+            public void sortBuildableItems(List<Queue.BuildableItem> items) {
+                items.sort((first, second) -> Long.compare(second.getId(), first.getId()));
+            }
+
+            @Override
+            public void sortBlockedItems(List<Queue.BlockedItem> items) {
+                items.sort((first, second) -> Long.compare(second.getId(), first.getId()));
+            }
+        });
+
+        mixed.sortNotWaitingItems(list);
+        assertEquals(List.of(e, d, c, b, a), list);
+
+        mixed.getSimpleQueueComparator().addDesire(a.getId(), c.getId());
+        mixed.getSimpleQueueComparator().addDesire(a.getId(), e.getId());
+        mixed.sortNotWaitingItems(list);
+
+        assertEquals(List.of(d, b, a, e, c), list);
+    }
+
+    @Test
+    void leavesBlockedInputIntactIfOriginalSorterFails() {
+        List<Queue.BlockedItem> list = new ArrayList<>(List.of(blocked(1), blocked(2)));
+        List<Queue.BlockedItem> original = new ArrayList<>(list);
+        SimpleQueueSorter failing = new SimpleQueueSorter(new hudson.model.queue.QueueSorter() {
+            @Override
+            public void sortBuildableItems(List<Queue.BuildableItem> items) {}
+
+            @Override
+            public void sortBlockedItems(List<Queue.BlockedItem> items) {
+                items.clear();
+                throw new IllegalStateException("sort failed");
+            }
+        });
+
+        assertThrows(IllegalStateException.class, () -> failing.sortBlockedItems(list));
+        assertEquals(original, list);
+    }
+
+    @Test
+    void leavesMixedInputIntactIfOriginalSorterFails() {
+        List<Queue.NotWaitingItem> list = new ArrayList<>(List.of(item(1), blocked(2), item(3)));
+        List<Queue.NotWaitingItem> original = new ArrayList<>(list);
+        SimpleQueueSorter failing = new SimpleQueueSorter(new hudson.model.queue.QueueSorter() {
+            @Override
+            public void sortBuildableItems(List<Queue.BuildableItem> items) {
+                items.clear();
+                throw new IllegalStateException("sort failed");
+            }
+
+            @Override
+            public void sortBlockedItems(List<Queue.BlockedItem> items) {
+                items.clear();
+            }
+        });
+
+        assertThrows(IllegalStateException.class, () -> failing.sortNotWaitingItems(list));
         assertEquals(original, list);
     }
 

@@ -186,11 +186,11 @@ entry timestamps. Manual moves record desires for the items they move past. Thes
 desires form a partial order: an item may need to precede another without having a
 preference relative to every other item.
 
-`SimpleQueueSorter.sortBuildableItems()` applies those desires with a topological sort. At each step it
+`SimpleQueueSorter` applies those desires with one shared topological sort for
+buildable, blocked and mixed not-waiting lists. At each step it
 chooses the earliest item in automatic order whose predecessors have already been
 emitted. `SimpleQueueComparator` stores the desires; its `compare()` method is not
-used to order the buildable queue. The blocked-item and mixed-list sorting paths
-added in #41 continue to use the comparator.
+used to order these lists.
 
 For automatic order `[C]3 [A]4 [D]5 [B]6 [E]7` and desire `7 => [6, 4]`, E must
 precede B and A. The ready items initially are C, D and E. Selecting C, then D,
@@ -199,9 +199,12 @@ ready together retain their relative automatic priority. Contradictory desires
 are best-effort: if no item is ready, the earliest automatic-order item actually
 on a cycle is emitted to break that cycle.
 
-The previous sorter's result is the input priority for this buildable-item pass;
-manual desires constrain that result. This does not guarantee the final order if
-another plugin subsequently replaces the active sorter or changes the list.
+The previous sorter's result is the input priority for each pass; manual desires
+constrain that result. For mixed lists, its blocked and buildable results are
+placed back into the original slots of each kind before applying desires across
+kinds. Jenkins does not provide a previous-sorter method for mixed lists. This
+does not guarantee the final order if another plugin subsequently replaces the
+active sorter or changes the list.
 
 ### Original comparator trace
 

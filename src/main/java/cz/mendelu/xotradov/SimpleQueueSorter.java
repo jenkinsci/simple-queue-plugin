@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
-import jenkins.model.queue.QueueItem;
 
 /**
  * The new sorter of Simple Queue plugin, based on sysadmin desires
@@ -52,6 +51,53 @@ public class SimpleQueueSorter extends QueueSorter {
             // of specific items.
             this.originalQueueSorter.sortBuildableItems(automatic);
         }
+        Collections.copy(list, orderByDesires(automatic));
+    }
+
+    @Override
+    public void sortBlockedItems(List<Queue.BlockedItem> list) {
+        List<Queue.BlockedItem> automatic = new ArrayList<>(list);
+        if (this.originalQueueSorter != null) {
+            this.originalQueueSorter.sortBlockedItems(automatic);
+        }
+        Collections.copy(list, orderByDesires(automatic));
+    }
+
+    /** Extension of this class over {@link QueueSorter}: a way to sort any
+     *  {@link Queue.NotWaitingItem} (e.g. covering both {@link Queue.BlockedItem}
+     *  and {@link Queue.BuildableItem}) in the same space of priority desires.
+     */
+    public void sortNotWaitingItems(List<Queue.NotWaitingItem> list) {
+        List<Queue.NotWaitingItem> automatic = new ArrayList<>(list);
+        if (this.originalQueueSorter != null) {
+            List<Queue.BlockedItem> blocked = new ArrayList<>();
+            List<Queue.BuildableItem> buildable = new ArrayList<>();
+            for (Queue.NotWaitingItem item : automatic) {
+                if (item instanceof Queue.BlockedItem blockedItem) {
+                    blocked.add(blockedItem);
+                } else if (item instanceof Queue.BuildableItem buildableItem) {
+                    buildable.add(buildableItem);
+                }
+            }
+            this.originalQueueSorter.sortBlockedItems(blocked);
+            this.originalQueueSorter.sortBuildableItems(buildable);
+
+            // The previous sorter orders each kind separately. Retain the mixed
+            // kind slots while reflecting those orders into the shared priority.
+            int blockedIndex = 0;
+            int buildableIndex = 0;
+            for (int i = 0; i < automatic.size(); i++) {
+                if (automatic.get(i) instanceof Queue.BlockedItem) {
+                    automatic.set(i, blocked.get(blockedIndex++));
+                } else if (automatic.get(i) instanceof Queue.BuildableItem) {
+                    automatic.set(i, buildable.get(buildableIndex++));
+                }
+            }
+        }
+        Collections.copy(list, orderByDesires(automatic));
+    }
+
+    private <T extends Queue.Item> List<T> orderByDesires(List<T> automatic) {
         // Desires form a partial order, so the list is sorted topologically.
         // The original comparator trace is preserved in docs_src/docs/pluginDevelopment.md.
         // SimpleQueueComparator stores the desires; its compare() method is not
@@ -100,7 +146,7 @@ public class SimpleQueueSorter extends QueueSorter {
                 ready.add(i);
             }
         }
-        List<Queue.BuildableItem> ordered = new ArrayList<>(size);
+        List<T> ordered = new ArrayList<>(size);
         boolean[] emitted = new boolean[size];
         while (ordered.size() < size) {
             if (ready.isEmpty()) {
@@ -116,44 +162,8 @@ public class SimpleQueueSorter extends QueueSorter {
                 }
             }
         }
-        // Do not mutate Jenkins' live list until the full order is constructed.
-        for (int i = 0; i < size; i++) {
-            list.set(i, ordered.get(i));
-        }
-    }
-
-    @Override
-    public void sortBlockedItems(List<Queue.BlockedItem> list) {
-        if (this.originalQueueSorter != null) {
-            this.originalQueueSorter.sortBlockedItems(list);
-        }
-        Collections.sort(list, simpleQueueComparator);
-    }
-
-    /** Extension of this class over {@link QueueSorter}: a way to sort any
-     *  {@link Queue.NotWaitingItem} (e.g. covering both {@link Queue.BlockedItem}
-     *  and {@link Queue.BuildableItem}) in the same space of priority desires.
-     */
-    public void sortNotWaitingItems(List<Queue.NotWaitingItem> list) {
-        if (this.originalQueueSorter != null) {
-            List<Queue.BlockedItem> listBlocked = new ArrayList<>();
-            List<Queue.BuildableItem> listBuildable = new ArrayList<>();
-            for (QueueItem i : list) {
-                if (i == null)
-                    continue;
-                if (i instanceof Queue.BlockedItem)
-                    listBlocked.add((Queue.BlockedItem)i);
-                if (i instanceof Queue.BuildableItem) {
-                    listBuildable.add((Queue.BuildableItem)i);
-                }
-            }
-
-            this.originalQueueSorter.sortBlockedItems(listBlocked);
-            this.originalQueueSorter.sortBuildableItems(listBuildable);
-        }
-
-        // Follow up by applying our relative desire ordering:
-        Collections.sort(list, simpleQueueComparator);
+        // Callers write back only after the full order has been constructed.
+        return ordered;
     }
 
     private int earliestCycleMember(List<List<Integer>> successors, boolean[] emitted) {

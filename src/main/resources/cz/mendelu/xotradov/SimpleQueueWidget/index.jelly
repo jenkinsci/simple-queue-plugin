@@ -80,7 +80,9 @@
                                     </a>
                                     <j:if test="${stuck}">
                                         <j:set var="stuckContent">
-                                            <a href="https://jenkins.io/redirect/troubleshooting/executor-starvation" target="_blank">
+                                            <a href="https://jenkins.io/redirect/troubleshooting/executor-starvation"
+                                               tooltip="${%Executor Starvation: suitable build agents are offline or overwhelmed}"
+                                               target="_blank">
                                                 <l:icon class="icon-hourglass icon-sm"/>
                                             </a>
                                         </j:set>

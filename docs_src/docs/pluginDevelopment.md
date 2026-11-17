@@ -45,13 +45,23 @@ What does this statement technically mean?
 ### Jenkins queue architecture
 
 In Jenkins, `QueueItem` and `Queue.BuildableItem` represent
-different levels of specificity in the build queue:
+different levels of specificity in the build queue. Queued items
+typically spend most of their time in the blocked and/or buildable
+state, and quickly pass others to produce a `Run` (if they are not
+canceled before):
 - The `QueueItem` is a general-purpose Java interface representing
   an item in any stage of the Jenkins queue.
+- The `Queue.BlockedItem` is a concrete class (implementation)
+  representing an item that Jenkins has a reason not to run yet.
+  Even a free executor won't necessarily help. For example, jobs
+  may be configured to forbid concurrent runs, or additional plugins
+  like Build Blocker or Throttle Concurrent Builds can be used to
+  similar effect by implementing `QueueTaskDispatcher.canRun()`.
 - The `Queue.BuildableItem` is a concrete class (implementation)
   representing an item that has passed the initial waiting period
-  and is eligible for execution, but is still waiting for an
-  available executor.
+  and is eligible for execution (all scheduling conditions are
+  satisfied), but is still waiting for an available executor (e.g.
+  when there are no suitable workers are available at the moment).
 - There are other implementations of this interface, see the
   diagram below for standard ones.
 
@@ -135,3 +145,36 @@ including `onEnterWaiting`, `onLeaveWaiting`, `onEnterBlocked`,
 `onLeaveBlocked`, `onEnterBuildable` and `onLeaveBuildable` -- but
 this would probably require that you write a small plugin dedicated
 to this investigation.
+
+## Queue item comparison and sorting
+
+For general authoritative reference, see:
+
+* https://javadoc.jenkins-ci.org/hudson/model/queue/QueueSorter.html
+* https://javadoc.jenkins-ci.org/hudson/model/Queue.Item.html
+* https://javadoc.jenkins-ci.org/hudson/model/Queue.BlockedItem.html
+* https://javadoc.jenkins-ci.org/hudson/model/Queue.BuildableItem.html
+* https://javadoc.jenkins-ci.org/hudson/model/Queue.html
+* https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Comparator.html
+
+Given the different `QueueItem` family life cycles, Jenkins has dedicated
+`QueueSorter.sortBlockedItems()` and `QueueSorter.sortBuildableItems()`
+methods for stages they spend most time in.
+
+Jenkins has a special default queue item comparator,
+`QueueSorter.DEFAULT_BLOCKED_ITEM_COMPARATOR`, which sorts by time
+spent in the queue -- it compares Items based on `getInQueueSince()`
+and in turn according to `buildableStartMilliseconds` for items derived from
+[Queue.NotWaitingItem](https://javadoc.jenkins-ci.org/hudson/model/Queue.NotWaitingItem.html)
+class.
+
+This applies to collections of such classes as `BlockedItem` and `BuildableItem`
+stored in a `List`(-derived) class, but may not apply to different `QueueItem`
+family types, such as the `waitingList` which is actually backed by a `Set` in the
+[Queue](https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/model/Queue.java)
+class implementation.
+
+Jenkins allows to define extension points, including implementations
+of `QueueSorter`, which can be effectively stacked when multiple queue
+sorting plugins are installed, as well as default behavior -- see the
+`originalQueueSorter` in this plugin's implementation.

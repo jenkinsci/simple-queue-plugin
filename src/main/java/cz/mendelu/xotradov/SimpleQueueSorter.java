@@ -2,13 +2,30 @@ package cz.mendelu.xotradov;
 
 import hudson.model.Queue;
 import hudson.model.queue.QueueSorter;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
+import jenkins.model.queue.QueueItem;
 
 /**
- * The new sorter of Simple Queue plugin. Preserves the order of default jenkins sorter, when no desires have been made.
+ * The new sorter of Simple Queue plugin, based on sysadmin desires
+ * expressed via UI buttons (or equivalent API calls) for blocked
+ * and buildable queue items. This plugin deals with specifically
+ * {@link Queue.BlockedItem} and {@link Queue.BuildableItem} classes
+ * which both descend from {@link Queue.NotWaitingItem} and follow
+ * similar default ordering semantics based on initial scheduling time
+ * (per {@link Queue.NotWaitingItem#buildableStartMilliseconds}).
+ * Healthy Queue items do not normally spend significant time in
+ * other life cycle phases, so adding support for their (different)
+ * sorting approaches makes little sense.<br/>
+ *
+ * As a base-line default case, when no explicit desires have been made,
+ * it preserves the order of default Jenkins sorter (or a queue sorting
+ * plugin that would have been considered previously per registration
+ * order) by remembering the {@link #originalQueueSorter} reference.
  */
 @SuppressWarnings("unused")
 public class SimpleQueueSorter extends QueueSorter {
@@ -52,6 +69,40 @@ public class SimpleQueueSorter extends QueueSorter {
         //     so the expected desire for C D E A B (nor C D E B A technically)
         //     was not fulfilled UNTIL desires for A  vs. D and A vs. E got defined,
         //     and the move*() methods for arrays got more complex that initially.
+        Collections.sort(list, simpleQueueComparator);
+    }
+
+    @Override
+    public void sortBlockedItems(List<Queue.BlockedItem> list) {
+        if (this.originalQueueSorter != null) {
+            this.originalQueueSorter.sortBlockedItems(list);
+        }
+        Collections.sort(list, simpleQueueComparator);
+    }
+
+    /** Extension of this class over {@link QueueSorter}: a way to sort any
+     *  {@link Queue.NotWaitingItem} (e.g. covering both {@link Queue.BlockedItem}
+     *  and {@link Queue.BuildableItem}) in the same space of priority desires.
+     */
+    public void sortNotWaitingItems(List<Queue.NotWaitingItem> list) {
+        if (this.originalQueueSorter != null) {
+            List<Queue.BlockedItem> listBlocked = new ArrayList<>();
+            List<Queue.BuildableItem> listBuildable = new ArrayList<>();
+            for (QueueItem i : list) {
+                if (i == null)
+                    continue;
+                if (i instanceof Queue.BlockedItem)
+                    listBlocked.add((Queue.BlockedItem)i);
+                if (i instanceof Queue.BuildableItem) {
+                    listBuildable.add((Queue.BuildableItem)i);
+                }
+            }
+
+            this.originalQueueSorter.sortBlockedItems(listBlocked);
+            this.originalQueueSorter.sortBuildableItems(listBuildable);
+        }
+
+        // Follow up by applying our relative desire ordering:
         Collections.sort(list, simpleQueueComparator);
     }
 

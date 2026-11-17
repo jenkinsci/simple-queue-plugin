@@ -17,7 +17,7 @@ public class SimpleQueueComparatorTest {
     }
 
     @Test
-    public void compare() {
+    public void compareBuildableItems() {
         Queue.BuildableItem a = Mockito.mock(Queue.BuildableItem.class);
         when(a.getId()).thenReturn(1L);
         Queue.BuildableItem b = Mockito.mock(Queue.BuildableItem.class);
@@ -27,6 +27,32 @@ public class SimpleQueueComparatorTest {
         assertEquals(1, comparator.compare(a, b)); // second is more important
         comparator.addDesire(1, 2);
         assertEquals(-1, comparator.compare(a, b)); // first is more important
+    }
+
+    @Test
+    public void compareBlockedItems() {
+        Queue.BlockedItem a = Mockito.mock(Queue.BlockedItem.class);
+        when(a.getId()).thenReturn(10L);
+        Queue.BlockedItem b = Mockito.mock(Queue.BlockedItem.class);
+        when(b.getId()).thenReturn(20L);
+        assertEquals(0, comparator.compare(a, b)); // no desires
+        comparator.addDesire(20, 10);
+        assertEquals(1, comparator.compare(a, b)); // second is more important
+        comparator.addDesire(10, 20);
+        assertEquals(-1, comparator.compare(a, b)); // first is more important
+    }
+
+    @Test
+    public void compareMixedTypes() {
+        Queue.BuildableItem buildable = Mockito.mock(Queue.BuildableItem.class);
+        when(buildable.getId()).thenReturn(30L);
+        Queue.BlockedItem blocked = Mockito.mock(Queue.BlockedItem.class);
+        when(blocked.getId()).thenReturn(40L);
+        assertEquals(0, comparator.compare(buildable, blocked)); // no desires
+        comparator.addDesire(40, 30);
+        assertEquals(1, comparator.compare(buildable, blocked)); // blocked is more important
+        comparator.addDesire(30, 40);
+        assertEquals(-1, comparator.compare(buildable, blocked)); // buildable is more important
     }
 
     @Test

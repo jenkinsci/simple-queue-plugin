@@ -17,9 +17,19 @@ changing the queue order (required since plugin version 1.3.5).\
 You need the Manage permission plugin to configure that constraint:
 https://plugins.jenkins.io/manage-permission/
 
-This plugin orders buildable items only; for that reason
-[blocked](hhttps://stackoverflow.com/questions/56182285/difference-between-blocked-stuck-pending-buildable-jobs-in-jenkins)
+This plugin orders blocked and buildable items only; for that reason
+[stuck](https://stackoverflow.com/questions/56182285/difference-between-blocked-stuck-pending-buildable-jobs-in-jenkins)
 items do NOT have an arrow.
+
+NOTE: "Blocked" items are associated with some condition which currently
+prevents them from becoming "buildable" (those just waiting for an executor).
+The two types can share the ordering desires in terms that when the condition
+is no longer triggered, and the queue item transitions from "blocked" to
+"buildable", that priority can be practically applied. In other words,
+you can assign the highest priority to a blocked item, but it might sit
+in the queue for hours while lower-priority buildable items get CPU time;
+however as soon as it gets un-blocked, it would become the first in line
+to be executed.
 
 #### Documentation site
 

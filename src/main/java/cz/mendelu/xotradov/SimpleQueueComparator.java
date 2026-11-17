@@ -88,4 +88,76 @@ public class SimpleQueueComparator implements Comparator<Queue.Item> {
     public void resetDesires() {
         moveDesires.clear();
     }
+
+    /**
+     * Sorts the NotWaitingItem entries (BlockedItem and BuildableItem) within the given list
+     * in place, using the comparator's desires. Items that are not NotWaitingItem (e.g.
+     * WaitingItem) are left in their original position, with the sorted NotWaitingItems
+     * placed between the before/after groups.
+     * <p>
+     * The sort order matches the widget display: lower priority at the top (start of list),
+     * higher priority at the bottom (end of list). The comparator returns -1 for higher
+     * priority, so we reverse the arguments to achieve the display order.
+     *
+     * @param items the mutable list of queue items to sort in place
+     */
+    public void sortNotWaitingItems(List<Queue.Item> items) {
+        if (items.size() <= 1) {
+            return;
+        }
+
+        // Collect NotWaitingItems (BlockedItem and BuildableItem) for sorting
+        List<Queue.NotWaitingItem> notWaitingItems = new ArrayList<>();
+        for (Queue.Item item : items) {
+            if (item instanceof Queue.NotWaitingItem) {
+                notWaitingItems.add((Queue.NotWaitingItem) item);
+            }
+        }
+
+        if (notWaitingItems.isEmpty()) {
+            return;
+        }
+
+        // Sort NotWaitingItems using the comparator (reversed for display order)
+        notWaitingItems.sort((a, b) -> compare(b, a));
+
+        // Separate items into three groups:
+        // 1. Items before the first NotWaitingItem (waiting items, etc.)
+        // 2. NotWaitingItems (sorted)
+        // 3. Items after the last NotWaitingItem
+        List<Queue.Item> before = new ArrayList<>();
+        List<Queue.Item> after = new ArrayList<>();
+
+        int firstNotWaitingIndex = -1;
+        int lastNotWaitingIndex = -1;
+        for (int i = 0; i < items.size(); i++) {
+            Queue.Item item = items.get(i);
+            if (item instanceof Queue.NotWaitingItem) {
+                if (firstNotWaitingIndex == -1) {
+                    firstNotWaitingIndex = i;
+                }
+                lastNotWaitingIndex = i;
+            }
+        }
+
+        for (int i = 0; i < items.size(); i++) {
+            Queue.Item item = items.get(i);
+            if (item instanceof Queue.NotWaitingItem) {
+                continue;
+            }
+            if (firstNotWaitingIndex != -1 && i < firstNotWaitingIndex) {
+                before.add(item);
+            } else if (lastNotWaitingIndex != -1 && i > lastNotWaitingIndex) {
+                after.add(item);
+            } else {
+                before.add(item);
+            }
+        }
+
+        // Rebuild the items list: before + sorted NotWaitingItems + after
+        items.clear();
+        items.addAll(before);
+        items.addAll(notWaitingItems);
+        items.addAll(after);
+    }
 }

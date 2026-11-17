@@ -1192,60 +1192,8 @@ public class MoveActionWorker {
     @NonNull
     private Queue.Item[] getSortedItems(@NonNull Queue queue) {
         List<Queue.Item> items = new ArrayList<>(Arrays.asList(queue.getItems()));
-        SimpleQueueComparator comparator = SimpleQueueComparator.getInstance();
-
-        // Collect NotWaitingItems (BlockedItem and BuildableItem) for sorting
-        List<Queue.NotWaitingItem> notWaitingItems = new ArrayList<>();
-        for (Queue.Item item : items) {
-            if (item instanceof Queue.NotWaitingItem) {
-                notWaitingItems.add((Queue.NotWaitingItem) item);
-            }
-        }
-
-        if (notWaitingItems.isEmpty()) {
-            return items.toArray(new Queue.Item[0]);
-        }
-
-        // Sort NotWaitingItems using the comparator (same as widget: reversed compare)
-        notWaitingItems.sort((a, b) -> comparator.compare(b, a));
-
-        // Separate items into three groups
-        List<Queue.Item> before = new ArrayList<>();
-        List<Queue.Item> after = new ArrayList<>();
-
-        int firstNotWaitingIndex = -1;
-        int lastNotWaitingIndex = -1;
-        for (int i = 0; i < items.size(); i++) {
-            Queue.Item item = items.get(i);
-            if (item instanceof Queue.NotWaitingItem) {
-                if (firstNotWaitingIndex == -1) {
-                    firstNotWaitingIndex = i;
-                }
-                lastNotWaitingIndex = i;
-            }
-        }
-
-        for (int i = 0; i < items.size(); i++) {
-            Queue.Item item = items.get(i);
-            if (item instanceof Queue.NotWaitingItem) {
-                continue;
-            }
-            if (firstNotWaitingIndex != -1 && i < firstNotWaitingIndex) {
-                before.add(item);
-            } else if (lastNotWaitingIndex != -1 && i > lastNotWaitingIndex) {
-                after.add(item);
-            } else {
-                before.add(item);
-            }
-        }
-
-        // Rebuild: before + sorted NotWaitingItems + after
-        List<Queue.Item> sorted = new ArrayList<>();
-        sorted.addAll(before);
-        sorted.addAll(notWaitingItems);
-        sorted.addAll(after);
-
-        return sorted.toArray(new Queue.Item[0]);
+        SimpleQueueComparator.getInstance().sortNotWaitingItems(items);
+        return items.toArray(new Queue.Item[0]);
     }
 
     private void resort(Queue queue) {

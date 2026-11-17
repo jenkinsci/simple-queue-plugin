@@ -144,6 +144,31 @@ public class SimpleQueueSorterTest {
     }
 
     @Test
+    void preservesPreviousSortersPriorityAmongUnblockedItems() {
+        Queue.BuildableItem a = item(1);
+        Queue.BuildableItem b = item(2);
+        Queue.BuildableItem c = item(3);
+        Queue.BuildableItem d = item(4);
+        Queue.BuildableItem e = item(5);
+        List<Queue.BuildableItem> list = new ArrayList<>(List.of(a, b, c, d, e));
+        SimpleQueueSorter composed = new SimpleQueueSorter(new hudson.model.queue.QueueSorter() {
+            @Override
+            public void sortBuildableItems(List<Queue.BuildableItem> items) {
+                items.sort((first, second) -> Long.compare(second.getId(), first.getId()));
+            }
+        });
+
+        composed.sortBuildableItems(list);
+        assertEquals(List.of(e, d, c, b, a), list);
+
+        composed.getSimpleQueueComparator().addDesire(a.getId(), c.getId());
+        composed.getSimpleQueueComparator().addDesire(a.getId(), e.getId());
+        composed.sortBuildableItems(list);
+
+        assertEquals(List.of(d, b, a, e, c), list);
+    }
+
+    @Test
     void leavesInputIntactIfOriginalSorterFails() {
         List<Queue.BuildableItem> list = new ArrayList<>(List.of(item(1), item(2)));
         List<Queue.BuildableItem> original = new ArrayList<>(list);

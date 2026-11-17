@@ -199,6 +199,10 @@ ready together retain their relative automatic priority. Contradictory desires
 are best-effort: if no item is ready, the earliest automatic-order item actually
 on a cycle is emitted to break that cycle.
 
+The previous sorter's result is the input priority for this buildable-item pass;
+manual desires constrain that result. This does not guarantee the final order if
+another plugin subsequently replaces the active sorter or changes the list.
+
 ### Original comparator trace
 
 The following explanation is preserved verbatim from the former comparator-based

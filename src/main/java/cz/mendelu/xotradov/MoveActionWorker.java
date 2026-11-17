@@ -455,7 +455,7 @@ public class MoveActionWorker {
     }
 
     private void putABelowB(Queue.Item itemToBottom, Queue.Item oldBottomItem, Queue queue) {
-        Queue.Item[] items = queue.getItems();
+        Queue.Item[] items = getSortedItems(queue);
         List<Queue.Item> itemsC = getItemsBetween(itemToBottom, oldBottomItem, items);
         if (!isSorterSet) {
             setSorter(queue);
@@ -483,7 +483,7 @@ public class MoveActionWorker {
     private void putABelowB(Queue.Item[] itemsToBottom, Queue.Item oldBottomItem, Queue queue) {
         if (itemsToBottom.length < 2) return;
 
-        Queue.Item[] items = queue.getItems();
+        Queue.Item[] items = getSortedItems(queue);
         List<Queue.Item> itemsC = getItemsBetween(itemsToBottom, oldBottomItem, items);
         if (!isSorterSet) {
             setSorter(queue);
@@ -572,7 +572,7 @@ public class MoveActionWorker {
 
     @VisibleForTesting
     public void putAOnTopOfB(@NonNull Queue.Item itemA, @NonNull Queue.Item itemB, @NonNull Queue queue) {
-        Queue.Item[] items = queue.getItems();
+        Queue.Item[] items = getSortedItems(queue);
         List<Queue.Item> itemsC = getItemsBetween(itemA, itemB, items);
         if (!isSorterSet) {
             setSorter(queue);
@@ -601,7 +601,7 @@ public class MoveActionWorker {
     public void putAOnTopOfB(@NonNull Queue.Item[] itemsA, @NonNull Queue.Item itemB, @NonNull Queue queue) {
         if (itemsA.length < 2) return;
 
-        Queue.Item[] items = queue.getItems();
+        Queue.Item[] items = getSortedItems(queue);
         List<Queue.Item> itemsC = getItemsBetween(itemsA, itemB, items);
         if (!isSorterSet) {
             setSorter(queue);
@@ -731,7 +731,7 @@ public class MoveActionWorker {
      */
     @VisibleForTesting
     public void moveToTop(@NonNull Queue.Item itemA, @NonNull Queue queue) {
-        Queue.Item[] items = queue.getItems();
+        Queue.Item[] items = getSortedItems(queue);
         List<Queue.Item> itemsB = getItemsBefore(itemA, items);
         if (itemsB.size() != 0) {
             if (!isSorterSet) {
@@ -753,7 +753,7 @@ public class MoveActionWorker {
      */
     @VisibleForTesting
     public void moveToTop(@NonNull Queue.Item[] itemsA, @NonNull Queue queue) {
-        Queue.Item[] items = queue.getItems();
+        Queue.Item[] items = getSortedItems(queue);
         List<Queue.Item> itemsB = getItemsBeforeLast(itemsA, items);
         if (!itemsB.isEmpty()) {
             if (!isSorterSet) {
@@ -777,7 +777,7 @@ public class MoveActionWorker {
      */
     @VisibleForTesting
     public void moveUp(Queue.Item itemA, Queue queue) {
-        Queue.Item[] items = queue.getItems();
+        Queue.Item[] items = getSortedItems(queue);
         Queue.Item itemB = getItemBefore(itemA, items);
         if (itemB != null) {
             if (!isSorterSet) {
@@ -796,7 +796,7 @@ public class MoveActionWorker {
      */
     @VisibleForTesting
     public void moveUp(Queue.Item[] itemsA, Queue queue) {
-        Queue.Item[] items = queue.getItems();
+        Queue.Item[] items = getSortedItems(queue);
         Queue.Item itemBedge = getItemBefore(itemsA, items);
         List<Queue.Item> itemsB = getItemsBeforeLast(itemsA, items);
         if (!(itemsB.isEmpty())) {
@@ -824,7 +824,7 @@ public class MoveActionWorker {
 
     @VisibleForTesting
     public void moveDown(Queue.Item itemA, Queue queue) {
-        Queue.Item[] items = queue.getItems();
+        Queue.Item[] items = getSortedItems(queue);
         Queue.Item itemB = getItemAfter(itemA, items);
         if (itemB != null) {
             if (!isSorterSet) {
@@ -847,7 +847,7 @@ public class MoveActionWorker {
      */
     @VisibleForTesting
     public void moveDown(Queue.Item[] itemsA, Queue queue) {
-        Queue.Item[] items = queue.getItems();
+        Queue.Item[] items = getSortedItems(queue);
         Queue.Item itemBedge = getItemAfter(itemsA, items);
         List<Queue.Item> itemsB = getItemsAfterFirst(itemsA, items);
         if (!(itemsB.isEmpty())) {
@@ -878,7 +878,7 @@ public class MoveActionWorker {
      */
     @VisibleForTesting
     public void moveToBottom(@NonNull Queue.Item itemA, @NonNull Queue queue) {
-        Queue.Item[] items = queue.getItems();
+        Queue.Item[] items = getSortedItems(queue);
         List<Queue.Item> itemsB = getItemsAfter(itemA, items);
         if (itemsB.size() != 0) {
             if (!isSorterSet) {
@@ -900,7 +900,7 @@ public class MoveActionWorker {
      * */
     @VisibleForTesting
     public void moveToBottom(@NonNull Queue.Item[] itemsA, @NonNull Queue queue) {
-        Queue.Item[] items = queue.getItems();
+        Queue.Item[] items = getSortedItems(queue);
         List<Queue.Item> itemsB = getItemsAfterFirst(itemsA, items);
         if (itemsB.size() > 0) {
             if (!isSorterSet) {
@@ -1183,6 +1183,71 @@ public class MoveActionWorker {
         }
     }
 
+    /**
+     * Returns queue items sorted by the SimpleQueueComparator, matching the widget's display order.
+     * This is necessary because queue.getItems() returns items in Queue's internal order
+     * (waitingList, blockedProjects, buildables, pendings), which does not reflect user desires.
+     * The returned array has the same order as the widget: top = lower priority, bottom = higher priority.
+     */
+    @NonNull
+    private Queue.Item[] getSortedItems(@NonNull Queue queue) {
+        List<Queue.Item> items = new ArrayList<>(Arrays.asList(queue.getItems()));
+        SimpleQueueComparator comparator = SimpleQueueComparator.getInstance();
+
+        // Collect NotWaitingItems (BlockedItem and BuildableItem) for sorting
+        List<Queue.NotWaitingItem> notWaitingItems = new ArrayList<>();
+        for (Queue.Item item : items) {
+            if (item instanceof Queue.NotWaitingItem) {
+                notWaitingItems.add((Queue.NotWaitingItem) item);
+            }
+        }
+
+        if (notWaitingItems.isEmpty()) {
+            return items.toArray(new Queue.Item[0]);
+        }
+
+        // Sort NotWaitingItems using the comparator (same as widget: reversed compare)
+        notWaitingItems.sort((a, b) -> comparator.compare(b, a));
+
+        // Separate items into three groups
+        List<Queue.Item> before = new ArrayList<>();
+        List<Queue.Item> after = new ArrayList<>();
+
+        int firstNotWaitingIndex = -1;
+        int lastNotWaitingIndex = -1;
+        for (int i = 0; i < items.size(); i++) {
+            Queue.Item item = items.get(i);
+            if (item instanceof Queue.NotWaitingItem) {
+                if (firstNotWaitingIndex == -1) {
+                    firstNotWaitingIndex = i;
+                }
+                lastNotWaitingIndex = i;
+            }
+        }
+
+        for (int i = 0; i < items.size(); i++) {
+            Queue.Item item = items.get(i);
+            if (item instanceof Queue.NotWaitingItem) {
+                continue;
+            }
+            if (firstNotWaitingIndex != -1 && i < firstNotWaitingIndex) {
+                before.add(item);
+            } else if (lastNotWaitingIndex != -1 && i > lastNotWaitingIndex) {
+                after.add(item);
+            } else {
+                before.add(item);
+            }
+        }
+
+        // Rebuild: before + sorted NotWaitingItems + after
+        List<Queue.Item> sorted = new ArrayList<>();
+        sorted.addAll(before);
+        sorted.addAll(notWaitingItems);
+        sorted.addAll(after);
+
+        return sorted.toArray(new Queue.Item[0]);
+    }
+
     private void resort(Queue queue) {
         QueueSorter currentQueueSorter = queue.getSorter();
         if (currentQueueSorter == null)
@@ -1222,15 +1287,15 @@ public class MoveActionWorker {
         response.setContentType("text/plain; charset=UTF-8");
         response.setStatus(StaplerResponse2.SC_OK);
         PrintWriter writer = response.getWriter();
-        
+
         if (writer != null) {
             String buildableParam = request.getParameter("buildable");
             boolean onlyBuildable = buildableParam == null || !buildableParam.equalsIgnoreCase("false");
-            
+
             // Get view if specified
             String viewName = request.getParameter(VIEW_NAME_PARAM_NAME);
             View view = viewName != null ? jenkins.getView(viewName) : null;
-            
+
             // Get queue items - either from view or from full queue
             Collection<Queue.Item> queueItems;
             if (view != null && view.isFilterQueue()) {
@@ -1238,7 +1303,7 @@ public class MoveActionWorker {
             } else {
                 queueItems = Arrays.asList(queue.getItems());
             }
-            
+
             for (Queue.Item item : queueItems) {
                 if (item.task != null) {
                     if (onlyBuildable) {

@@ -58,6 +58,16 @@ public class SimpleQueueComparator implements Comparator<Queue.Item> {
         } else if (isFirstItemOverSecond(item2.getId(), item1.getId())) {
             return 1;
         } else {
+            // When no explicit desires are set, fall back to timestamp-based ordering.
+            // Do not include this part of code into isFirstItemOverSecond() itself!
+            // Both BlockedItem and BuildableItem extend NotWaitingItem which has
+            // buildableStartMilliseconds - the time the item exited the waiting phase.
+            // Older items (earlier timestamps) should have higher priority.
+            if (item1 instanceof Queue.NotWaitingItem && item2 instanceof Queue.NotWaitingItem) {
+                long ts1 = ((Queue.NotWaitingItem) item1).buildableStartMilliseconds;
+                long ts2 = ((Queue.NotWaitingItem) item2).buildableStartMilliseconds;
+                return Long.compare(ts1, ts2);
+            }
             return 0;
         }
     }

@@ -197,19 +197,20 @@ item can start building before a higher-priority item even becomes unblocked.
 
 ### The solution
 
-`PriorityEnforcingDispatcher` is a `QueueTaskDispatcher` extension (registered
-with `ordinal = Double.MAX_VALUE` to run last) that intercepts the blocked-to-buildable
-transition via `canRun(Queue.Item)`.
+The `PriorityEnforcingDispatcher` class is a `QueueTaskDispatcher` extension
+(registered with `ordinal = Double.MAX_VALUE` to run last) which intercepts
+the blocked-to-buildable transition via `canRun(Queue.Item)`.
 
 When an item is about to become buildable, it checks all currently blocked items.
 If any blocked item has higher priority according to `SimpleQueueComparator`, the
 item is held back with the message: *"Waiting for higher-priority items to become
-available"*.
+buildable"*.
 
 The priority check uses `SimpleQueueComparator`, which respects:
-1. **Explicit user desires** -- arrow-based moves (move up, move down, move to top/bottom)
+1. **Explicit user desires** -- arrow-based moves (move up, move down, fast
+   move to top/bottom)
 2. **Timestamp fallback** -- when no explicit desires exist, older items (earlier
-   `buildableStartMilliseconds`) have higher priority (FIFO behavior)
+   `buildableStartMilliseconds` values) have higher priority (FIFO behavior)
 
 ### Architecture
 

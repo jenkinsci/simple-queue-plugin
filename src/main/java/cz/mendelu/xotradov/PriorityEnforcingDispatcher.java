@@ -30,6 +30,7 @@ import jenkins.model.Jenkins;
 @Extension(ordinal = Double.MAX_VALUE)
 public class PriorityEnforcingDispatcher extends QueueTaskDispatcher {
     private static final Logger logger = Logger.getLogger(PriorityEnforcingDispatcher.class.getName());
+    static final String PRIORITY_ENFORCEMENT_MESSAGE = "Waiting for higher-priority items to become buildable";
 
     @Override
     public @CheckForNull CauseOfBlockage canRun(Queue.Item item) {
@@ -65,19 +66,41 @@ public class PriorityEnforcingDispatcher extends QueueTaskDispatcher {
                 // we should block the current item.
                 int cmp = comparator.compare(qi, item);
                 if (cmp < 0) {
-                    // The blocked item has higher priority — hold this item back.
-                    logger.log(
-                            Level.FINE,
-                            "Holding back item {0} (id={1}) because higher-priority blocked item {2} (id={3}) is still waiting",
-                            new Object[]{item.task.getFullDisplayName(), item.getId(),
-                                    qi.task.getFullDisplayName(), qi.getId()}
-                    );
-                    return new CauseOfBlockage() {
-                        @Override
-                        public String getShortDescription() {
-                            return "Waiting for higher-priority items to become available";
-                        }
-                    };
+                    // The blocked item has higher priority. However, we should only hold
+                    // this item back if the higher-priority item could realistically become
+                    // unblocked soon. If the higher-priority item is blocked by its own
+                    // constraint (label, resource, etc.) rather than by this dispatcher,
+                    // then it cannot become buildable right now anyway, so we should allow
+                    // the lower-priority item to proceed.
+                    //
+                    // We check: if the higher-priority item's causeOfBlockage is from this
+                    // dispatcher (priority enforcement), then we hold back. Otherwise, the
+                    // higher-priority item is blocked by something else and we let this item run.
+                    CauseOfBlockage cause = qi.getCauseOfBlockage();
+                    if (cause != null && PRIORITY_ENFORCEMENT_MESSAGE.equals(cause.getShortDescription())) {
+                        // The higher-priority item is blocked by this dispatcher -- hold back.
+                        logger.log(
+                                Level.FINE,
+                                "Holding back item {0} (id={1}) because higher-priority blocked item {2} (id={3}) is held by priority enforcement",
+                                new Object[]{item.task.getFullDisplayName(), item.getId(),
+                                        qi.task.getFullDisplayName(), qi.getId()}
+                        );
+                        return new CauseOfBlockage() {
+                            @Override
+                            public String getShortDescription() {
+                                return PRIORITY_ENFORCEMENT_MESSAGE;
+                            }
+                        };
+                    } else {
+                        // The higher-priority item is blocked by its own constraint (not by us).
+                        // It cannot become buildable right now, so allow this item to proceed.
+                        logger.log(
+                                Level.FINE,
+                                "Allowing item {0} (id={1}) to proceed because higher-priority item {2} (id={3}) is blocked by its own constraint",
+                                new Object[]{item.task.getFullDisplayName(), item.getId(),
+                                        qi.task.getFullDisplayName(), qi.getId()}
+                        );
+                    }
                 }
             }
         } catch (Exception e) {

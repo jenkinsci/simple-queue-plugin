@@ -117,16 +117,18 @@ public class PriorityEnforcingDispatcherTest {
     }
 
     /**
-     * Tests that the dispatcher's canRun() method correctly holds back a lower-priority
-     * item when a higher-priority item is still blocked.
+     * Tests that when a higher-priority item is blocked by its own constraint (not by
+     * priority enforcement), a lower-priority item is allowed to proceed.
      *
      * <p>Setup:
-     * - Two items: highPriority (blocked) and lowPriority (not blocked by TestBlockingDispatcher)
+     * - Two items: highPriority (blocked by TestBlockingDispatcher) and lowPriority (not blocked)
      * - lowPriority is moved to top (lowest priority) via MoveAction, making highPriority higher priority
-     * - Expected: canRun(lowPriority) returns non-null because highPriority is still blocked</p>
+     * - highPriority is blocked by TestBlockingDispatcher (not by PriorityEnforcingDispatcher)
+     * - Expected: canRun(lowPriority) returns null because highPriority is blocked by its own
+     *   constraint and cannot become buildable right now anyway</p>
      */
     @Test
-    public void lowerPriorityHeldBackByHigherPriorityBlocked(JenkinsRule jenkinsRule) throws Exception {
+    public void lowerPriorityProceedsWhenHigherPriorityBlockedByOwnConstraint(JenkinsRule jenkinsRule) throws Exception {
         helper = new TestHelper(jenkinsRule);
 
         jenkinsRule.jenkins.setNumExecutors(0);
@@ -163,14 +165,16 @@ public class PriorityEnforcingDispatcherTest {
         logger.info("Comparator (high vs low): " + cmp + " (negative means high has higher priority)");
         assertTrue(cmp < 0, "highPriority should have higher priority than lowPriority");
 
-        // Now test canRun() directly on the lowPriority item
+        // highPriority is blocked by TestBlockingDispatcher, not by PriorityEnforcingDispatcher.
+        // So lowPriority should be allowed to proceed because highPriority cannot become
+        // buildable right now anyway.
         PriorityEnforcingDispatcher dispatcher = new PriorityEnforcingDispatcher();
         CauseOfBlockage blockage = dispatcher.canRun(lowItem);
-        assertNotNull(blockage,
-                "canRun(lowPriority) should return non-null because highPriority is blocked " +
-                        "and has higher priority");
-        assertEquals("Waiting for higher-priority items to become available", blockage.getShortDescription());
-        logger.info("Blockage reason: " + blockage.getShortDescription());
+        assertNull(blockage,
+                "canRun(lowPriority) should return null because highPriority is blocked by its own " +
+                        "constraint (TestBlockingDispatcher), not by priority enforcement. " +
+                        "highPriority cannot become buildable right now, so lowPriority should proceed.");
+        logger.info("lowPriority is allowed to proceed");
     }
 
     /**
@@ -202,16 +206,19 @@ public class PriorityEnforcingDispatcherTest {
     }
 
     /**
-     * Tests that timestamp-based fallback ordering is respected by the dispatcher.
+     * Tests that when a higher-priority item is blocked by its own constraint,
+     * a lower-priority item is allowed to proceed even with timestamp-based ordering.
      *
      * <p>Setup:
-     * - Two items: olderItem (blocked) and newerItem (not blocked by TestBlockingDispatcher)
+     * - Two items: olderItem (blocked by TestBlockingDispatcher) and newerItem (not blocked)
      * - No explicit move desires — priority determined by timestamps
      * - olderItem has earlier timestamp, so higher fallback priority
-     * - Expected: canRun(newerItem) returns non-null because olderItem is still blocked</p>
+     * - olderItem is blocked by TestBlockingDispatcher (not by PriorityEnforcingDispatcher)
+     * - Expected: canRun(newerItem) returns null because olderItem is blocked by its own
+     *   constraint and cannot become buildable right now anyway</p>
      */
     @Test
-    public void timestampFallbackOrderingEnforced(JenkinsRule jenkinsRule) throws Exception {
+    public void timestampFallbackAllowsProceedWhenHigherPriorityBlockedByOwnConstraint(JenkinsRule jenkinsRule) throws Exception {
         helper = new TestHelper(jenkinsRule);
 
         jenkinsRule.jenkins.setNumExecutors(0);
@@ -246,12 +253,14 @@ public class PriorityEnforcingDispatcherTest {
                 " (negative means older has higher priority)");
         assertTrue(cmp < 0, "olderItem should have higher priority by timestamp");
 
-        // Test canRun() directly — newerItem should be held back
+        // olderItem is blocked by TestBlockingDispatcher, not by PriorityEnforcingDispatcher.
+        // So newerItem should be allowed to proceed.
         PriorityEnforcingDispatcher dispatcher = new PriorityEnforcingDispatcher();
         CauseOfBlockage blockage = dispatcher.canRun(newerQueueItem);
-        assertNotNull(blockage,
-                "canRun(newerItem) should return non-null because olderItem " +
-                        "(higher priority by timestamp) is still blocked");
+        assertNull(blockage,
+                "canRun(newerItem) should return null because olderItem is blocked by its own " +
+                        "constraint (TestBlockingDispatcher), not by priority enforcement. " +
+                        "olderItem cannot become buildable right now, so newerItem should proceed.");
     }
 
     /**

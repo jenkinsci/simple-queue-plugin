@@ -8,10 +8,20 @@ import java.util.logging.Logger;
 /**
  * The comparator backs up the SimpleQueueSorter.
  * It stores all current desires - acts of will concerning order of build items.
+ * @see #moveDesires
+ * @see #compare
  * @author Jaroslav Otradovec
  */
 public class SimpleQueueComparator implements Comparator<Queue.Item> {
     private static Logger logger = Logger.getLogger(SimpleQueueComparator.class.getName());
+
+    /** <ul>Record of relative priority desires.
+     *  <li>Keys are IDs of the "more important" queue items.</li>
+     *  <li>Values are lists of IDs of the "less important" queue items
+     *  (which should be prioritized to build after the "key").</li>
+     *  </ul>
+     * @see #compare
+     */
     private Hashtable<Long, List<Long>> moveDesires = new Hashtable<>();
 
     private static class SimpleQueueComparatorHolder {
@@ -35,8 +45,11 @@ public class SimpleQueueComparator implements Comparator<Queue.Item> {
     public boolean hasDesiresFor(long key) {
         return moveDesires.containsKey(key);
     }
+
     /**
-     * @return -1 when first is more important, 1 when second is more important, default 0
+     * {@inheritDoc}
+     * @return -1 when first queue item is recorded in {@link #moveDesires}
+     *         as more important, 1 when second is more important, default 0
      */
     @Override
     public int compare(Queue.Item item1, Queue.Item item2) {
@@ -49,18 +62,25 @@ public class SimpleQueueComparator implements Comparator<Queue.Item> {
         }
     }
 
-    private boolean isFirstItemOverSecond(long id0, long id1) {
-        if (moveDesires.get(id0) != null) {
-            return moveDesires.get(id0).contains(id1);
+    /** Desire-aware part of the {@link compare} logic.
+     * @param longA Id of desired more important {@link Queue.Item}
+     * @param longB Id of less important {@link Queue.Item}
+     * @return {@code true} if we have a recorded desire list for {@code longA}
+     *         AND that list contains {@code longB}; {@code false} otherwise
+     */
+    private boolean isFirstItemOverSecond(long longA, long longB) {
+        if (moveDesires.get(longA) != null) {
+            return moveDesires.get(longA).contains(longB);
         } else {
             return false;
         }
     }
 
     /**
-     * Add desire of order relationship between two items. If is present vice versa relation, it is deleted.
-     * @param longA Id of desired more important item
-     * @param longB Id of less important Queue.Item
+     * Add desire of order relationship between two items.
+     * If an opposite relation is present, it is deleted.
+     * @param longA Id of desired more important {@link Queue.Item}
+     * @param longB Id of less important {@link Queue.Item}
      */
     public void addDesire(long longA, long longB) {
         List<Long> bList;

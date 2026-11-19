@@ -179,6 +179,64 @@ of `QueueSorter`, which can be effectively stacked when multiple queue
 sorting plugins are installed, as well as default behavior -- see the
 `originalQueueSorter` in this plugin's implementation.
 
+## PriorityEnforcingDispatcher
+
+### The problem
+
+Jenkins Queue's `maintain()` method processes blocked items one by one.
+When a blocked item's constraint clears (`causeOfBlockage` becomes null),
+it is **immediately added to the buildables list** -- regardless of its
+priority relative to other still-blocked items. This means a lower-priority
+item can start building before a higher-priority item even becomes unblocked.
+
+**Example scenario:**
+- Item A (older, higher priority per arrow moves) is still blocked
+- Item B (newer, lower priority) becomes unblocked
+- B enters buildables alone and starts building, while A is still blocked
+- `sortBuildableItems()` has nothing to sort B against -- A is still blocked
+
+### The solution
+
+The `PriorityEnforcingDispatcher` class is a `QueueTaskDispatcher` extension
+(registered with `ordinal = Double.MAX_VALUE` to run last) which intercepts
+the blocked-to-buildable transition via `canRun(Queue.Item)`.
+
+When an item is about to become buildable, it checks all currently blocked items.
+If any blocked item has higher priority according to `SimpleQueueComparator`, the
+item is held back with the message: *"Waiting for higher-priority items to become
+buildable"*.
+
+The priority check uses `SimpleQueueComparator`, which respects:
+1. **Explicit user desires** -- arrow-based moves (move up, move down, fast
+   move to top/bottom)
+2. **Timestamp fallback** -- when no explicit desires exist, older items (earlier
+   `buildableStartMilliseconds` values) have higher priority (FIFO behavior)
+
+### Architecture
+
+```
+Queue.maintain()
+  +-> processes blocked items
+       +-> causeOfBlockage == null?
+            +-> QueueTaskDispatcher.canRun() chain
+                 +-> ... other dispatchers ...
+                 +-> PriorityEnforcingDispatcher.canRun()  (ordinal = MAX_VALUE)
+                      +-> checks all blocked items via SimpleQueueComparator
+                           +-> higher-priority blocked item found? -> hold back
+                           +-> no higher-priority blocked item? -> allow to run
+```
+
+### Key implementation details
+
+- `Queue.getBlockedItems()` is protected, so the dispatcher uses `queue.getItems()`
+  with `isBlocked()` filtering to find blocked items.
+- The comparator is transitive (A > B, B > C implies A > C), so circular blocking
+  cannot occur -- no deadlock risk.
+- Performance: for each item, it iterates through all queue items. For typical
+  small queues, this is negligible.
+- `WaitingItem` (items in quiet period) is not affected -- only the
+  `NotWaitingItem` sub-family (`BlockedItem` and `BuildableItem`) is checked.
+
 ## Manual queue ordering
 
 The previously registered sorter establishes the automatic order, usually by queue

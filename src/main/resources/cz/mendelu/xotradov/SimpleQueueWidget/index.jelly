@@ -96,13 +96,13 @@
                         <td class="pane" align="center" valign="middle">
                           <j:out value="${stuckContent}"/>
                           <j:if test="${waiting}">
-                              <l:icon src="symbol-time-outline plugin-ionicons-api" class="icon-sm" tooltip="${%This item is waiting for its quiet period to pass}: \n ${item.why}"/>
+                              <l:icon src="symbol-stopwatch-outline plugin-ionicons-api" class="icon-sm" tooltip="${%This item is waiting for its quiet period to pass}: \n ${item.why}"/>
                           </j:if>
                           <j:if test="${blocked}">
-                              <l:icon src="symbol-pause-outline plugin-ionicons-api" class="icon-sm" tooltip="${%This item is blocked and waiting for its conditions to clear before it becomes buildable}: \n ${item.why}"/>
+                              <l:icon src="symbol-pause-circle-outline plugin-ionicons-api" class="icon-sm" tooltip="${%This item is blocked and waiting for its conditions to clear before it becomes buildable}: \n ${item.why}"/>
                           </j:if>
                           <j:if test="${pending}">
-                              <l:icon src="symbol-play-outline plugin-ionicons-api" class="icon-sm" tooltip="${%This item is pending - a buildable about to start on an assigned executor}: \n ${item.why}"/>
+                              <l:icon src="symbol-play-forward-circle-outline plugin-ionicons-api" class="icon-sm" tooltip="${%This item is pending - a buildable about to start on an assigned executor}: \n ${item.why}"/>
                           </j:if>
                         </td>
                         <!-- start of normal button section

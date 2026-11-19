@@ -351,6 +351,84 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#jenkins-queue-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jenkins Queue overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Jenkins Queue overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jenkins-queue-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jenkins queue architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queue-investigation-and-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Queue investigation and troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#queue-item-comparison-and-sorting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Queue item comparison and sorting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#manual-queue-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manual queue ordering
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Manual queue ordering">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#original-comparator-trace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Original comparator trace
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -429,6 +507,84 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#jenkins-queue-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jenkins Queue overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Jenkins Queue overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#jenkins-queue-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jenkins queue architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queue-investigation-and-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Queue investigation and troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#queue-item-comparison-and-sorting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Queue item comparison and sorting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#manual-queue-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manual queue ordering
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Manual queue ordering">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#original-comparator-trace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Original comparator trace
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -475,6 +631,181 @@ To see the documentation before publishing use 'pip install mkdocs-material' fol
 <p><img alt="Sequence diagram" src="../images/basicUsageSequence.png" title="Simple Queue screenshot" />
 <img alt="Sequence diagram" src="../images/moveUpSequence.png" title="Simple Queue screenshot" />
 <img alt="Sequence diagram" src="../images/resetSequence.png" title="Simple Queue screenshot" /></p>
+<h2 id="jenkins-queue-overview">Jenkins Queue overview</h2>
+<blockquote>
+<p>This plugin supports management of "Buildable Queue Items".</p>
+</blockquote>
+<p>What does this statement technically mean?</p>
+<h3 id="jenkins-queue-architecture">Jenkins queue architecture</h3>
+<p>In Jenkins, <code>QueueItem</code> and <code>Queue.BuildableItem</code> represent
+different levels of specificity in the build queue. Queued items
+typically spend most of their time in the blocked and/or buildable
+state, and quickly pass others to produce a <code>Run</code> (if they are not
+canceled before):
+- The <code>QueueItem</code> is a general-purpose Java interface representing
+  an item in any stage of the Jenkins queue.
+- The <code>Queue.BlockedItem</code> is a concrete class (implementation)
+  representing an item that Jenkins has a reason not to run yet.
+  Even a free executor won't necessarily help. For example, jobs
+  may be configured to forbid concurrent runs, or additional plugins
+  like Build Blocker or Throttle Concurrent Builds can be used to
+  similar effect by implementing <code>QueueTaskDispatcher.canRun()</code>.
+- The <code>Queue.BuildableItem</code> is a concrete class (implementation)
+  representing an item that has passed the initial waiting period
+  and is eligible for execution (all scheduling conditions are
+  satisfied), but is still waiting for an available executor (e.g.
+  when there are no suitable workers are available at the moment).
+- There are other implementations of this interface, see the
+  diagram below for standard ones.</p>
+<p>Jenkins queue items move through several stages:</p>
+<pre><code>              schedule()
+                  |
+                  v
+             WaitingItem
+            (quiet period)
+                  |
+                  v
+             BlockedItem
+           (cannot run yet)
+                  |
+                  v
+            BuildableItem
+       (ready, needs executor)
+                  |
+                  v
+               Pending
+        (assigned to executor)
+                  |
+                  v
+               Running
+(a Run may appear, QueueItem is removed)
+</code></pre>
+<p>Note one subtlety: Jenkins queue objects are snapshots of a
+particular stage in an item's lifecycle. An item may transition
+between stages while your code is inspecting it. The queue ID is
+designed to remain stable across those transitions, and even into
+the resulting <code>Run</code> (see <code>Run.getQueueId()</code>). That makes the
+<code>QueueItem.getId()</code> particularly useful for tracking a build
+across its lifecycle.</p>
+<p>Also note that if a job requires multiple stages with a <code>node</code>
+(or <code>agent</code> in Declarative), additional QueueItems appear named
+like "part of BUILD_NAME". In case of simultaneous independent
+runs, or <code>parallel</code> step used to run pipeline stages on different
+nodes at the same time, you can end up with multiple such queue
+items -- each with a separate priority that can be managed with
+this plugin, and with its own conditions evaluated to go from
+"buildable" to "running" (e.g. as executors on those nodes pick
+up a new piece of work).</p>
+<h3 id="queue-investigation-and-troubleshooting">Queue investigation and troubleshooting</h3>
+<p>You can inspect the active queue using your Jenkins scripting console:</p>
+<pre><code class="language-groovy">import hudson.model.Queue
+import jenkins.model.Jenkins
+
+def now = System.currentTimeMillis()
+
+Jenkins.instance.queue.items.each { item -&gt;
+    def age = (now - item.inQueueSince) / 1000
+
+    println &quot;&quot;&quot;
+${item.task.fullDisplayName}
+  ID:        ${item.id}
+  Type:      ${item.class.name}
+  Age:       ${age}s
+  Blocked:   ${item.blocked}
+  Buildable: ${item.buildable}
+  Stuck:     ${item.stuck}
+  Why:       ${item.why}
+&quot;&quot;&quot;
+}
+</code></pre>
+<p>To monitor the time spent by objects in the queue, you could
+use existing metrics in the Metrics plugin, including
+<code>jenkins.task.blocked.duration</code>, <code>jenkins.task.buildable.duration</code>,
+<code>jenkins.task.waiting.duration</code> and <code>jenkins.task.queuing.duration</code>.</p>
+<p>Alternatively, you can dig through <code>QueueListener</code> callbacks
+exposed by Jenkins (e.g. if you suspect a systemic problem),
+including <code>onEnterWaiting</code>, <code>onLeaveWaiting</code>, <code>onEnterBlocked</code>,
+<code>onLeaveBlocked</code>, <code>onEnterBuildable</code> and <code>onLeaveBuildable</code> -- but
+this would probably require that you write a small plugin dedicated
+to this investigation.</p>
+<h2 id="queue-item-comparison-and-sorting">Queue item comparison and sorting</h2>
+<p>For general authoritative reference, see:</p>
+<ul>
+<li>https://javadoc.jenkins-ci.org/hudson/model/queue/QueueSorter.html</li>
+<li>https://javadoc.jenkins-ci.org/hudson/model/Queue.Item.html</li>
+<li>https://javadoc.jenkins-ci.org/hudson/model/Queue.BlockedItem.html</li>
+<li>https://javadoc.jenkins-ci.org/hudson/model/Queue.BuildableItem.html</li>
+<li>https://javadoc.jenkins-ci.org/hudson/model/Queue.html</li>
+<li>https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Comparator.html</li>
+</ul>
+<p>Given the different <code>QueueItem</code> family life cycles, Jenkins has dedicated
+<code>QueueSorter.sortBlockedItems()</code> and <code>QueueSorter.sortBuildableItems()</code>
+methods for stages they spend most time in.</p>
+<p>Jenkins has a special default queue item comparator,
+<code>QueueSorter.DEFAULT_BLOCKED_ITEM_COMPARATOR</code>, which sorts by time
+spent in the queue -- it compares Items based on <code>getInQueueSince()</code>
+and in turn according to <code>buildableStartMilliseconds</code> for items derived from
+<a href="https://javadoc.jenkins-ci.org/hudson/model/Queue.NotWaitingItem.html">Queue.NotWaitingItem</a>
+class.</p>
+<p>This applies to collections of such classes as <code>BlockedItem</code> and <code>BuildableItem</code>
+stored in a <code>List</code>(-derived) class, but may not apply to different <code>QueueItem</code>
+family types, such as the <code>waitingList</code> which is actually backed by a <code>Set</code> in the
+<a href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/model/Queue.java">Queue</a>
+class implementation.</p>
+<p>Jenkins allows to define extension points, including implementations
+of <code>QueueSorter</code>, which can be effectively stacked when multiple queue
+sorting plugins are installed, as well as default behavior -- see the
+<code>originalQueueSorter</code> in this plugin's implementation.</p>
+<h2 id="manual-queue-ordering">Manual queue ordering</h2>
+<p>The previously registered sorter establishes the automatic order, usually by queue
+entry timestamps. Manual moves record desires for the items they move past. These
+desires form a partial order: an item may need to precede another without having a
+preference relative to every other item.</p>
+<p><code>SimpleQueueSorter</code> applies those desires with one shared topological sort for
+buildable, blocked and mixed not-waiting lists. At each step it
+chooses the earliest item in automatic order whose predecessors have already been
+emitted. <code>SimpleQueueComparator</code> stores the desires; its <code>compare()</code> method is not
+used to order these lists.</p>
+<p>For automatic order <code>[C]3 [A]4 [D]5 [B]6 [E]7</code> and desire <code>7 =&gt; [6, 4]</code>, E must
+precede B and A. The ready items initially are C, D and E. Selecting C, then D,
+then E makes A and B ready, giving <code>[C]3 [D]5 [E]7 [A]4 [B]6</code>. Items that are
+ready together retain their relative automatic priority. Contradictory desires
+are best-effort: if no item is ready, the earliest automatic-order item actually
+on a cycle is emitted to break that cycle.</p>
+<p>The previous sorter's result is the input priority for each pass; manual desires
+constrain that result. For mixed lists, its blocked and buildable results are
+placed back into the original slots of each kind before applying desires across
+kinds. Jenkins does not provide a previous-sorter method for mixed lists. This
+does not guarantee the final order if another plugin subsequently replaces the
+active sorter or changes the list.</p>
+<h3 id="original-comparator-trace">Original comparator trace</h3>
+<p>The following explanation is preserved verbatim from the former comparator-based
+sorter. It documents the nonadjacent-desire bug fixed by the topological sort
+above; it is not a trace of the current algorithm.</p>
+<pre><code class="language-text">Note: the sort() method does not compare everyone to everyone,
+it passes the list comparing nearby couples and only steps back
+a bit if some two (neighboring!) entries were swapped. Example:
+  * list start: [C]3 [A]4 [D]5 [B]6 [E]7
+  * comparator desires, one: 7 (more important) =&gt; [6, 4]
+    so E should move to the middle of the list, A and B to the right?..
+  * comparisons as traced in debugger (steps into the compare()
+    method and its two args):
+    * Round 1, starting with C A D B E:
+      * A, C =&gt; 0
+      * D, A =&gt; 0
+      * B, D =&gt; 0
+      * E, B =&gt; -1 (E more important)
+    * List swapped (E vs B)
+    * Round 2, proceeding with C A D E B
+      * E, D =&gt; 0
+      * E, B =&gt; -1
+    * No more swapping (correct order of E vs B already),
+    * List remains C A D E B
+  * Note that [E]7 was never compared to A[4], they were too far away
+    so the expected desire for C D E A B (nor C D E B A technically)
+    was not fulfilled UNTIL desires for A  vs. D and A vs. E got defined,
+    and the move*() methods for arrays got more complex that initially.
+</code></pre>
 
 
 

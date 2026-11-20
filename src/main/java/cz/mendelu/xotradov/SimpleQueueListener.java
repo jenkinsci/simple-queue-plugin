@@ -9,7 +9,10 @@ import hudson.model.queue.QueueListener;
 public class SimpleQueueListener extends QueueListener {
     @Override
     public void onLeft(Queue.LeftItem li) {
-        SimpleQueueComparator.getInstance().removeDesireOfKey(li.getId());
+        long id = li.getId();
+        SimpleQueueComparator comparator = SimpleQueueComparator.getInstance();
+        comparator.removeDesireOfKey(id);
+        comparator.removeStaleReferences(id);
         super.onLeft(li);
     }
 }

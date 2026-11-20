@@ -94,6 +94,29 @@ public class SimpleQueueComparator implements Comparator<Queue.Item> {
         moveDesires.remove(id);
     }
 
+    /**
+     * Removes all references to the given item ID from the value lists of
+     * every desire entry.  This cleans up stale references left behind when a
+     * queue item departs (promoted to a build or canceled).  Entries whose
+     * value list becomes empty after removal are also removed to keep the map
+     * compact.
+     */
+    @VisibleForTesting
+    public void removeStaleReferences(long id) {
+        // Collect keys for removal first to avoid ConcurrentModificationException
+        // when removing empty entries from the Hashtable during iteration.
+        List<Long> emptyKeys = new ArrayList<>();
+        moveDesires.forEach((key, list) -> {
+            list.remove(Long.valueOf(id));
+            if (list.isEmpty()) {
+                emptyKeys.add(key);
+            }
+        });
+        for (Long key : emptyKeys) {
+            moveDesires.remove(key);
+        }
+    }
+
     @VisibleForTesting
     public void resetDesires() {
         moveDesires.clear();

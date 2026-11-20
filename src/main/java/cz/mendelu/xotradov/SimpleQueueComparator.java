@@ -35,6 +35,7 @@ public class SimpleQueueComparator implements Comparator<Queue.Item> {
     public boolean hasDesiresFor(long key) {
         return moveDesires.containsKey(key);
     }
+
     /**
      * @return -1 when first is more important, 1 when second is more important, default 0
      */
@@ -89,6 +90,15 @@ public class SimpleQueueComparator implements Comparator<Queue.Item> {
         }
     }
 
+    /**
+     * Forget that queue item {@code id} expressed any {@link #moveDesires}
+     * to have higher priority than other items.
+     *
+     * @param id
+     *
+     * @see #removeStaleReferences
+     * @see SimpleQueueListener#onLeft
+     */
     @VisibleForTesting
     public void removeDesireOfKey(long id) {
         moveDesires.remove(id);
@@ -96,10 +106,17 @@ public class SimpleQueueComparator implements Comparator<Queue.Item> {
 
     /**
      * Removes all references to the given item ID from the value lists of
-     * every desire entry.  This cleans up stale references left behind when a
-     * queue item departs (promoted to a build or canceled).  Entries whose
-     * value list becomes empty after removal are also removed to keep the map
-     * compact.
+     * every desire entry (when some other items desire higher priority
+     * than this item {@code id}).<br/>
+     *
+     * This cleans up stale references left behind when a queue item departs
+     * (promoted to a build or canceled).  Entries whose value list becomes
+     * empty after such removal are also removed to keep the map compact.
+     *
+     * @param id
+     *
+     * @see #removeDesireOfKey
+     * @see SimpleQueueListener#onLeft
      */
     @VisibleForTesting
     public void removeStaleReferences(long id) {
@@ -117,6 +134,13 @@ public class SimpleQueueComparator implements Comparator<Queue.Item> {
         }
     }
 
+    /**
+     * Clear the {@link #moveDesires} table, effectively falling back
+     * to system default ordering of items by timestamps (almost -- the
+     * blocked and buildable items are intermixed here, and separated
+     * in system default code), or whatever other Queue sorting plugins
+     * say.
+     */
     @VisibleForTesting
     public void resetDesires() {
         moveDesires.clear();
